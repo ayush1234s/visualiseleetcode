@@ -6,6 +6,7 @@ const cors = require("cors");
 
 const leetcodeRoutes = require("./routes/leetcodeRoutes");
 const codeforcesRoutes = require("./routes/codeforcesRoutes");
+const contestRoutes = require("./routes/contestRoutes");
 
 const app = express();
 
@@ -17,6 +18,7 @@ app.use(express.json());
 
 app.use("/api/leetcode", leetcodeRoutes);
 app.use("/api/codeforces", codeforcesRoutes);
+app.use("/api/contests", contestRoutes);
 
 app.get("/", (req, res) => {
   res.send("Backend running ✅");

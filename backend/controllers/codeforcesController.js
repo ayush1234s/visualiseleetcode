@@ -1,17 +1,29 @@
 const {
-  fetchCodeforcesSubmissions
+  fetchCodeforcesSubmissions,
+  fetchCodeforcesContests
 } = require("../utils/codeforcesClient");
 
-const getCodeforcesSubmissions = async (req, res) => {
+exports.getCodeforcesSubmissions = async (req, res) => {
   try {
-    const username = req.params.username;
-    const data = await fetchCodeforcesSubmissions(username);
-    res.json(data);
+    const data = await fetchCodeforcesSubmissions(req.params.username);
+    res.json(Array.isArray(data) ? data : []);
   } catch (err) {
-    res.status(500).json({ error: "Failed to fetch Codeforces data" });
+    console.error("Codeforces User Error:", err.message);
+    res.json([]);
   }
 };
 
-module.exports = {
-  getCodeforcesSubmissions
+exports.getCodeforcesContests = async (req, res) => {
+  try {
+    const data = await fetchCodeforcesContests();
+
+    if (!Array.isArray(data)) {
+      return res.json([]);
+    }
+
+    res.json(data);
+  } catch (err) {
+    console.error("Codeforces Contest Error:", err.message);
+    res.json([]);
+  }
 };

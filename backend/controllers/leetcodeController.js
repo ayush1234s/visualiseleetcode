@@ -1,40 +1,52 @@
 const {
   fetchUserStats,
   fetchDailyProblem,
-  fetchRecentSubmissions
+  fetchRecentSubmissions,
+  fetchLeetCodeContests
 } = require("../utils/leetcodeClient");
 
-const getUserDetails = async (req, res) => {
+exports.getUserDetails = async (req, res) => {
   try {
-    const username = req.params.username;
-    const data = await fetchUserStats(username);
-    res.json(data);
+    const data = await fetchUserStats(req.params.username);
+    res.json(data || {});
   } catch (err) {
-    res.status(500).json({ error: "Failed to fetch LeetCode data" });
+    console.error("LeetCode User Error:", err.message);
+    res.json({});
   }
 };
 
-const getDailyProblem = async (req, res) => {
+exports.getDailyProblem = async (req, res) => {
   try {
     const data = await fetchDailyProblem();
-    res.json(data);
+    res.json(data || {});
   } catch (err) {
-    res.status(500).json({ error: "Failed to fetch Daily Problem" });
+    console.error("LeetCode Daily Error:", err.message);
+    res.json({});
   }
 };
 
-const getRecentSubmissions = async (req, res) => {
+exports.getRecentSubmissions = async (req, res) => {
   try {
-    const username = req.params.username;
-    const data = await fetchRecentSubmissions(username);
-    res.json(data);
+    const data = await fetchRecentSubmissions(req.params.username);
+    res.json(Array.isArray(data) ? data : []);
   } catch (err) {
-    res.status(500).json({ error: "Failed to fetch submissions" });
+    console.error("LeetCode Submission Error:", err.message);
+    res.json([]);
   }
 };
 
-module.exports = {
-  getUserDetails,
-  getDailyProblem,
-  getRecentSubmissions
+exports.getLeetCodeContests = async (req, res) => {
+  try {
+    const data = await fetchLeetCodeContests();
+
+    // ✅ Always return array
+    if (!Array.isArray(data)) {
+      return res.json([]);
+    }
+
+    res.json(data);
+  } catch (err) {
+    console.error("LeetCode Contest Error:", err.message);
+    res.json([]); // Never send error object
+  }
 };
