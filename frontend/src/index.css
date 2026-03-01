@@ -1,0 +1,28 @@
+@import "tailwindcss";
+body {
+  background-color: #0d1117;
+  color: white;
+  background-image: radial-gradient(circle at 20% 20%, rgba(88,166,255,0.1), transparent 40%),
+                    radial-gradient(circle at 80% 0%, rgba(0,255,170,0.05), transparent 40%);
+  background-attachment: fixed;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.2s ease-out;
+}
+
+.react-calendar-heatmap text {
+  fill: #8b949e;
+  font-size: 10px;
+}

@@ -1,0 +1,20 @@
+# Node
+node_modules/
+package-lock.json
+yarn.lock
+
+# Environment
+.env
+frontend/.env
+backend/.env
+
+# Logs
+*.log
+
+# Build
+dist/
+build/
+
+# OS
+.DS_Store
+Thumbs.db
