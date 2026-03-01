@@ -83,7 +83,6 @@ export default function Home() {
           <h2 className="text-lg font-semibold mb-6 text-white">
             LeetCode Activity
           </h2>
-
           <Heatmap
             platform="leetcode"
             data={
@@ -100,7 +99,6 @@ export default function Home() {
           <h2 className="text-lg font-semibold mb-6 text-white">
             Codeforces Activity
           </h2>
-
           <Heatmap
             platform="codeforces"
             data={
@@ -125,7 +123,7 @@ export default function Home() {
         {/* LEFT SIDE */}
         <div className="space-y-8">
 
-          {/* PROGRESS */}
+          {/* PROGRESS CARD */}
           <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-6 
                           shadow-md hover:shadow-xl hover:-translate-y-1 
                           transition-all duration-300">
@@ -140,10 +138,10 @@ export default function Home() {
                   <button
                     key={tab}
                     onClick={() => setProgressTab(tab)}
-                    className={`px-3 py-1 text-sm rounded-md transition ${
+                    className={`relative overflow-hidden px-4 py-1 text-sm rounded-md border transition-all duration-300 ${
                       progressTab === tab
-                        ? "bg-white text-black font-medium"
-                        : "text-gray-400 hover:text-white"
+                        ? "bg-white text-black border-white"
+                        : "border-[#30363d] text-gray-400 hover:text-white"
                     }`}
                   >
                     {tab}
@@ -159,31 +157,80 @@ export default function Home() {
                     Please add your LeetCode username.
                   </p>
                 ) : (
-                  <div className="space-y-5">
-                    {["easy", "medium", "hard"].map((level) => (
-                      <div key={level}>
-                        <div className="flex justify-between text-sm mb-2">
-                          <span className="capitalize text-gray-300">
-                            {level}
-                          </span>
-                          <span className="text-white">
-                            {leetcodeData?.[level]}
-                          </span>
-                        </div>
+                  <div className="space-y-6">
 
-                        <div className="w-full bg-[#0d1117] h-2 rounded-full">
-                          <div
-                            className="h-2 bg-white rounded-full transition-all duration-700"
-                            style={{
-                              width: `${percent(
-                                leetcodeData?.[level],
-                                totalLC
-                              )}%`,
-                            }}
-                          />
-                        </div>
+                    {/* EASY */}
+                    <div>
+                      <div className="flex justify-between text-sm mb-2">
+                        <span className="text-green-400 font-medium">
+                          Easy
+                        </span>
+                        <span className="text-white">
+                          {leetcodeData?.easy}
+                        </span>
                       </div>
-                    ))}
+
+                      <div className="w-full bg-[#0d1117] h-2 rounded-full">
+                        <div
+                          className="h-2 bg-green-500 rounded-full transition-all duration-700"
+                          style={{
+                            width: `${percent(
+                              leetcodeData?.easy,
+                              totalLC
+                            )}%`,
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* MEDIUM */}
+                    <div>
+                      <div className="flex justify-between text-sm mb-2">
+                        <span className="text-yellow-400 font-medium">
+                          Medium
+                        </span>
+                        <span className="text-white">
+                          {leetcodeData?.medium}
+                        </span>
+                      </div>
+
+                      <div className="w-full bg-[#0d1117] h-2 rounded-full">
+                        <div
+                          className="h-2 bg-yellow-500 rounded-full transition-all duration-700"
+                          style={{
+                            width: `${percent(
+                              leetcodeData?.medium,
+                              totalLC
+                            )}%`,
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* HARD */}
+                    <div>
+                      <div className="flex justify-between text-sm mb-2">
+                        <span className="text-red-400 font-medium">
+                          Hard
+                        </span>
+                        <span className="text-white">
+                          {leetcodeData?.hard}
+                        </span>
+                      </div>
+
+                      <div className="w-full bg-[#0d1117] h-2 rounded-full">
+                        <div
+                          className="h-2 bg-red-500 rounded-full transition-all duration-700"
+                          style={{
+                            width: `${percent(
+                              leetcodeData?.hard,
+                              totalLC
+                            )}%`,
+                          }}
+                        />
+                      </div>
+                    </div>
+
                   </div>
                 )}
               </>
@@ -248,9 +295,9 @@ export default function Home() {
                   href={dailyProblem.link}
                   target="_blank"
                   rel="noreferrer"
-                  className="block text-center bg-white text-black 
-                             hover:bg-gray-200 transition 
-                             py-2 rounded-lg font-medium"
+                  className="inline-block border border-white text-white 
+                             px-6 py-2 rounded-lg transition-all duration-300
+                             hover:bg-white hover:text-black"
                 >
                   Solve Now
                 </a>
@@ -261,7 +308,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* RIGHT SIDE - RECENT ACTIVITY */}
+        {/* RIGHT SIDE (Recent Activity stays same as previous clean version) */}
         <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-6 
                         shadow-md hover:shadow-xl hover:-translate-y-1 
                         transition-all duration-300">
@@ -288,20 +335,35 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="space-y-3 max-h-[420px] overflow-y-auto pr-2">
+          <div className="space-y-4 max-h-[460px] overflow-y-auto no-scrollbar scroll-smooth pr-1">
+
             {(recentTab === "all" || recentTab === "leetcode") &&
               leetcodeSubs.map((s, i) => (
                 <div
                   key={`lc-${i}`}
                   className="bg-[#0d1117] border border-[#30363d] 
-                             rounded-lg p-3 hover:bg-[#1f2937] transition"
+                             rounded-xl p-4 transition-all duration-300 
+                             hover:border-white hover:shadow-lg hover:-translate-y-1"
                 >
-                  <p className="text-sm text-white">
+                  <p className="text-sm font-medium text-white">
                     {s.title}
                   </p>
-                  <p className="text-xs text-gray-400">
-                    {s.statusDisplay} • {s.lang}
-                  </p>
+
+                  <div className="flex items-center gap-3 mt-2 text-xs text-gray-400">
+                    <span className="px-2 py-0.5 rounded-md bg-[#161b22] border border-[#30363d]">
+                      {s.lang}
+                    </span>
+
+                    <span
+                      className={`px-2 py-0.5 rounded-md ${
+                        s.statusDisplay === "Accepted"
+                          ? "bg-green-900 text-green-400"
+                          : "bg-red-900 text-red-400"
+                      }`}
+                    >
+                      {s.statusDisplay}
+                    </span>
+                  </div>
                 </div>
               ))}
 
@@ -310,16 +372,31 @@ export default function Home() {
                 <div
                   key={`cf-${i}`}
                   className="bg-[#0d1117] border border-[#30363d] 
-                             rounded-lg p-3 hover:bg-[#1f2937] transition"
+                             rounded-xl p-4 transition-all duration-300 
+                             hover:border-white hover:shadow-lg hover:-translate-y-1"
                 >
-                  <p className="text-sm text-white">
+                  <p className="text-sm font-medium text-white">
                     {s.problem?.name}
                   </p>
-                  <p className="text-xs text-gray-400">
-                    {s.verdict} • {s.programmingLanguage}
-                  </p>
+
+                  <div className="flex items-center gap-3 mt-2 text-xs text-gray-400">
+                    <span className="px-2 py-0.5 rounded-md bg-[#161b22] border border-[#30363d]">
+                      {s.programmingLanguage}
+                    </span>
+
+                    <span
+                      className={`px-2 py-0.5 rounded-md ${
+                        s.verdict === "OK"
+                          ? "bg-green-900 text-green-400"
+                          : "bg-red-900 text-red-400"
+                      }`}
+                    >
+                      {s.verdict}
+                    </span>
+                  </div>
                 </div>
               ))}
+
           </div>
         </div>
 
