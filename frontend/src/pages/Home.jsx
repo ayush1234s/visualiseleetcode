@@ -72,48 +72,65 @@ export default function Home() {
     total ? ((val / total) * 100).toFixed(1) : 0;
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-12 space-y-12">
+    <div className="max-w-7xl mx-auto px-6 py-14 space-y-12">
 
-      {/* HEATMAP ROW */}
+      {/* ================= HEATMAP ================= */}
       <div className="grid lg:grid-cols-2 gap-8">
-        <Heatmap
-          platform="leetcode"
-          data={
-            leetcodeData?.calendar
-              ? JSON.parse(leetcodeData.calendar)
-              : {}
-          }
-        />
 
-        <Heatmap
-          platform="codeforces"
-          data={
-            cfSubs.length
-              ? cfSubs.reduce((acc, sub) => {
-                  const day = Math.floor(
-                    new Date(sub.creationTimeSeconds * 1000)
-                      .setHours(0, 0, 0, 0) / 1000
-                  );
-                  acc[day] = (acc[day] || 0) + 1;
-                  return acc;
-                }, {})
-              : {}
-          }
-        />
+        <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-6 
+                        shadow-md hover:shadow-xl hover:-translate-y-1 
+                        transition-all duration-300">
+          <h2 className="text-lg font-semibold mb-6 text-white">
+            LeetCode Activity
+          </h2>
+
+          <Heatmap
+            platform="leetcode"
+            data={
+              leetcodeData?.calendar
+                ? JSON.parse(leetcodeData.calendar)
+                : {}
+            }
+          />
+        </div>
+
+        <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-6 
+                        shadow-md hover:shadow-xl hover:-translate-y-1 
+                        transition-all duration-300">
+          <h2 className="text-lg font-semibold mb-6 text-white">
+            Codeforces Activity
+          </h2>
+
+          <Heatmap
+            platform="codeforces"
+            data={
+              cfSubs.length
+                ? cfSubs.reduce((acc, sub) => {
+                    const day = Math.floor(
+                      new Date(sub.creationTimeSeconds * 1000)
+                        .setHours(0, 0, 0, 0) / 1000
+                    );
+                    acc[day] = (acc[day] || 0) + 1;
+                    return acc;
+                  }, {})
+                : {}
+            }
+          />
+        </div>
       </div>
 
-      {/* SECOND ROW */}
+      {/* ================= SECOND ROW ================= */}
       <div className="grid lg:grid-cols-2 gap-8">
 
         {/* LEFT SIDE */}
         <div className="space-y-8">
 
-          {/* PROGRESS CARD */}
-          <div className="bg-gradient-to-br from-[#161b22] to-[#0d1117] 
-                          border border-[#30363d] rounded-2xl p-6 
-                          shadow-xl hover:shadow-2xl transition">
+          {/* PROGRESS */}
+          <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-6 
+                          shadow-md hover:shadow-xl hover:-translate-y-1 
+                          transition-all duration-300">
 
-            <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg font-semibold text-white">
                 Progress Overview
               </h2>
@@ -125,7 +142,7 @@ export default function Home() {
                     onClick={() => setProgressTab(tab)}
                     className={`px-3 py-1 text-sm rounded-md transition ${
                       progressTab === tab
-                        ? "bg-blue-600 text-white shadow-md"
+                        ? "bg-white text-black font-medium"
                         : "text-gray-400 hover:text-white"
                     }`}
                   >
@@ -145,32 +162,18 @@ export default function Home() {
                   <div className="space-y-5">
                     {["easy", "medium", "hard"].map((level) => (
                       <div key={level}>
-                        <div className="flex justify-between text-sm mb-1">
-                          <span
-                            className={
-                              level === "easy"
-                                ? "text-green-400"
-                                : level === "medium"
-                                ? "text-yellow-400"
-                                : "text-red-400"
-                            }
-                          >
+                        <div className="flex justify-between text-sm mb-2">
+                          <span className="capitalize text-gray-300">
                             {level}
                           </span>
-                          <span className="text-gray-300">
+                          <span className="text-white">
                             {leetcodeData?.[level]}
                           </span>
                         </div>
 
-                        <div className="w-full bg-[#0d1117] h-2 rounded-full overflow-hidden">
+                        <div className="w-full bg-[#0d1117] h-2 rounded-full">
                           <div
-                            className={`h-2 rounded-full transition-all duration-700 ${
-                              level === "easy"
-                                ? "bg-green-500"
-                                : level === "medium"
-                                ? "bg-yellow-500"
-                                : "bg-red-500"
-                            }`}
+                            className="h-2 bg-white rounded-full transition-all duration-700"
                             style={{
                               width: `${percent(
                                 leetcodeData?.[level],
@@ -195,7 +198,7 @@ export default function Home() {
                 ) : (
                   <div className="text-gray-300 text-sm">
                     Total Submissions:{" "}
-                    <span className="text-white font-semibold">
+                    <span className="text-white font-semibold text-lg">
                       {cfSubs.length}
                     </span>
                   </div>
@@ -205,11 +208,11 @@ export default function Home() {
           </div>
 
           {/* DAILY PROBLEM */}
-          <div className="bg-gradient-to-br from-[#161b22] to-[#0d1117] 
-                          border border-[#30363d] rounded-2xl p-6 
-                          shadow-xl hover:border-blue-500 transition">
+          <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-6 
+                          shadow-md hover:shadow-xl hover:-translate-y-1 
+                          transition-all duration-300">
 
-            <h2 className="text-lg font-semibold text-blue-400 mb-4">
+            <h2 className="text-lg font-semibold text-white mb-5">
               LeetCode Problem of the Day
             </h2>
 
@@ -223,29 +226,18 @@ export default function Home() {
                   {dailyProblem.title}
                 </h3>
 
-                <div className="flex items-center gap-3 text-sm">
-                  <span
-                    className={`px-2 py-1 rounded-md text-xs ${
-                      dailyProblem.difficulty === "Easy"
-                        ? "bg-green-900 text-green-400"
-                        : dailyProblem.difficulty === "Medium"
-                        ? "bg-yellow-900 text-yellow-400"
-                        : "bg-red-900 text-red-400"
-                    }`}
-                  >
-                    {dailyProblem.difficulty}
-                  </span>
-
-                  <span className="text-gray-400">
-                    {dailyProblem.acceptanceRate}%
-                  </span>
+                <div className="flex items-center gap-3 text-sm text-gray-400">
+                  <span>{dailyProblem.difficulty}</span>
+                  <span>•</span>
+                  <span>{dailyProblem.acceptanceRate}%</span>
                 </div>
 
                 <div className="flex flex-wrap gap-2">
                   {dailyProblem.tags.map((tag, i) => (
                     <span
                       key={i}
-                      className="bg-[#0d1117] border border-[#30363d] px-2 py-1 text-xs rounded-md text-gray-300"
+                      className="bg-[#0d1117] border border-[#30363d] 
+                                 px-2 py-1 text-xs rounded-md text-gray-300"
                     >
                       {tag}
                     </span>
@@ -256,26 +248,25 @@ export default function Home() {
                   href={dailyProblem.link}
                   target="_blank"
                   rel="noreferrer"
-                  className="block text-center bg-blue-600 hover:bg-blue-500 
-                             transition py-2 rounded-lg text-white font-medium"
+                  className="block text-center bg-white text-black 
+                             hover:bg-gray-200 transition 
+                             py-2 rounded-lg font-medium"
                 >
                   Solve Now
                 </a>
               </div>
             ) : (
-              <p className="text-gray-400 text-sm">
-                Loading...
-              </p>
+              <p className="text-gray-400 text-sm">Loading...</p>
             )}
           </div>
         </div>
 
         {/* RIGHT SIDE - RECENT ACTIVITY */}
-        <div className="bg-gradient-to-br from-[#161b22] to-[#0d1117] 
-                        border border-[#30363d] rounded-2xl p-6 
-                        shadow-xl hover:shadow-2xl transition">
+        <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-6 
+                        shadow-md hover:shadow-xl hover:-translate-y-1 
+                        transition-all duration-300">
 
-          <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-semibold text-white">
               Recent Activity
             </h2>
@@ -287,7 +278,7 @@ export default function Home() {
                   onClick={() => setRecentTab(tab)}
                   className={`px-3 py-1 text-sm rounded-md transition ${
                     recentTab === tab
-                      ? "bg-blue-600 text-white shadow-md"
+                      ? "bg-white text-black font-medium"
                       : "text-gray-400 hover:text-white"
                   }`}
                 >
@@ -298,14 +289,12 @@ export default function Home() {
           </div>
 
           <div className="space-y-3 max-h-[420px] overflow-y-auto pr-2">
-            {(recentTab === "all" ||
-              recentTab === "leetcode") &&
+            {(recentTab === "all" || recentTab === "leetcode") &&
               leetcodeSubs.map((s, i) => (
                 <div
                   key={`lc-${i}`}
                   className="bg-[#0d1117] border border-[#30363d] 
-                             rounded-lg p-3 hover:border-blue-500 
-                             transition"
+                             rounded-lg p-3 hover:bg-[#1f2937] transition"
                 >
                   <p className="text-sm text-white">
                     {s.title}
@@ -316,14 +305,12 @@ export default function Home() {
                 </div>
               ))}
 
-            {(recentTab === "all" ||
-              recentTab === "codeforces") &&
+            {(recentTab === "all" || recentTab === "codeforces") &&
               cfSubs.map((s, i) => (
                 <div
                   key={`cf-${i}`}
                   className="bg-[#0d1117] border border-[#30363d] 
-                             rounded-lg p-3 hover:border-purple-500 
-                             transition"
+                             rounded-lg p-3 hover:bg-[#1f2937] transition"
                 >
                   <p className="text-sm text-white">
                     {s.problem?.name}

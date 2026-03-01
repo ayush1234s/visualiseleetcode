@@ -26,3 +26,12 @@ body {
   fill: #8b949e;
   font-size: 10px;
 }
+/* Hide scrollbar but allow scroll */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
