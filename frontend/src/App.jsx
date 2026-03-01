@@ -4,8 +4,10 @@ import { Toaster } from "react-hot-toast";
 import Navbar from "./components/Navbar";
 
 
+
 import Home from "./pages/Home";
 import Settings from "./pages/Settings";
+import Footer from "./components/Footer";
 
 function App() {
   return (
@@ -47,7 +49,7 @@ function App() {
       </main>
 
       {/* Footer */}
-     
+     <Footer />
 
     </div>
   );
