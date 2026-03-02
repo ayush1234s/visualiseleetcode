@@ -74,6 +74,16 @@ export default function Home() {
   return (
     <div className="max-w-7xl mx-auto px-6 py-14 space-y-12">
 
+{/* HEADER */}
+        <div className="space-y-2">
+          <h1 className="text-3xl font-semibold text-white">
+            Dashboard
+          </h1>
+          <p className="text-gray-400">
+            See Your Coding Activity At A Glance.
+          </p>
+        </div>
+
       {/* ================= HEATMAP ================= */}
       <div className="grid lg:grid-cols-2 gap-8">
 

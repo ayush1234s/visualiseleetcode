@@ -16,7 +16,8 @@ const navItems = [
   { name: "Visualize", path: "/visualize", icon: Brain },
   { name: "Revision", path: "/revision", icon: BookOpen },
   { name: "Daily Contest", path: "/daily-contest", icon: Calendar },
-  { name: "Settings", path: "/settings", icon: Settings },
+  { name: "Profile Settings", path: "/settings", icon: Settings },
+  { name: "Help", path: "/help", icon: BookOpen },
 ];
 
 export default function Navbar() {

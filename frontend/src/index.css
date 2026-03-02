@@ -1,6 +1,6 @@
 @import "tailwindcss";
 body {
-  background-color: #0d1117;
+  background-color: #000000;
   color: white;
   background-image: radial-gradient(circle at 20% 20%, rgba(88,166,255,0.1), transparent 40%),
                     radial-gradient(circle at 80% 0%, rgba(0,255,170,0.05), transparent 40%);

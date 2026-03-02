@@ -7,6 +7,7 @@ import Footer from "./components/Footer/Footer";
 import Home from "./pages/Home/Home";
 import Settings from "./pages/Settings/Settings";
 import DailyContest from "./pages/DailyContest/DailyContest";
+import Help from "./pages/Help/help";
 
 
 function App() {
@@ -34,6 +35,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/daily-contest" element={<DailyContest />} />
+          <Route path="/help" element={<Help />} />
            </Routes>
       </main>
 
