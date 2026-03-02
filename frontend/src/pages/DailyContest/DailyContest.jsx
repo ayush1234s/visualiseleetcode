@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { fetchAllContests } from "../services/contestService";
+import { fetchAllContests } from "../../services/contestService";
 
 export default function DailyContest() {
   const [contests, setContests] = useState([]);
@@ -26,13 +26,13 @@ export default function DailyContest() {
 
     if (platform !== "all") {
       result = result.filter(
-        (c) => c.platform.toLowerCase() === platform
+        (c) => c.platform?.toLowerCase() === platform
       );
     }
 
     if (status !== "all") {
       result = result.filter(
-        (c) => c.status.toLowerCase() === status
+        (c) => c.status?.toLowerCase() === status
       );
     }
 
@@ -49,14 +49,8 @@ export default function DailyContest() {
     return Math.floor(seconds / 60);
   };
 
-  /* ================= GOOGLE CALENDAR FIXED LOGIC ================= */
-
   const formatGoogleDate = (date) => {
-    return (
-      date
-        .toISOString()
-        .replace(/-|:|\.\d+/g, "") + "Z"
-    );
+    return date.toISOString().replace(/-|:|\.\d+/g, "") + "Z";
   };
 
   const handleAddToCalendar = (contest) => {
@@ -85,15 +79,11 @@ export default function DailyContest() {
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-14 grid lg:grid-cols-4 gap-10">
-
-      {/* ================= LEFT FILTER PANEL ================= */}
       <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-6 shadow-md">
-
         <h2 className="text-lg font-semibold text-white mb-6">
           Filter Contests
         </h2>
 
-        {/* PLATFORM FILTER */}
         <div className="mb-6">
           <h4 className="text-sm text-gray-400 mb-3">Platforms</h4>
           <div className="flex flex-wrap gap-2">
@@ -113,7 +103,6 @@ export default function DailyContest() {
           </div>
         </div>
 
-        {/* STATUS FILTER */}
         <div className="mb-6">
           <h4 className="text-sm text-gray-400 mb-3">Status</h4>
           <div className="flex flex-wrap gap-2">
@@ -133,7 +122,6 @@ export default function DailyContest() {
           </div>
         </div>
 
-        {/* BUTTONS */}
         <div className="flex gap-3">
           <button
             onClick={loadContests}
@@ -154,9 +142,7 @@ export default function DailyContest() {
         </div>
       </div>
 
-      {/* ================= RIGHT CONTEST GRID ================= */}
       <div className="lg:col-span-3 grid md:grid-cols-2 gap-8">
-
         {loading ? (
           <p className="text-gray-400">Loading contests...</p>
         ) : filtered.length === 0 ? (
@@ -165,13 +151,8 @@ export default function DailyContest() {
           filtered.map((contest, index) => (
             <div
               key={index}
-              className="group bg-[#161b22] border border-[#30363d] 
-                         rounded-2xl p-6 space-y-5
-                         shadow-md hover:shadow-xl 
-                         hover:-translate-y-2 
-                         transition-all duration-300"
+              className="bg-[#161b22] border border-[#30363d] rounded-2xl p-6 space-y-5 shadow-md hover:shadow-xl hover:-translate-y-2 transition-all duration-300"
             >
-              {/* Platform + Status */}
               <div className="flex gap-3 text-xs">
                 <span className="px-3 py-1 rounded-full bg-[#0d1117] border border-[#30363d] text-gray-300">
                   {contest.platform}
@@ -187,9 +168,7 @@ export default function DailyContest() {
 
               <div className="space-y-2 text-sm text-gray-400">
                 <p>Start: {formatTime(contest.startTime)}</p>
-                <p>
-                  Duration: {formatDuration(contest.duration)} mins
-                </p>
+                <p>Duration: {formatDuration(contest.duration)} mins</p>
               </div>
 
               <div className="flex gap-4 pt-2">
@@ -197,16 +176,14 @@ export default function DailyContest() {
                   href={contest.url}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex-1 text-center border border-white text-white
-                             py-2 rounded-lg hover:bg-white hover:text-black transition"
+                  className="flex-1 text-center border border-white text-white py-2 rounded-lg hover:bg-white hover:text-black transition"
                 >
                   Join Contest
                 </a>
 
                 <button
                   onClick={() => handleAddToCalendar(contest)}
-                  className="flex-1 border border-[#30363d] py-2 rounded-lg
-                             hover:border-white hover:text-white transition"
+                  className="flex-1 border border-[#30363d] py-2 rounded-lg hover:border-white hover:text-white transition"
                 >
                   Remind Me
                 </button>

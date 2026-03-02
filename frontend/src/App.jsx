@@ -1,18 +1,19 @@
 import { Routes, Route } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 
-import Navbar from "./components/Navbar";
-import Footer from "./components/Footer";
+import Navbar from "./components/Navbar/Navbar";
+import Footer from "./components/Footer/Footer";
 
-import Home from "./pages/Home";
-import Settings from "./pages/Settings";
-import DailyContest from "./pages/DailyContest";
+import Home from "./pages/Home/Home";
+import Settings from "./pages/Settings/Settings";
+import DailyContest from "./pages/DailyContest/DailyContest";
+
 
 function App() {
   return (
     <div className="min-h-screen bg-[#0d1117] text-white flex flex-col">
-
-      {/* Toast */}
+      
+      {/* Toast Notifications */}
       <Toaster
         position="top-right"
         toastOptions={{
@@ -33,12 +34,11 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/daily-contest" element={<DailyContest />} />
-        </Routes>
+           </Routes>
       </main>
 
       {/* Footer */}
       <Footer />
-
     </div>
   );
 }

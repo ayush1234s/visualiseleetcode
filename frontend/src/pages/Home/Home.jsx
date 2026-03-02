@@ -1,16 +1,16 @@
 import { useEffect, useState } from "react";
-import { db } from "../firebase";
+import { db } from "../../firebase";
 import { doc, onSnapshot } from "firebase/firestore";
 
-import Heatmap from "../components/Heatmap";
+import Heatmap from "../../components/Heatmap/Heatmap";
 
 import {
   fetchLeetCodeData,
   fetchDailyProblem,
   fetchRecentSubmissions
-} from "../services/leetcodeService";
+} from "../../services/leetcodeService";
 
-import { fetchCodeforcesData } from "../services/codeforcesService";
+import { fetchCodeforcesData } from "../../services/codeforcesService";
 
 export default function Home() {
   const [leetcodeData, setLeetcodeData] = useState(null);
