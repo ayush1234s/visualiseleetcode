@@ -8,6 +8,7 @@ import Home from "./pages/Home/Home";
 import Settings from "./pages/Settings/Settings";
 import DailyContest from "./pages/DailyContest/DailyContest";
 import Help from "./pages/Help/help";
+import Visualize from "./pages/Visualize/Visualize";
 
 
 function App() {
@@ -36,6 +37,7 @@ function App() {
           <Route path="/settings" element={<Settings />} />
           <Route path="/daily-contest" element={<DailyContest />} />
           <Route path="/help" element={<Help />} />
+          <Route path="/visualize" element={<Visualize />} />
            </Routes>
       </main>
 

@@ -1,14 +1,12 @@
 const express = require("express");
 const router = express.Router();
 
-const { visualizeQuestion } = require("../controllers/visualizeController");
+const {
+  handleVisualize,
+  handleAnalyze,
+} = require("../controllers/visualizeController");
 
-// 🔹 POST route
-router.post("/", visualizeQuestion);
-
-// 🔹 TEMP TEST GET route (to verify mount)
-router.get("/ping", (req, res) => {
-  res.send("Visualize route working ✅");
-});
+router.post("/", handleVisualize);
+router.post("/analyze", handleAnalyze);
 
 module.exports = router;

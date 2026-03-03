@@ -1,51 +1,39 @@
-const axios = require("axios");
-const generateVisualization = require("../utils/openaiClient");
+const {
+  generateVisualization,
+  analyzeUserCode,
+} = require("../utils/aiClient");
 
-exports.visualizeQuestion = async (req, res) => {
+const handleVisualize = async (req, res) => {
   try {
     const { questionNumber } = req.body;
 
-    if (!questionNumber) {
-      return res.status(400).json({ error: "Question required" });
-    }
+    if (!questionNumber)
+      return res.status(400).json({ error: "Question number required" });
 
-    // 🔹 Fetch question from LeetCode
-    const response = await axios.post(
-      "https://leetcode.com/graphql",
-      {
-        query: `
-        query questionData($titleSlug: String!) {
-          question(titleSlug: $titleSlug) {
-            title
-            difficulty
-            content
-          }
-        }
-      `,
-        variables: { titleSlug: questionNumber }
-      }
-    );
+    const result = await generateVisualization(questionNumber);
 
-    const question = response?.data?.data?.question;
-
-    if (!question) {
-      return res.status(404).json({ error: "Question not found" });
-    }
-
-    // 🔹 Call OpenAI
-    const explanation = await generateVisualization(
-      question.title,
-      question.difficulty
-    );
-
-    res.json({
-      title: question.title,
-      difficulty: question.difficulty,
-      explanation
-    });
-
+    res.json(result);
   } catch (error) {
-    console.error("Visualize Error:", error.message);
     res.status(500).json({ error: "Visualization failed" });
   }
+};
+
+const handleAnalyze = async (req, res) => {
+  try {
+    const { questionTitle, userCode } = req.body;
+
+    if (!userCode)
+      return res.status(400).json({ error: "Code required" });
+
+    const result = await analyzeUserCode(questionTitle, userCode);
+
+    res.json({ analysis: result });
+  } catch (error) {
+    res.status(500).json({ error: "Analysis failed" });
+  }
+};
+
+module.exports = {
+  handleVisualize,
+  handleAnalyze,
 };

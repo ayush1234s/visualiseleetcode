@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { fetchAllContests } from "../../services/contestService";
+import { ExternalLink } from "lucide-react";
 
 export default function DailyContest() {
   const [contests, setContests] = useState([]);
@@ -178,8 +179,10 @@ export default function DailyContest() {
                   rel="noreferrer"
                   className="flex-1 text-center border border-[#30363d] text-white py-2 rounded-lg hover:bg-[#1d252f] hover:text-white transition"
                 >
-                  Join Contest
+                  Join Contest 
+                  
                 </a>
+                
 
                 <button
                   onClick={() => handleAddToCalendar(contest)}
