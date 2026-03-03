@@ -3,6 +3,7 @@ import { db } from "../../firebase";
 import { doc, onSnapshot } from "firebase/firestore";
 
 import Heatmap from "../../components/Heatmap/Heatmap";
+import { ExternalLink } from "lucide-react";
 
 import {
   fetchLeetCodeData,
@@ -71,25 +72,37 @@ export default function Home() {
   const percent = (val, total) =>
     total ? ((val / total) * 100).toFixed(1) : 0;
 
+  const timeAgo = (timestamp) => {
+    const now = Date.now() / 1000;
+    const diff = now - timestamp;
+
+    const days = Math.floor(diff / 86400);
+    const hours = Math.floor(diff / 3600);
+    const minutes = Math.floor(diff / 60);
+
+    if (days > 0) return `${days} day${days > 1 ? "s" : ""} ago`;
+    if (hours > 0) return `${hours} hour${hours > 1 ? "s" : ""} ago`;
+    if (minutes > 0) return `${minutes} minute${minutes > 1 ? "s" : ""} ago`;
+    return "Just now";
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-6 py-14 space-y-12">
 
-{/* HEADER */}
-        <div className="space-y-2">
-          <h1 className="text-3xl font-semibold text-white">
-            Dashboard
-          </h1>
-          <p className="text-gray-400">
-            See Your Coding Activity At A Glance.
-          </p>
-        </div>
+      {/* HEADER */}
+      <div className="space-y-2">
+        <h1 className="text-3xl font-semibold text-white">
+          Dashboard
+        </h1>
+        <p className="text-gray-400">
+          See Your Coding Activity At A Glance.
+        </p>
+      </div>
 
       {/* ================= HEATMAP ================= */}
       <div className="grid lg:grid-cols-2 gap-8">
 
-        <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-6 
-                        shadow-md hover:shadow-xl hover:-translate-y-1 
-                        transition-all duration-300">
+        <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-6">
           <h2 className="text-lg font-semibold mb-6 text-white">
             LeetCode Activity
           </h2>
@@ -103,9 +116,7 @@ export default function Home() {
           />
         </div>
 
-        <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-6 
-                        shadow-md hover:shadow-xl hover:-translate-y-1 
-                        transition-all duration-300">
+        <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-6">
           <h2 className="text-lg font-semibold mb-6 text-white">
             Codeforces Activity
           </h2>
@@ -114,13 +125,13 @@ export default function Home() {
             data={
               cfSubs.length
                 ? cfSubs.reduce((acc, sub) => {
-                    const day = Math.floor(
-                      new Date(sub.creationTimeSeconds * 1000)
-                        .setHours(0, 0, 0, 0) / 1000
-                    );
-                    acc[day] = (acc[day] || 0) + 1;
-                    return acc;
-                  }, {})
+                  const day = Math.floor(
+                    new Date(sub.creationTimeSeconds * 1000)
+                      .setHours(0, 0, 0, 0) / 1000
+                  );
+                  acc[day] = (acc[day] || 0) + 1;
+                  return acc;
+                }, {})
                 : {}
             }
           />
@@ -133,10 +144,8 @@ export default function Home() {
         {/* LEFT SIDE */}
         <div className="space-y-8">
 
-          {/* PROGRESS CARD */}
-          <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-6 
-                          shadow-md hover:shadow-xl hover:-translate-y-1 
-                          transition-all duration-300">
+          {/* PROGRESS */}
+          <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-6">
 
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg font-semibold text-white">
@@ -148,11 +157,10 @@ export default function Home() {
                   <button
                     key={tab}
                     onClick={() => setProgressTab(tab)}
-                    className={`relative overflow-hidden px-4 py-1 text-sm rounded-md border transition-all duration-300 ${
-                      progressTab === tab
-                        ? "bg-white text-black border-white"
+                    className={`px-4 py-1 text-sm rounded-md border ${progressTab === tab
+                        ? "bg-[#1d252f] text-white border-[#605e5e]"
                         : "border-[#30363d] text-gray-400 hover:text-white"
-                    }`}
+                      }`}
                   >
                     {tab}
                   </button>
@@ -161,113 +169,59 @@ export default function Home() {
             </div>
 
             {progressTab === "leetcode" && (
-              <>
-                {!lcUsername ? (
-                  <p className="text-red-400 text-sm">
-                    Please add your LeetCode username.
-                  </p>
-                ) : (
-                  <div className="space-y-6">
-
-                    {/* EASY */}
-                    <div>
-                      <div className="flex justify-between text-sm mb-2">
-                        <span className="text-green-400 font-medium">
-                          Easy
-                        </span>
-                        <span className="text-white">
-                          {leetcodeData?.easy}
-                        </span>
-                      </div>
-
-                      <div className="w-full bg-[#0d1117] h-2 rounded-full">
-                        <div
-                          className="h-2 bg-green-500 rounded-full transition-all duration-700"
-                          style={{
-                            width: `${percent(
-                              leetcodeData?.easy,
-                              totalLC
-                            )}%`,
-                          }}
-                        />
-                      </div>
+              !lcUsername ? (
+                <p className="text-red-400 text-sm">
+                  Please add your LeetCode username.
+                </p>
+              ) : (
+                ["easy", "medium", "hard"].map((level) => (
+                  <div key={level} className="mb-6">
+                    <div className="flex justify-between text-sm mb-2">
+                      <span className="capitalize text-white">
+                        {level}
+                      </span>
+                      <span className="text-white">
+                        {leetcodeData?.[level] || 0}
+                      </span>
                     </div>
-
-                    {/* MEDIUM */}
-                    <div>
-                      <div className="flex justify-between text-sm mb-2">
-                        <span className="text-yellow-400 font-medium">
-                          Medium
-                        </span>
-                        <span className="text-white">
-                          {leetcodeData?.medium}
-                        </span>
-                      </div>
-
-                      <div className="w-full bg-[#0d1117] h-2 rounded-full">
-                        <div
-                          className="h-2 bg-yellow-500 rounded-full transition-all duration-700"
-                          style={{
-                            width: `${percent(
-                              leetcodeData?.medium,
-                              totalLC
-                            )}%`,
-                          }}
-                        />
-                      </div>
+                    <div className="w-full bg-[#0d1117] h-2 rounded-full">
+                      <div
+                        className={`h-2 rounded-full ${level === "easy"
+                            ? "bg-green-500"
+                            : level === "medium"
+                              ? "bg-yellow-500"
+                              : "bg-red-500"
+                          }`}
+                        style={{
+                          width: `${percent(
+                            leetcodeData?.[level],
+                            totalLC
+                          )}%`,
+                        }}
+                      />
                     </div>
-
-                    {/* HARD */}
-                    <div>
-                      <div className="flex justify-between text-sm mb-2">
-                        <span className="text-red-400 font-medium">
-                          Hard
-                        </span>
-                        <span className="text-white">
-                          {leetcodeData?.hard}
-                        </span>
-                      </div>
-
-                      <div className="w-full bg-[#0d1117] h-2 rounded-full">
-                        <div
-                          className="h-2 bg-red-500 rounded-full transition-all duration-700"
-                          style={{
-                            width: `${percent(
-                              leetcodeData?.hard,
-                              totalLC
-                            )}%`,
-                          }}
-                        />
-                      </div>
-                    </div>
-
                   </div>
-                )}
-              </>
+                ))
+              )
             )}
 
             {progressTab === "codeforces" && (
-              <>
-                {!cfUsername ? (
-                  <p className="text-red-400 text-sm">
-                    Please add your Codeforces username.
-                  </p>
-                ) : (
-                  <div className="text-gray-300 text-sm">
-                    Total Submissions:{" "}
-                    <span className="text-white font-semibold text-lg">
-                      {cfSubs.length}
-                    </span>
-                  </div>
-                )}
-              </>
+              !cfUsername ? (
+                <p className="text-red-400 text-sm">
+                  Please add your Codeforces username.
+                </p>
+              ) : (
+                <p className="text-white">
+                  Total Submissions: {cfSubs.length}
+                </p>
+              )
             )}
           </div>
 
           {/* DAILY PROBLEM */}
           <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-6 
-                          shadow-md hover:shadow-xl hover:-translate-y-1 
-                          transition-all duration-300">
+                shadow-md hover:shadow-xl hover:-translate-y-1 
+                transition-all duration-300">
 
             <h2 className="text-lg font-semibold text-white mb-5">
               LeetCode Problem of the Day
@@ -278,50 +232,74 @@ export default function Home() {
                 Add your LeetCode username to view.
               </p>
             ) : dailyProblem ? (
-              <div className="space-y-4">
-                <h3 className="text-xl font-semibold text-white">
-                  {dailyProblem.title}
-                </h3>
+              <div className="space-y-5">
 
-                <div className="flex items-center gap-3 text-sm text-gray-400">
-                  <span>{dailyProblem.difficulty}</span>
-                  <span>•</span>
-                  <span>{dailyProblem.acceptanceRate}%</span>
+                {/* Problem Header */}
+                <div>
+                  <h3 className="text-sm text-gray-400 mb-1">
+                    Problem #{dailyProblem.questionId} - Today's LeetCode Challenge
+                  </h3>
+
+                  <h3 className="text-xl font-semibold text-white">
+                    {dailyProblem.title}
+                  </h3>
                 </div>
 
+                {/* Difficulty + Acceptance */}
+                <div className="flex items-center gap-3 text-sm">
+                  <span className={`px-2 py-1 rounded-md text-xs font-medium
+          ${dailyProblem.difficulty === "Easy"
+                      ? "bg-green-900 text-green-400"
+                      : dailyProblem.difficulty === "Medium"
+                        ? "bg-yellow-900 text-yellow-400"
+                        : "bg-red-900 text-red-400"
+                    }
+        `}>
+                    {dailyProblem.difficulty}
+                  </span>
+
+                  <span className="text-gray-400">
+                    {dailyProblem.acceptanceRate}%
+                  </span>
+                </div>
+
+                {/* Tags */}
                 <div className="flex flex-wrap gap-2">
-                  {dailyProblem.tags.map((tag, i) => (
+                  {dailyProblem.tags?.map((tag, i) => (
                     <span
                       key={i}
                       className="bg-[#0d1117] border border-[#30363d] 
-                                 px-2 py-1 text-xs rounded-md text-gray-300"
+                       px-3 py-1 text-xs rounded-md text-gray-300
+                       hover:border-white transition"
                     >
                       {tag}
                     </span>
                   ))}
                 </div>
 
+                {/* Button */}
                 <a
                   href={dailyProblem.link}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-block border border-white text-white 
-                             px-6 py-2 rounded-lg transition-all duration-300
-                             hover:bg-white hover:text-black"
+                  className="inline-block border border-[#605e5e] text-white 
+                   px-6 py-2 rounded-lg transition-all duration-300
+                   hover:bg-[#1d252f] hover:text-white"
                 >
                   Solve Now
+                  <ExternalLink className="inline-block ml-2" size={18} />
                 </a>
+
               </div>
             ) : (
               <p className="text-gray-400 text-sm">Loading...</p>
             )}
           </div>
+
         </div>
 
-        {/* RIGHT SIDE (Recent Activity stays same as previous clean version) */}
-        <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-6 
-                        shadow-md hover:shadow-xl hover:-translate-y-1 
-                        transition-all duration-300">
+        {/* RIGHT SIDE RECENT ACTIVITY */}
+        <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-6">
 
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-semibold text-white">
@@ -333,11 +311,10 @@ export default function Home() {
                 <button
                   key={tab}
                   onClick={() => setRecentTab(tab)}
-                  className={`px-3 py-1 text-sm rounded-md transition ${
-                    recentTab === tab
-                      ? "bg-white text-black font-medium"
+                  className={`px-3 py-1 text-sm rounded-md ${recentTab === tab
+                      ? "bg-[#1d252f] text-white"
                       : "text-gray-400 hover:text-white"
-                  }`}
+                    }`}
                 >
                   {tab}
                 </button>
@@ -345,67 +322,47 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="space-y-4 max-h-[460px] overflow-y-auto no-scrollbar scroll-smooth pr-1">
+          <div className="space-y-4 max-h-[460px] overflow-y-auto no-scrollbar">
 
             {(recentTab === "all" || recentTab === "leetcode") &&
-              leetcodeSubs.map((s, i) => (
-                <div
-                  key={`lc-${i}`}
-                  className="bg-[#0d1117] border border-[#30363d] 
-                             rounded-xl p-4 transition-all duration-300 
-                             hover:border-white hover:shadow-lg hover:-translate-y-1"
-                >
-                  <p className="text-sm font-medium text-white">
-                    {s.title}
-                  </p>
-
-                  <div className="flex items-center gap-3 mt-2 text-xs text-gray-400">
-                    <span className="px-2 py-0.5 rounded-md bg-[#161b22] border border-[#30363d]">
-                      {s.lang}
-                    </span>
-
-                    <span
-                      className={`px-2 py-0.5 rounded-md ${
-                        s.statusDisplay === "Accepted"
-                          ? "bg-green-900 text-green-400"
-                          : "bg-red-900 text-red-400"
-                      }`}
+              [...leetcodeSubs]
+                .sort((a, b) => b.timestamp - a.timestamp)
+                .map((s, i) => (
+                  <div key={`lc-${i}`} className="bg-[#0d1117] p-4 rounded-xl border border-[#30363d]">
+                    <a
+                      href={`https://leetcode.com/problems/${s.titleSlug}/`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-white hover:underline"
                     >
-                      {s.statusDisplay}
-                    </span>
+                      #{s.questionId} {s.title}
+                    </a>
+                    <ExternalLink className="inline-block ml-2" size={18} />
+                    <p className="text-xs text-gray-400 mt-2">
+                      {s.lang} • {s.statusDisplay} • {timeAgo(s.timestamp)}
+                    </p>
                   </div>
-                </div>
-              ))}
+                ))}
 
             {(recentTab === "all" || recentTab === "codeforces") &&
-              cfSubs.map((s, i) => (
-                <div
-                  key={`cf-${i}`}
-                  className="bg-[#0d1117] border border-[#30363d] 
-                             rounded-xl p-4 transition-all duration-300 
-                             hover:border-white hover:shadow-lg hover:-translate-y-1"
-                >
-                  <p className="text-sm font-medium text-white">
-                    {s.problem?.name}
-                  </p>
-
-                  <div className="flex items-center gap-3 mt-2 text-xs text-gray-400">
-                    <span className="px-2 py-0.5 rounded-md bg-[#161b22] border border-[#30363d]">
-                      {s.programmingLanguage}
-                    </span>
-
-                    <span
-                      className={`px-2 py-0.5 rounded-md ${
-                        s.verdict === "OK"
-                          ? "bg-green-900 text-green-400"
-                          : "bg-red-900 text-red-400"
-                      }`}
+              [...cfSubs]
+                .sort((a, b) => b.creationTimeSeconds - a.creationTimeSeconds)
+                .map((s, i) => (
+                  <div key={`cf-${i}`} className="bg-[#0d1117] p-4 rounded-xl border border-[#30363d]">
+                    <a
+                      href={`https://codeforces.com/contest/${s.problem?.contestId}/problem/${s.problem?.index}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-white hover:underline"
                     >
-                      {s.verdict}
-                    </span>
+                      #{s.problem?.contestId}{s.problem?.index} {s.problem?.name}
+                    </a>
+                    <ExternalLink className="inline-block ml-2" size={18} />
+                    <p className="text-xs text-gray-400 mt-2">
+                      {s.programmingLanguage} • {s.verdict} • {timeAgo(s.creationTimeSeconds)}
+                    </p>
                   </div>
-                </div>
-              ))}
+                ))}
 
           </div>
         </div>

@@ -93,7 +93,7 @@ export default function DailyContest() {
                 onClick={() => setPlatform(item)}
                 className={`px-4 py-1.5 rounded-full text-sm border transition ${
                   platform === item
-                    ? "bg-white text-black border-white"
+                    ? "bg-[#1d252f] text-white border-[#605e5e]"
                     : "border-[#30363d] text-gray-400 hover:text-white hover:border-white"
                 }`}
               >
@@ -112,7 +112,7 @@ export default function DailyContest() {
                 onClick={() => setStatus(item)}
                 className={`px-4 py-1.5 rounded-full text-sm border transition ${
                   status === item
-                    ? "bg-white text-black border-white"
+                    ? "bg-[#1d252f] text-white border-[#605e5e]"
                     : "border-[#30363d] text-gray-400 hover:text-white hover:border-white"
                 }`}
               >
@@ -125,7 +125,7 @@ export default function DailyContest() {
         <div className="flex gap-3">
           <button
             onClick={loadContests}
-            className="flex-1 border border-white text-white py-2 rounded-lg hover:bg-white hover:text-black transition"
+            className="flex-1 border border-[#464f59] text-white py-2 rounded-lg hover:bg-[#1d252f] hover:text-white transition"
           >
             Refresh
           </button>
@@ -135,7 +135,7 @@ export default function DailyContest() {
               setPlatform("all");
               setStatus("all");
             }}
-            className="flex-1 border border-[#30363d] py-2 rounded-lg hover:border-white hover:text-white transition"
+            className="flex-1 border border-[#414952] py-2 rounded-lg hover:border-[#3d454e] hover:text-white transition"
           >
             Reset
           </button>
@@ -176,14 +176,14 @@ export default function DailyContest() {
                   href={contest.url}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex-1 text-center border border-white text-white py-2 rounded-lg hover:bg-white hover:text-black transition"
+                  className="flex-1 text-center border border-[#30363d] text-white py-2 rounded-lg hover:bg-[#1d252f] hover:text-white transition"
                 >
                   Join Contest
                 </a>
 
                 <button
                   onClick={() => handleAddToCalendar(contest)}
-                  className="flex-1 border border-[#30363d] py-2 rounded-lg hover:border-white hover:text-white transition"
+                  className="flex-1 border border-[#30363d] py-2 rounded-lg hover:border-[#1d252f] hover:text-white transition"
                 >
                   Remind Me
                 </button>

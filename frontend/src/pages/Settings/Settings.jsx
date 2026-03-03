@@ -102,17 +102,22 @@ export default function Settings() {
               </div>
             )}
 
-            <a
-              href="https://www.linkedin.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-6 inline-flex items-center gap-2 text-sm
-                         border border-[#30363d] px-4 py-2 rounded-md
-                         hover:border-[#58a6ff] hover:text-white transition"
-            >
-              <Linkedin size={16} />
-              LinkedIn
-            </a>
+            {/* LINKEDIN BUTTON */
+            }
+            <div className="flex justify-center">
+              <a
+                href="https://www.linkedin.com/in/ayushsrivastava06/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-12 w-full max-w-md inline-flex justify-center items-center gap-3 text-lg
+               border border-[#30363d] px-6 py-3 rounded-lg
+               hover:border-[#58a6ff] hover:text-white 
+               transition-all duration-300"
+              >
+                <Linkedin size={30} />
+                LinkedIn
+              </a>
+            </div>
           </div>
 
           {/* FORM CARD */}
