@@ -12,18 +12,25 @@ export default function Visualize() {
     const [userCode, setUserCode] = useState("");
     const [analysis, setAnalysis] = useState(null);
 
+    const [hindiExplain, setHindiExplain] = useState("");
+    const [hindiLoading, setHindiLoading] = useState(false);
+
     /* ================= FETCH QUESTION ================= */
+
     const handleVisualize = async () => {
+
         if (!questionNumber) {
             setError("Please enter a question number.");
             return;
         }
 
         try {
+
             setLoading(true);
             setError("");
             setVisualData(null);
             setAnalysis(null);
+            setHindiExplain("");
 
             const res = await axios.post(
                 "http://localhost:5000/api/visualize",
@@ -33,14 +40,21 @@ export default function Visualize() {
             setVisualData(res.data);
 
         } catch {
+
             setError("Something went wrong.");
+
         } finally {
+
             setLoading(false);
+
         }
+
     };
 
-    /* ================= ANALYZE USER CODE ================= */
+    /* ================= ANALYZE CODE ================= */
+
     const handleAnalyze = async () => {
+
         if (!userCode) return;
 
         const res = await axios.post(
@@ -52,12 +66,34 @@ export default function Visualize() {
         );
 
         setAnalysis(res.data.analysis);
+
+    };
+
+    /* ================= HINDI EXPLAIN ================= */
+
+    const handleHindiExplain = async () => {
+
+        setHindiLoading(true);
+
+        const res = await axios.post(
+            "http://localhost:5000/api/visualize/hindi",
+            {
+                questionTitle: visualData.question,
+                explanation: visualData.visualization,
+            }
+        );
+
+        setHindiExplain(res.data.hindi);
+
+        setHindiLoading(false);
+
     };
 
     return (
         <div className="max-w-5xl mx-auto px-6 py-14 space-y-10">
 
-            {/* ================= INPUT ================= */}
+            {/* INPUT */}
+
             <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-8 space-y-6">
 
                 <h1 className="text-3xl font-bold text-white">
@@ -80,10 +116,13 @@ export default function Visualize() {
                 </button>
 
                 {error && <p className="text-red-400">{error}</p>}
+
             </div>
 
-            {/* ================= EXPLANATION ================= */}
+            {/* ================= ENGLISH EXPLANATION ================= */}
+
             {visualData && (
+
                 <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-8">
 
                     <h2 className="text-2xl font-bold text-white mb-6">
@@ -96,6 +135,7 @@ export default function Visualize() {
                             code: () => null,
 
                             h2: ({ node, ...props }) => {
+
                                 const text = props.children?.toString() || "";
 
                                 return (
@@ -106,22 +146,75 @@ export default function Visualize() {
 
                                         {text.includes("C++ Implementation") && (
                                             <div className="bg-[#0d1117] border border-yellow-500 text-yellow-400 p-5 rounded-xl mt-4 text-sm">
-                                                ⚠️ <strong>Note:</strong> You have to Debug your Wrong code below in the Debug block then Analyze and You got the issue and Full code Access.
+                                                ⚠️ <strong>Note:</strong> If you want to see the code for the solution,
+
+                                                paste your code in the Debug section below and analyze it.
+
+                                                The AI ​​will point out your mistakes and tell you how to fix them, and then also give you the full correct code.
                                             </div>
                                         )}
                                     </>
                                 );
+
                             },
                         }}
                     >
                         {visualData.visualization}
                     </ReactMarkdown>
 
+                    {/* HINDI BUTTON */}
+
+                    <div className="mt-8">
+
+                        <button
+                            onClick={handleHindiExplain}
+                            className="border border-yellow-400 text-yellow-400 px-6 py-2 rounded-lg hover:bg-yellow-400 hover:text-black transition"
+                        >
+                            {hindiLoading ? "Explaining..." : "Explain in Hindi 🇮🇳"}
+                        </button>
+
+                    </div>
+
                 </div>
+
+            )}
+
+            {/* ================= HINDI EXPLANATION ================= */}
+
+            {hindiExplain && (
+
+                <div className="bg-[#161b22] border border-yellow-500 rounded-2xl p-8">
+
+                    <h2 className="text-2xl font-bold text-yellow-400 mb-6">
+                        🇮🇳 Hindi Explanation
+                    </h2>
+
+                    <ReactMarkdown
+                        components={{
+                            h2: ({ node, ...props }) => (
+                                <h2 className="text-2xl font-bold text-yellow-400 mt-8 mb-4">
+                                    {props.children}
+                                </h2>
+                            ),
+                        }}
+                    >
+                        {hindiExplain}
+                    </ReactMarkdown>
+
+                    <div className="bg-[#0d1117] border border-yellow-500 text-yellow-400 p-5 rounded-xl mt-6 text-sm">
+                        ⚠️ <strong>Note:</strong> Agar aap solution ka code dekhna chahte ho,
+                        toh neeche Debug section mein apna code paste karo aur Analyze karo.
+                        AI aapki galti batayega aur fix kaise krein ye bhi batayega, aur phir aapko full correct code milega.
+                    </div>
+
+                </div>
+
             )}
 
             {/* ================= DEBUG SECTION ================= */}
+
             {visualData && (
+
                 <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-8 space-y-6">
 
                     <h2 className="text-2xl font-bold text-white">
@@ -143,7 +236,9 @@ export default function Visualize() {
                     </button>
 
                     {analysis && <AnalysisResult analysis={analysis} />}
+
                 </div>
+
             )}
 
         </div>
@@ -151,50 +246,59 @@ export default function Visualize() {
 }
 
 /* ================= ANALYSIS RESULT ================= */
+
 function AnalysisResult({ analysis }) {
 
-  const [showCode, setShowCode] = useState(false);
+    const [showCode, setShowCode] = useState(false);
 
-  const isCorrect = analysis.includes("STATUS: CORRECT");
+    const isCorrect = analysis.includes("STATUS: CORRECT");
 
-  const codeStart = analysis.indexOf("## 💻");
-  const codeSection = codeStart !== -1 ? analysis.substring(codeStart) : "";
+    const codeStart = analysis.indexOf("## 💻");
+    const codeSection =
+        codeStart !== -1 ? analysis.substring(codeStart) : "";
 
-  const beforeCode = codeStart !== -1 ? analysis.substring(0, codeStart) : analysis;
+    const beforeCode =
+        codeStart !== -1 ? analysis.substring(0, codeStart) : analysis;
 
-  return (
-    <div className="mt-6 space-y-6">
+    return (
 
-      {/* CORRECT CASE */}
-      {isCorrect ? (
-        <div className="bg-[#0d1117] p-6 rounded-xl border border-green-500 text-green-400">
-          <ReactMarkdown>
-            {beforeCode.replace("STATUS: CORRECT", "")}
-          </ReactMarkdown>
+        <div className="mt-6 space-y-6">
+
+            {isCorrect ? (
+
+                <div className="bg-[#0d1117] p-6 rounded-xl border border-green-500 text-white-400">
+                    <ReactMarkdown>
+                        {beforeCode.replace("STATUS: CORRECT", "")}
+                    </ReactMarkdown>
+                </div>
+
+            ) : (
+
+                <div className="bg-[#0d1117] p-6 rounded-xl border border-red-500 text-gray-300">
+                    <ReactMarkdown>
+                        {beforeCode.replace("STATUS: WRONG", "")}
+                    </ReactMarkdown>
+                </div>
+
+            )}
+
+            <button
+                onClick={() => setShowCode(!showCode)}
+                className="border border-green-400 text-green-400 px-6 py-2 rounded-lg hover:bg-green-400 hover:text-black transition"
+            >
+                {showCode ? "Hide Full Code" : "Show Full Code"}
+            </button>
+
+            {showCode && (
+
+                <div className="bg-[#0d1117] p-6 rounded-xl border border-[#30363d] text-green-400 overflow-x-auto">
+                    <ReactMarkdown>{codeSection}</ReactMarkdown>
+                </div>
+
+            )}
+
         </div>
-      ) : (
-        <div className="bg-[#0d1117] p-6 rounded-xl border border-red-500 text-gray-300">
-          <ReactMarkdown>
-            {beforeCode.replace("STATUS: WRONG", "")}
-          </ReactMarkdown>
-        </div>
-      )}
 
-      {/* BUTTON */}
-      <button
-        onClick={() => setShowCode(!showCode)}
-        className="border border-green-400 text-green-400 px-6 py-2 rounded-lg hover:bg-green-400 hover:text-black transition"
-      >
-        {showCode ? "Hide Full Code" : "Show Full Code"}
-      </button>
+    );
 
-      {/* FULL CODE */}
-      {showCode && (
-        <div className="bg-[#0d1117] p-6 rounded-xl border border-[#30363d] text-green-400 overflow-x-auto">
-          <ReactMarkdown>{codeSection}</ReactMarkdown>
-        </div>
-      )}
-
-    </div>
-  );
 }
