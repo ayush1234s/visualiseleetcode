@@ -9,6 +9,7 @@ import Settings from "./pages/Settings/Settings";
 import DailyContest from "./pages/DailyContest/DailyContest";
 import Help from "./pages/Help/help";
 import Visualize from "./pages/Visualize/Visualize";
+import Revision from "./pages/Revision/Revision";
 
 
 function App() {
@@ -38,6 +39,7 @@ function App() {
           <Route path="/daily-contest" element={<DailyContest />} />
           <Route path="/help" element={<Help />} />
           <Route path="/visualize" element={<Visualize />} />
+          <Route path="/revision" element={<Revision />} />
            </Routes>
       </main>
 
