@@ -1,7 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
+
 import { db } from "../../firebase";
-import { collection, addDoc } from "firebase/firestore";
+
+import {
+  collection,
+  addDoc,
+  getDocs,
+  deleteDoc,
+  doc,
+  updateDoc
+} from "firebase/firestore";
 
 export default function Revision() {
 
@@ -9,17 +18,36 @@ export default function Revision() {
   const [questionTitle,setQuestionTitle]=useState("");
   const [weekdays,setWeekdays]=useState([]);
   const [email,setEmail]=useState("");
+
   const [loading,setLoading]=useState(false);
+  const [fetchLoading,setFetchLoading]=useState(false);
+  const [calendarLoading,setCalendarLoading]=useState(false);
+
+  const [tasks,setTasks]=useState([]);
 
   const days=[
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-    "Sunday"
+    "Monday","Tuesday","Wednesday",
+    "Thursday","Friday","Saturday","Sunday"
   ];
+
+  /* ================= LOAD TASKS ================= */
+
+  const loadTasks=async()=>{
+
+    const snapshot=await getDocs(collection(db,"revisionTasks"));
+
+    const list=snapshot.docs.map(doc=>({
+      id:doc.id,
+      ...doc.data()
+    }));
+
+    setTasks(list);
+
+  };
+
+  useEffect(()=>{
+    loadTasks();
+  },[]);
 
   /* ================= FETCH QUESTION ================= */
 
@@ -27,12 +55,16 @@ export default function Revision() {
 
     if(!questionNumber) return;
 
+    setFetchLoading(true);
+
     const res=await axios.post(
       "http://localhost:5000/api/visualize",
       {questionNumber}
     );
 
     setQuestionTitle(res.data.question);
+
+    setFetchLoading(false);
 
   };
 
@@ -58,18 +90,53 @@ export default function Revision() {
 
     setLoading(true);
 
-    await addDoc(
+    const createdAt=new Date();
+
+    const docRef=await addDoc(
       collection(db,"revisionTasks"),
       {
         questionNumber,
         questionTitle,
         weekdays,
         email,
-        createdAt:new Date()
+        createdAt,
+        emailStatus:"Pending"
       }
     );
 
-    alert("Revision task added successfully");
+    try{
+
+      const res=await axios.post(
+        "http://localhost:5000/api/email/send-revision-email",
+        {
+          email,
+          questionNumber,
+          questionTitle,
+          weekdays,
+          createdAt,
+          id:docRef.id
+        }
+      );
+
+      if(res.data.success){
+
+        await updateDoc(
+          doc(db,"revisionTasks",docRef.id),
+          {emailStatus:"Success"}
+        );
+
+      }
+
+    }catch(err){
+
+      await updateDoc(
+        doc(db,"revisionTasks",docRef.id),
+        {emailStatus:"Failed"}
+      );
+
+    }
+
+    loadTasks();
 
     setLoading(false);
 
@@ -81,8 +148,9 @@ export default function Revision() {
 
     if(!questionTitle) return;
 
-    const text=`Revision: ${questionTitle}`;
+    setCalendarLoading(true);
 
+    const text=`Revision: ${questionTitle}`;
     const details=`Revise LeetCode question ${questionNumber}`;
 
     const calendarUrl=
@@ -90,11 +158,43 @@ export default function Revision() {
 
     window.open(calendarUrl,"_blank");
 
+    setTimeout(()=>{
+      setCalendarLoading(false);
+    },1000);
+
+  };
+
+  /* ================= DELETE TASK ================= */
+
+  const deleteTask=async(id)=>{
+
+    await deleteDoc(doc(db,"revisionTasks",id));
+
+    loadTasks();
+
+  };
+
+  /* ================= FORMAT DATE ================= */
+
+  const formatDate=(date)=>{
+
+    const d=new Date(date.seconds*1000);
+
+    return d.toLocaleDateString();
+
+  };
+
+  const formatTime=(date)=>{
+
+    const d=new Date(date.seconds*1000);
+
+    return d.toLocaleTimeString();
+
   };
 
   return(
 
-    <div className="max-w-4xl mx-auto px-6 py-14 space-y-8">
+    <div className="max-w-6xl mx-auto px-6 py-14 space-y-10">
 
       {/* HEADER */}
 
@@ -133,9 +233,16 @@ export default function Revision() {
 
             <button
               onClick={fetchQuestion}
-              className="border border-blue-400 text-blue-400 px-4 py-2 rounded-lg hover:bg-blue-400 hover:text-black transition"
+              className="border border-blue-400 text-blue-400 px-4 py-2 rounded-lg
+              hover:bg-blue-400 hover:text-black transition flex items-center gap-2"
             >
-              Fetch
+
+              {fetchLoading && (
+                <span className="animate-spin h-4 w-4 border-2 border-blue-400 border-t-transparent rounded-full"></span>
+              )}
+
+              {fetchLoading ? "Fetching..." : "Fetch"}
+
             </button>
 
           </div>
@@ -144,13 +251,11 @@ export default function Revision() {
 
         {/* QUESTION PREVIEW */}
 
-        {questionTitle && (
+        {questionTitle &&(
 
-          <div className="bg-[#0d1117] border border-[#30363d] rounded-lg p-4">
+          <div className="bg-[#0d1117] border border-[#30363d] rounded-lg p-4 text-white">
 
-            <p className="text-white font-medium">
-              {questionTitle}
-            </p>
+            {questionTitle}
 
           </div>
 
@@ -167,17 +272,19 @@ export default function Revision() {
           <div className="grid grid-cols-3 gap-3 mt-3">
 
             {days.map(day=>(
+
               <button
                 key={day}
                 onClick={()=>toggleDay(day)}
-                className={`px-3 py-2 rounded-lg border ${
+                className={`px-3 py-2 rounded-lg border transition ${
                   weekdays.includes(day)
                   ? "bg-green-500 text-black"
-                  : "border-[#30363d] text-gray-400"
+                  : "border-[#30363d] text-gray-400 hover:border-green-400"
                 }`}
               >
                 {day}
               </button>
+
             ))}
 
           </div>
@@ -205,21 +312,117 @@ export default function Revision() {
 
         <div className="flex gap-4">
 
+          {/* ADD TASK */}
+
           <button
             onClick={addRevisionTask}
-            className="border border-green-400 text-green-400 px-6 py-2 rounded-lg hover:bg-green-400 hover:text-black transition"
+            className="border border-green-400 text-green-400 px-6 py-2 rounded-lg
+            hover:bg-green-400 hover:text-black transition flex items-center gap-2"
           >
-            {loading?"Saving...":"Add Revision Task"}
+
+            {loading && (
+              <span className="animate-spin h-4 w-4 border-2 border-green-400 border-t-transparent rounded-full"></span>
+            )}
+
+            {loading ? "Saving..." : "Add Revision Task"}
+
           </button>
+
+          {/* CALENDAR */}
 
           <button
             onClick={addToCalendar}
-            className="border border-yellow-400 text-yellow-400 px-6 py-2 rounded-lg hover:bg-yellow-400 hover:text-black transition"
+            className="border border-yellow-400 text-yellow-400 px-6 py-2 rounded-lg
+            hover:bg-yellow-400 hover:text-black transition flex items-center gap-2"
           >
-            Add to Google Calendar
+
+            {calendarLoading && (
+              <span className="animate-spin h-4 w-4 border-2 border-yellow-400 border-t-transparent rounded-full"></span>
+            )}
+
+            {calendarLoading ? "Opening..." : "Add to Google Calendar"}
+
           </button>
 
         </div>
+
+      </div>
+
+      {/* TABLE */}
+
+      <div className="overflow-x-auto">
+
+        <table className="w-full text-sm text-left text-gray-400">
+
+          <thead className="text-xs text-gray-300 uppercase bg-[#161b22]">
+
+            <tr>
+
+              <th className="px-6 py-3">Date</th>
+              <th className="px-6 py-3">Time</th>
+              <th className="px-6 py-3">Question No.</th>
+              <th className="px-6 py-3">Title</th>
+              <th className="px-6 py-3">Weekdays</th>
+              <th className="px-6 py-3">Email</th>
+              <th className="px-6 py-3">Email Alert</th>
+              <th className="px-6 py-3">Action</th>
+
+            </tr>
+
+          </thead>
+
+          <tbody>
+
+            {tasks.map(task=>(
+
+              <tr key={task.id} className="border-b border-[#30363d]">
+
+                <td className="px-6 py-4">
+                  {formatDate(task.createdAt)}
+                </td>
+
+                <td className="px-6 py-4">
+                  {formatTime(task.createdAt)}
+                </td>
+
+                <td className="px-6 py-4">
+                  {task.questionNumber}
+                </td>
+
+                <td className="px-6 py-4">
+                  {task.questionTitle}
+                </td>
+
+                <td className="px-6 py-4">
+                  {task.weekdays.join(", ")}
+                </td>
+
+                <td className="px-6 py-4">
+                  {task.email}
+                </td>
+
+                <td className="px-6 py-4 text-yellow-400">
+                  {task.emailStatus}
+                </td>
+
+                <td className="px-6 py-4">
+
+                  <button
+                    onClick={()=>deleteTask(task.id)}
+                    className="text-red-400 hover:text-red-600 transition"
+                  >
+                    Delete
+                  </button>
+
+                </td>
+
+              </tr>
+
+            ))}
+
+          </tbody>
+
+        </table>
 
       </div>
 
