@@ -25,6 +25,8 @@ export default function Revision() {
 
   const [tasks,setTasks]=useState([]);
 
+  const [revisionStatus,setRevisionStatus]=useState({});
+
   const days=[
     "Monday","Tuesday","Wednesday",
     "Thursday","Friday","Saturday","Sunday"
@@ -192,6 +194,8 @@ export default function Revision() {
 
   };
 
+  const today = new Date().toLocaleDateString("en-US",{weekday:"long"});
+
   return(
 
     <div className="max-w-6xl mx-auto px-6 py-14 space-y-10">
@@ -214,8 +218,6 @@ export default function Revision() {
 
       <div className="bg-[#161b22] border border-[#30363d] rounded-xl p-8 space-y-6">
 
-        {/* QUESTION NUMBER */}
-
         <div>
 
           <label className="text-gray-300 text-sm">
@@ -233,13 +235,8 @@ export default function Revision() {
 
             <button
               onClick={fetchQuestion}
-              className="border border-blue-400 text-blue-400 px-4 py-2 rounded-lg
-              hover:bg-blue-400 hover:text-black transition flex items-center gap-2"
+              className="border border-blue-400 text-blue-400 px-4 py-2 rounded-lg"
             >
-
-              {fetchLoading && (
-                <span className="animate-spin h-4 w-4 border-2 border-blue-400 border-t-transparent rounded-full"></span>
-              )}
 
               {fetchLoading ? "Fetching..." : "Fetch"}
 
@@ -248,8 +245,6 @@ export default function Revision() {
           </div>
 
         </div>
-
-        {/* QUESTION PREVIEW */}
 
         {questionTitle &&(
 
@@ -276,10 +271,10 @@ export default function Revision() {
               <button
                 key={day}
                 onClick={()=>toggleDay(day)}
-                className={`px-3 py-2 rounded-lg border transition ${
+                className={`px-3 py-2 rounded-lg border ${
                   weekdays.includes(day)
                   ? "bg-green-500 text-black"
-                  : "border-[#30363d] text-gray-400 hover:border-green-400"
+                  : "border-[#30363d] text-gray-400"
                 }`}
               >
                 {day}
@@ -312,36 +307,18 @@ export default function Revision() {
 
         <div className="flex gap-4">
 
-          {/* ADD TASK */}
-
           <button
             onClick={addRevisionTask}
-            className="border border-green-400 text-green-400 px-6 py-2 rounded-lg
-            hover:bg-green-400 hover:text-black transition flex items-center gap-2"
+            className="border border-green-400 text-green-400 px-6 py-2 rounded-lg"
           >
-
-            {loading && (
-              <span className="animate-spin h-4 w-4 border-2 border-green-400 border-t-transparent rounded-full"></span>
-            )}
-
-            {loading ? "Saving..." : "Add Revision Task"}
-
+            {loading?"Saving...":"Add Revision Task Email"}
           </button>
-
-          {/* CALENDAR */}
 
           <button
             onClick={addToCalendar}
-            className="border border-yellow-400 text-yellow-400 px-6 py-2 rounded-lg
-            hover:bg-yellow-400 hover:text-black transition flex items-center gap-2"
+            className="border border-yellow-400 text-yellow-400 px-6 py-2 rounded-lg"
           >
-
-            {calendarLoading && (
-              <span className="animate-spin h-4 w-4 border-2 border-yellow-400 border-t-transparent rounded-full"></span>
-            )}
-
-            {calendarLoading ? "Opening..." : "Add to Google Calendar"}
-
+            {calendarLoading?"Opening...":"Add to Google Calendar"}
           </button>
 
         </div>
@@ -354,13 +331,13 @@ export default function Revision() {
 
         <table className="w-full text-sm text-left text-gray-400">
 
-          <thead className="text-xs text-gray-300 uppercase bg-[#161b22]">
+          <thead className="bg-[#161b22]">
 
             <tr>
 
               <th className="px-6 py-3">Date</th>
               <th className="px-6 py-3">Time</th>
-              <th className="px-6 py-3">Question No.</th>
+              <th className="px-6 py-3">Question</th>
               <th className="px-6 py-3">Title</th>
               <th className="px-6 py-3">Weekdays</th>
               <th className="px-6 py-3">Email</th>
@@ -375,7 +352,7 @@ export default function Revision() {
 
             {tasks.map(task=>(
 
-              <tr key={task.id} className="border-b border-[#30363d]">
+              <tr key={task.id}>
 
                 <td className="px-6 py-4">
                   {formatDate(task.createdAt)}
@@ -401,7 +378,7 @@ export default function Revision() {
                   {task.email}
                 </td>
 
-                <td className="px-6 py-4 text-yellow-400">
+                <td className="px-6 py-4">
                   {task.emailStatus}
                 </td>
 
@@ -409,7 +386,7 @@ export default function Revision() {
 
                   <button
                     onClick={()=>deleteTask(task.id)}
-                    className="text-red-400 hover:text-red-600 transition"
+                    className="text-red-400"
                   >
                     Delete
                   </button>
@@ -423,6 +400,100 @@ export default function Revision() {
           </tbody>
 
         </table>
+
+      </div>
+
+      {/* REVISION TRACKER */}
+
+      <div className="space-y-6">
+
+        <h2 className="text-2xl font-semibold text-white">
+          Revision Tracker
+        </h2>
+
+        {tasks.map(task=>(
+
+          <div
+            key={task.id}
+            className="bg-[#161b22] border border-[#30363d] rounded-xl p-6 space-y-4"
+          >
+
+            <p className="text-white font-semibold">
+              {task.questionNumber} - {task.questionTitle}
+            </p>
+
+            <div className="grid grid-cols-4 gap-3">
+
+              {days.map(day=>{
+
+                const selected=task.weekdays.includes(day);
+
+                const key=`${task.id}-${day}`;
+
+                const status=revisionStatus[key];
+
+                return(
+
+                  <div
+                    key={day}
+                    className="flex justify-between bg-[#0d1117] border border-[#30363d] rounded-lg px-3 py-2"
+                  >
+
+                    <label className="flex items-center gap-2 text-sm">
+
+                      <input
+                        type="checkbox"
+                        disabled={!selected}
+                        checked={status==="Completed"}
+                        onChange={()=>{
+
+                          setRevisionStatus(prev=>({
+                            ...prev,
+                            [key]:"Completed"
+                          }));
+
+                        }}
+                      />
+
+                      {day}
+
+                    </label>
+
+                    <span className="text-xs">
+
+                      {!selected && "N/A"}
+
+                      {selected && day===today && !status &&(
+                        <span className="text-yellow-400">
+                          Pending
+                        </span>
+                      )}
+
+                      {status==="Completed" &&(
+                        <span className="text-green-400">
+                          Completed
+                        </span>
+                      )}
+
+                      {selected && day!==today && !status &&(
+                        <span className="text-red-400">
+                          Loss Day
+                        </span>
+                      )}
+
+                    </span>
+
+                  </div>
+
+                );
+
+              })}
+
+            </div>
+
+          </div>
+
+        ))}
 
       </div>
 
