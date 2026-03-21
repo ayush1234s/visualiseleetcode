@@ -1,11 +1,17 @@
 const nodemailer = require("nodemailer");
 const path = require("path");
+const dns = require("dns");
+
+// 🔥 FORCE IPv4 (IMPORTANT FIX)
+dns.setDefaultResultOrder("ipv4first");
 
 exports.sendRevisionEmail = async (req, res) => {
 
   const { email, questionNumber, questionTitle, weekdays, id } = req.body;
 
   try {
+
+    console.log("📩 EMAIL API HIT");
 
     /* ================= DATE & TIME ================= */
 
@@ -49,163 +55,96 @@ exports.sendRevisionEmail = async (req, res) => {
     /* ================= LEETCODE LINK ================= */
 
     const slug = questionTitle
-  .toLowerCase()
-  .replace(/[^a-z0-9\s]/g, "")
-  .trim()
-  .replace(/\s+/g, "-");
+      .toLowerCase()
+      .replace(/[^a-z0-9\s]/g, "")
+      .trim()
+      .replace(/\s+/g, "-");
 
-const leetcodeLink = `https://leetcode.com/problems/${slug}/description/`;
+    const leetcodeLink = `https://leetcode.com/problems/${slug}/description/`;
+
+    /* ================= DEBUG ENV ================= */
+
+    console.log("EMAIL USER:", process.env.GMAIL_USER);
+    console.log("EMAIL PASS:", process.env.GMAIL_PASS ? "LOADED" : "NOT LOADED");
 
     /* ================= TRANSPORT ================= */
 
     const transporter = nodemailer.createTransport({
-      host:"smtp.gmail.com",
-      port:465,
-      secure:true,
-      auth:{
-        user:process.env.GMAIL_USER,
-        pass:process.env.GMAIL_PASS
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
+      family: 4, // 🔥 FORCE IPv4
+      auth: {
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_PASS
       }
     });
+
+    /* ================= VERIFY CONNECTION ================= */
+
+    await transporter.verify();
+    console.log("✅ SMTP Connected");
 
     /* ================= EMAIL TEMPLATE ================= */
 
     const mailOptions = {
 
-      from:`"Visualize LeetCode" <${process.env.GMAIL_USER}>`,
-      to:email,
-      subject:"📌 Visualize LeetCode Revision Alert",
+      from: `"Visualize LeetCode" <${process.env.GMAIL_USER}>`,
+      to: email,
+      subject: "📌 Visualize LeetCode Revision Alert",
 
-      html:`
-
+      html: `
 <div style="background:#0d1117;padding:40px;font-family:Arial">
+<div style="max-width:620px;margin:auto;background:#161b22;border:1px solid #30363d;border-radius:12px;padding:30px;color:#e6edf3">
 
-<div style="
-max-width:620px;
-margin:auto;
-background:#161b22;
-border:1px solid #30363d;
-border-radius:12px;
-padding:30px;
-color:#e6edf3">
-
-<div style="text-align:center">
-
-<img src="cid:logoBrain" width="70"/>
-
-<h2 style="color:#58a6ff;margin-top:10px">
-Visualize LeetCode
-</h2>
-
-</div>
+<h2 style="color:#58a6ff;text-align:center">Visualize LeetCode</h2>
 
 <p>Hi,</p>
 
-<p>
-Greetings from <b>Visualize LeetCode</b> 👋
-</p>
+<p>This is your <b>Revision Alert</b>.</p>
 
-<p>
-This is your <b>Revision Alert</b> for the following question.
-</p>
-
-<div style="
-background:#0d1117;
-border:1px solid #30363d;
-border-radius:8px;
-padding:15px;
-margin:20px 0">
-
-<h3 style="color:#79c0ff;margin-top:0">
-Question Details
-</h3>
-
-<p><b>Question Number:</b> ${questionNumber}</p>
-<p><b>Title:</b> ${questionTitle}</p>
+<p><b>Question:</b> ${questionNumber} - ${questionTitle}</p>
 <p><b>Weekdays:</b> ${weekdays.join(", ")}</p>
 
-</div>
+<p><b>Upcoming:</b> ${upcomingDay}</p>
+<p><b>Countdown:</b> ${daysLeft} day(s)</p>
 
-<div style="
-background:#0d1117;
-border:1px solid #30363d;
-border-radius:8px;
-padding:15px;
-margin:20px 0">
-
-<h3 style="color:#79c0ff;margin-top:0">
-Alert Details
-</h3>
-
-<p><b>Date:</b> ${date}</p>
-<p><b>Time:</b> ${time}</p>
-<p><b>Ticket ID:</b> ${ticketId}</p>
-<p><b>Email:</b> ${email}</p>
-<p><b>Upcoming Weekday:</b> ${upcomingDay}</p>
-<p><b>Countdown:</b> ${daysLeft} day(s) left</p>
-<p><b>Alert Status:</b> ON</p>
-
-</div>
-
-<p>
-📌 We will alert you in upcoming weekday as per your selected schedule.
-</p>
-
-<div style="text-align:center;margin:30px 0">
-
-<a href="${leetcodeLink}"
-style="
-display:inline-block;
-padding:12px 22px;
-background:#238636;
-color:white;
-text-decoration:none;
-font-weight:bold;
-border-radius:6px;
-transition:0.3s">
-
-🚀 Open Question
-
+<div style="margin:20px 0;text-align:center">
+<a href="${leetcodeLink}" style="padding:10px 20px;background:#238636;color:white;text-decoration:none;border-radius:6px">
+Open Question
 </a>
-
 </div>
 
-<p>
-Happy Coding! 🚀
-</p>
-
-<hr style="border-color:#30363d;margin:25px 0"/>
-
-<p style="font-size:13px;color:#8b949e">
-
-Best Regards<br/>
-<b>Team Visualize LeetCode</b>
-
-</p>
+<p>Happy Coding 🚀</p>
 
 </div>
 </div>
       `,
 
-      attachments:[
+      attachments: [
         {
-          filename:"logoBrain.png",
-          path:path.join(__dirname,"../assets/logoBrain.png"),
-          cid:"logoBrain"
+          filename: "logoBrain.png",
+          path: path.join(__dirname, "../assets/logoBrain.png"),
+          cid: "logoBrain"
         }
       ]
 
     };
 
+    /* ================= SEND EMAIL ================= */
+
     await transporter.sendMail(mailOptions);
 
-    res.json({success:true});
+    console.log("✅ EMAIL SENT SUCCESSFULLY");
 
-  } catch(err){
+    res.json({ success: true });
 
-    console.log("EMAIL ERROR:",err);
+  } catch (err) {
 
-    res.status(500).json({success:false});
+    console.log("❌ EMAIL ERROR FULL:", err);
+    console.log("❌ MESSAGE:", err.message);
+
+    res.status(500).json({ success: false });
 
   }
 
