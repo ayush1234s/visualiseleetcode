@@ -73,29 +73,34 @@ const Help = () => {
         "Learn how to use Visualize Leet Code effectively. Start by exploring the features and visualizations available."
     },
     {
-      title: "Troubleshooting",
+      title: "Visualize Leet Code",
       content:
-        "If you encounter any issues, check our troubleshooting guide for common problems and solutions."
+        "Visualize Leet Code is a powerful tool that helps you understand coding problems better. You can visualize the problem-solving process, see patterns, and get insights into how to approach different types of problems and clear your concepts and also you can undertand the pattern in the Hinglish language for better understanding."
     },
     {
-      title: "Username Issues",
+      title: "Analyze Your Code / Debugging",
       content:
-        "If you're having trouble with your username, check our guide on managing and resetting your username. Add your username in the settings page to get personalized features and better experience."
+        "Analyze Your code is a feature that allows you to see how your code executes step by step. You can identify logical errors, and point your errors to fix it step by step and this will give you the better understanding of the problem and also you get the full code solution."
     },
     {
-      title: "Visualize Patterns",
+      title: "Revision Alerts",
       content:
-        "If you're having trouble visualizing patterns, check our guide on how to use the visualization tools effectively. Enter the problem number in the search bar and click on the visualize button to see the patterns. and Visualize problem in animated way to understand the problem better."
-    },
-    {
-      title: "Revision",
-      content:
-        "If you want to revise a problem, check our guide on how to use the revision feature. You can add problems to your revision list and practice them regularly to improve your skills. By adding the week days of the problem to revise this will alert you on your email and mobile notifications to revise the problem on the selected week days. and in calendar you can see the problems added for revision on the selected week days."
+        "Revision Alerts is a feature that helps you stay on top of your practice. You can set up alerts to remind you to revise specific problems or topics, ensuring that you retain what you've learned and improve your problem-solving skills over time. This will alert you on your email notifications to revise the problem on the selected week days and in calendar manually you can see the problems added for revision on the selected week days."
     },
     {
       title: "Daily Contest",
       content:
         "If you're participating in a daily contest, check our guide on how to manage and participate in contests effectively. and check daily contest in Visualise Leet Code and remind the contest to your calendar and get notify you before the contest starts."
+    },
+    {
+      title: "Profile Setting",
+      content:
+        "In the Profile Setting section, you can manage your account details, update your preferences, and customize your experience on Visualize Leet Code. You can also connect your LeetCode & Codeforces account to sync your progress and get personalized recommendations based on your activity."
+    },
+    {
+      title: "Username Issues",
+      content:
+        "If you're facing issues with your username, such as syncing problems or account linking, please ensure that you've entered the correct username for your LeetCode and Codeforces accounts in the Profile Setting section. If the problem persists, feel free to reach out to our support team through the feedback form below, and we'll assist you in resolving the issue."
     }
   ];
 

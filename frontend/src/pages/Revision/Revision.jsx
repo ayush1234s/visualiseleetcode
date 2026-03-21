@@ -209,7 +209,7 @@ export default function Revision() {
         </h1>
 
         <p className="text-gray-400 mt-2">
-          Schedule LeetCode questions for revision.
+          Schedule LeetCode questions for revision, Add it to your calendar and get email reminders on revision days.
         </p>
 
       </div>
