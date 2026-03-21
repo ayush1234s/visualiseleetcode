@@ -60,7 +60,7 @@ export default function Revision() {
     setFetchLoading(true);
 
     const res=await axios.post(
-      "http://localhost:5000/api/visualize",
+      `${import.meta.env.VITE_BACKEND_URL}/api/visualize`,
       {questionNumber}
     );
 
@@ -109,7 +109,7 @@ export default function Revision() {
     try{
 
       const res=await axios.post(
-        "http://localhost:5000/api/email/send-revision-email",
+        `${import.meta.env.VITE_BACKEND_URL}/api/email/send-revision-email`,
         {
           email,
           questionNumber,

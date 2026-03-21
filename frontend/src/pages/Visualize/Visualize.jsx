@@ -33,7 +33,7 @@ export default function Visualize() {
             setHindiExplain("");
 
             const res = await axios.post(
-                "http://localhost:5000/api/visualize",
+                `${import.meta.env.VITE_BACKEND_URL}/api/visualize`,
                 { questionNumber }
             );
 
@@ -58,7 +58,7 @@ export default function Visualize() {
         if (!userCode) return;
 
         const res = await axios.post(
-            "http://localhost:5000/api/visualize/analyze",
+            `${import.meta.env.VITE_BACKEND_URL}/api/visualize/analyze`,
             {
                 questionTitle: visualData.question,
                 userCode,
@@ -76,7 +76,7 @@ export default function Visualize() {
         setHindiLoading(true);
 
         const res = await axios.post(
-            "http://localhost:5000/api/visualize/hindi",
+            `${import.meta.env.VITE_BACKEND_URL}/api/visualize/hindi`,
             {
                 questionTitle: visualData.question,
                 explanation: visualData.visualization,
