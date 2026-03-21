@@ -1,13 +1,9 @@
 const nodemailer = require("nodemailer");
 const path = require("path");
-const dns = require("dns");
-
-// 🔥 FORCE IPv4 (IMPORTANT FIX)
-dns.setDefaultResultOrder("ipv4first");
 
 exports.sendRevisionEmail = async (req, res) => {
 
-  const { email, questionNumber, questionTitle, weekdays, id } = req.body;
+  const { email, questionNumber, questionTitle, weekdays } = req.body;
 
   try {
 
@@ -48,10 +44,6 @@ exports.sendRevisionEmail = async (req, res) => {
       }
     });
 
-    /* ================= TICKET ================= */
-
-    const ticketId = "VL-" + Math.floor(10000 + Math.random()*90000);
-
     /* ================= LEETCODE LINK ================= */
 
     const slug = questionTitle
@@ -67,23 +59,25 @@ exports.sendRevisionEmail = async (req, res) => {
     console.log("EMAIL USER:", process.env.GMAIL_USER);
     console.log("EMAIL PASS:", process.env.GMAIL_PASS ? "LOADED" : "NOT LOADED");
 
-    /* ================= TRANSPORT ================= */
+    /* ================= TRANSPORT (FINAL FIX) ================= */
 
     const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 465,
-      secure: true,
-      family: 4, // 🔥 FORCE IPv4
+      service: "gmail",              // 🔥 important
+      port: 587,                     // 🔥 use 587 (not 465)
+      secure: false,                 // 🔥 false for 587
       auth: {
         user: process.env.GMAIL_USER,
         pass: process.env.GMAIL_PASS
+      },
+      tls: {
+        rejectUnauthorized: false
       }
     });
 
-    /* ================= VERIFY CONNECTION ================= */
+    /* ================= VERIFY ================= */
 
     await transporter.verify();
-    console.log("✅ SMTP Connected");
+    console.log("✅ SMTP CONNECTED");
 
     /* ================= EMAIL TEMPLATE ================= */
 
@@ -94,31 +88,32 @@ exports.sendRevisionEmail = async (req, res) => {
       subject: "📌 Visualize LeetCode Revision Alert",
 
       html: `
-<div style="background:#0d1117;padding:40px;font-family:Arial">
-<div style="max-width:620px;margin:auto;background:#161b22;border:1px solid #30363d;border-radius:12px;padding:30px;color:#e6edf3">
+      <div style="background:#0d1117;padding:40px;font-family:Arial">
+        <div style="max-width:620px;margin:auto;background:#161b22;border:1px solid #30363d;border-radius:12px;padding:30px;color:#e6edf3">
 
-<h2 style="color:#58a6ff;text-align:center">Visualize LeetCode</h2>
+          <h2 style="color:#58a6ff;text-align:center">Visualize LeetCode</h2>
 
-<p>Hi,</p>
+          <p>Hi,</p>
 
-<p>This is your <b>Revision Alert</b>.</p>
+          <p>This is your <b>Revision Alert</b>.</p>
 
-<p><b>Question:</b> ${questionNumber} - ${questionTitle}</p>
-<p><b>Weekdays:</b> ${weekdays.join(", ")}</p>
+          <p><b>Question:</b> ${questionNumber} - ${questionTitle}</p>
+          <p><b>Weekdays:</b> ${weekdays.join(", ")}</p>
 
-<p><b>Upcoming:</b> ${upcomingDay}</p>
-<p><b>Countdown:</b> ${daysLeft} day(s)</p>
+          <p><b>Upcoming:</b> ${upcomingDay}</p>
+          <p><b>Countdown:</b> ${daysLeft} day(s)</p>
 
-<div style="margin:20px 0;text-align:center">
-<a href="${leetcodeLink}" style="padding:10px 20px;background:#238636;color:white;text-decoration:none;border-radius:6px">
-Open Question
-</a>
-</div>
+          <div style="margin:20px 0;text-align:center">
+            <a href="${leetcodeLink}" 
+              style="padding:10px 20px;background:#238636;color:white;text-decoration:none;border-radius:6px">
+              Open Question
+            </a>
+          </div>
 
-<p>Happy Coding 🚀</p>
+          <p>Happy Coding 🚀</p>
 
-</div>
-</div>
+        </div>
+      </div>
       `,
 
       attachments: [
