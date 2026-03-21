@@ -1,5 +1,3 @@
-// ONLY UI RESPONSIVE IMPROVED (LOGIC SAME)
-
 import { useEffect, useState } from "react";
 import { db } from "../../firebase";
 import { doc, onSnapshot } from "firebase/firestore";
@@ -16,7 +14,6 @@ import {
 import { fetchCodeforcesData } from "../../services/codeforcesService";
 
 export default function Home() {
-
   const [leetcodeData, setLeetcodeData] = useState(null);
   const [dailyProblem, setDailyProblem] = useState(null);
   const [leetcodeSubs, setLeetcodeSubs] = useState([]);
@@ -50,11 +47,15 @@ export default function Home() {
             setLeetcodeSubs(subs || []);
           } else {
             setLeetcodeData(null);
+            setDailyProblem(null);
+            setLeetcodeSubs([]);
           }
 
           if (cf) {
             const cfData = await fetchCodeforcesData(cf);
             setCfSubs(cfData || []);
+          } else {
+            setCfSubs([]);
           }
         }
       }
@@ -79,40 +80,44 @@ export default function Home() {
     const hours = Math.floor(diff / 3600);
     const minutes = Math.floor(diff / 60);
 
-    if (days > 0) return `${days}d ago`;
-    if (hours > 0) return `${hours}h ago`;
-    if (minutes > 0) return `${minutes}m ago`;
+    if (days > 0) return `${days} day${days > 1 ? "s" : ""} ago`;
+    if (hours > 0) return `${hours} hour${hours > 1 ? "s" : ""} ago`;
+    if (minutes > 0) return `${minutes} minute${minutes > 1 ? "s" : ""} ago`;
     return "Just now";
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 space-y-10">
+    <div className="max-w-7xl mx-auto px-6 py-14 space-y-12">
 
       {/* HEADER */}
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-semibold text-white">
+      <div className="space-y-2">
+        <h1 className="text-3xl font-semibold text-white">
           Dashboard
         </h1>
-        <p className="text-gray-400 text-sm sm:text-base">
+        <p className="text-gray-400">
           See Your Coding Activity At A Glance.
         </p>
       </div>
 
-      {/* HEATMAP */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* ================= HEATMAP ================= */}
+      <div className="grid lg:grid-cols-2 gap-8">
 
-        <div className="bg-[#161b22] border border-[#30363d] rounded-xl p-4 overflow-x-auto">
-          <h2 className="text-base sm:text-lg text-white mb-4">
+        <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-6">
+          <h2 className="text-lg font-semibold mb-6 text-white">
             LeetCode Activity
           </h2>
           <Heatmap
             platform="leetcode"
-            data={leetcodeData?.calendar ? JSON.parse(leetcodeData.calendar) : {}}
+            data={
+              leetcodeData?.calendar
+                ? JSON.parse(leetcodeData.calendar)
+                : {}
+            }
           />
         </div>
 
-        <div className="bg-[#161b22] border border-[#30363d] rounded-xl p-4 overflow-x-auto">
-          <h2 className="text-base sm:text-lg text-white mb-4">
+        <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-6">
+          <h2 className="text-lg font-semibold mb-6 text-white">
             Codeforces Activity
           </h2>
           <Heatmap
@@ -133,28 +138,29 @@ export default function Home() {
         </div>
       </div>
 
-      {/* SECOND ROW */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* ================= SECOND ROW ================= */}
+      <div className="grid lg:grid-cols-2 gap-8">
 
-        {/* LEFT */}
-        <div className="space-y-6">
+        {/* LEFT SIDE */}
+        <div className="space-y-8">
 
           {/* PROGRESS */}
-          <div className="bg-[#161b22] border border-[#30363d] rounded-xl p-4">
+          <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-6">
 
-            <div className="flex flex-wrap justify-between gap-3 mb-4">
-              <h2 className="text-white">Progress Overview</h2>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-semibold text-white">
+                Progress Overview
+              </h2>
 
-              <div className="flex gap-2 flex-wrap">
+              <div className="flex gap-2 bg-[#0d1117] p-1 rounded-lg">
                 {["leetcode", "codeforces"].map((tab) => (
                   <button
                     key={tab}
                     onClick={() => setProgressTab(tab)}
-                    className={`px-3 py-1 text-xs rounded ${
-                      progressTab === tab
-                        ? "bg-[#1d252f] text-white"
-                        : "text-gray-400"
-                    }`}
+                    className={`px-4 py-1 text-sm rounded-md border ${progressTab === tab
+                        ? "bg-[#1d252f] text-white border-[#605e5e]"
+                        : "border-[#30363d] text-gray-400 hover:text-white"
+                      }`}
                   >
                     {tab}
                   </button>
@@ -162,76 +168,203 @@ export default function Home() {
               </div>
             </div>
 
-            {["easy", "medium", "hard"].map((level) => (
-              <div key={level} className="mb-4">
-                <div className="flex justify-between text-sm">
-                  <span>{level}</span>
-                  <span>{leetcodeData?.[level] || 0}</span>
-                </div>
+            {progressTab === "leetcode" && (
+              !lcUsername ? (
+                <p className="text-red-400 text-sm">
+                  Please add your LeetCode username.
+                </p>
+              ) : (
+                ["easy", "medium", "hard"].map((level) => (
+                  <div key={level} className="mb-6">
+                    <div className="flex justify-between text-sm mb-2">
+                      <span className="capitalize text-white">
+                        {level}
+                      </span>
+                      <span className="text-white">
+                        {leetcodeData?.[level] || 0}
+                      </span>
+                    </div>
+                    <div className="w-full bg-[#0d1117] h-2 rounded-full">
+                      <div
+                        className={`h-2 rounded-full ${level === "easy"
+                            ? "bg-green-500"
+                            : level === "medium"
+                              ? "bg-yellow-500"
+                              : "bg-red-500"
+                          }`}
+                        style={{
+                          width: `${percent(
+                            leetcodeData?.[level],
+                            totalLC
+                          )}%`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                ))
+              )
+            )}
 
-                <div className="w-full bg-[#0d1117] h-2 rounded-full">
-                  <div
-                    className={`h-2 ${
-                      level === "easy"
-                        ? "bg-green-500"
-                        : level === "medium"
-                        ? "bg-yellow-500"
-                        : "bg-red-500"
-                    }`}
-                    style={{
-                      width: `${percent(leetcodeData?.[level], totalLC)}%`
-                    }}
-                  />
-                </div>
-              </div>
-            ))}
+            {progressTab === "codeforces" && (
+              !cfUsername ? (
+                <p className="text-red-400 text-sm">
+                  Please add your Codeforces username.
+                </p>
+              ) : (
+                <p className="text-white">
+                  Total Submissions: {cfSubs.length}
+                </p>
+              )
+            )}
           </div>
 
-          {/* DAILY */}
-          <div className="bg-[#161b22] border border-[#30363d] rounded-xl p-4">
+          {/* DAILY PROBLEM */}
+          <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-6 
+                shadow-md hover:shadow-xl hover:-translate-y-1 
+                transition-all duration-300">
 
-            <h2 className="text-white mb-3">
-              Problem of the Day
+            <h2 className="text-lg font-semibold text-white mb-5">
+              LeetCode Problem of the Day
             </h2>
 
-            {dailyProblem && (
-              <div className="space-y-3">
+            {!lcUsername ? (
+              <p className="text-gray-500 text-sm">
+                Add your LeetCode username to view.
+              </p>
+            ) : dailyProblem ? (
+              <div className="space-y-5">
 
-                <h3 className="text-white text-sm sm:text-lg">
-                  {dailyProblem.title}
-                </h3>
+                {/* Problem Header */}
+                <div>
+                  <h3 className="text-sm text-gray-400 mb-1">
+                    Problem #{dailyProblem.questionId} - Today's LeetCode Challenge
+                  </h3>
 
+                  <h3 className="text-xl font-semibold text-white">
+                    {dailyProblem.title}
+                  </h3>
+                </div>
+
+                {/* Difficulty + Acceptance */}
+                <div className="flex items-center gap-3 text-sm">
+                  <span className={`px-2 py-1 rounded-md text-xs font-medium
+          ${dailyProblem.difficulty === "Easy"
+                      ? "bg-green-900 text-green-400"
+                      : dailyProblem.difficulty === "Medium"
+                        ? "bg-yellow-900 text-yellow-400"
+                        : "bg-red-900 text-red-400"
+                    }
+        `}>
+                    {dailyProblem.difficulty}
+                  </span>
+
+                  <span className="text-gray-400">
+                    {dailyProblem.acceptanceRate}%
+                  </span>
+                </div>
+
+                {/* Tags */}
+                <div className="flex flex-wrap gap-2">
+                  {dailyProblem.tags?.map((tag, i) => (
+                    <span
+                      key={i}
+                      className="bg-[#0d1117] border border-[#30363d] 
+                       px-3 py-1 text-xs rounded-md text-gray-300
+                       hover:border-white transition"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+
+                {/* Button */}
                 <a
                   href={dailyProblem.link}
                   target="_blank"
-                  className="inline-block bg-green-600 px-4 py-2 rounded"
+                  rel="noreferrer"
+                  className="inline-block border border-[#605e5e] text-white 
+                   px-6 py-2 rounded-lg transition-all duration-300
+                   hover:bg-[#1d252f] hover:text-white"
                 >
-                  Solve
+                  Solve Now
+                  <ExternalLink className="inline-block ml-2" size={18} />
                 </a>
 
               </div>
+            ) : (
+              <p className="text-gray-400 text-sm">Loading...</p>
             )}
           </div>
 
         </div>
 
-        {/* RIGHT */}
-        <div className="bg-[#161b22] border border-[#30363d] rounded-xl p-4">
+        {/* RIGHT SIDE RECENT ACTIVITY */}
+        <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-6">
 
-          <h2 className="text-white mb-4">
-            Recent Activity
-          </h2>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-lg font-semibold text-white">
+              Recent Activity
+            </h2>
 
-          <div className="space-y-3 max-h-[350px] overflow-y-auto">
-
-            {leetcodeSubs.slice(0, 5).map((s, i) => (
-              <div key={i} className="text-sm text-gray-300">
-                {s.title}
-              </div>
-            ))}
-
+            <div className="flex gap-2 bg-[#0d1117] p-1 rounded-lg">
+              {["all", "leetcode", "codeforces"].map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setRecentTab(tab)}
+                  className={`px-3 py-1 text-sm rounded-md ${recentTab === tab
+                      ? "bg-[#1d252f] text-white"
+                      : "text-gray-400 hover:text-white"
+                    }`}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
           </div>
 
+          <div className="space-y-4 max-h-[460px] overflow-y-auto no-scrollbar">
+
+            {(recentTab === "all" || recentTab === "leetcode") &&
+              [...leetcodeSubs]
+                .sort((a, b) => b.timestamp - a.timestamp)
+                .map((s, i) => (
+                  <div key={`lc-${i}`} className="bg-[#0d1117] p-4 rounded-xl border border-[#30363d]">
+                    <a
+                      href={`https://leetcode.com/problems/${s.titleSlug}/`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-white hover:underline"
+                    >
+                      #{s.questionId} {s.title}
+                    </a>
+                    <ExternalLink className="inline-block ml-2" size={18} />
+                    <p className="text-xs text-gray-400 mt-2">
+                      {s.lang} • {s.statusDisplay} • {timeAgo(s.timestamp)}
+                    </p>
+                  </div>
+                ))}
+
+            {(recentTab === "all" || recentTab === "codeforces") &&
+              [...cfSubs]
+                .sort((a, b) => b.creationTimeSeconds - a.creationTimeSeconds)
+                .map((s, i) => (
+                  <div key={`cf-${i}`} className="bg-[#0d1117] p-4 rounded-xl border border-[#30363d]">
+                    <a
+                      href={`https://codeforces.com/contest/${s.problem?.contestId}/problem/${s.problem?.index}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-white hover:underline"
+                    >
+                      #{s.problem?.contestId}{s.problem?.index} {s.problem?.name}
+                    </a>
+                    <ExternalLink className="inline-block ml-2" size={18} />
+                    <p className="text-xs text-gray-400 mt-2">
+                      {s.programmingLanguage} • {s.verdict} • {timeAgo(s.creationTimeSeconds)}
+                    </p>
+                  </div>
+                ))}
+
+          </div>
         </div>
 
       </div>
