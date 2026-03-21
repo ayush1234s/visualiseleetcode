@@ -24,7 +24,7 @@ const PORT = process.env.PORT || 5000;
 // ✅ CORS (Allow frontend access)
 app.use(
   cors({
-    origin: "*", // 🔥 change to Vercel URL later
+    origin: "https://visualiseleetcode.vercel.app/", // 🔥 change to Vercel URL later
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
