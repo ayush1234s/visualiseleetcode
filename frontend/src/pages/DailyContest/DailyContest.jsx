@@ -11,10 +11,19 @@ export default function DailyContest() {
 
   const loadContests = async () => {
     setLoading(true);
+
     const data = await fetchAllContests();
-    const safeData = Array.isArray(data) ? data : [];
+
+    // 🔥 FIX: handle different API formats
+    const safeData = Array.isArray(data)
+      ? data
+      : data?.contests || data?.data || [];
+
+    console.log("Contest Data:", safeData);
+
     setContests(safeData);
     setFiltered(safeData);
+
     setLoading(false);
   };
 
@@ -80,11 +89,14 @@ export default function DailyContest() {
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-14 grid lg:grid-cols-4 gap-10">
-      <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-6 shadow-md">
+      
+      {/* FILTER */}
+      <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-6">
         <h2 className="text-lg font-semibold text-white mb-6">
           Filter Contests
         </h2>
 
+        {/* PLATFORM */}
         <div className="mb-6">
           <h4 className="text-sm text-gray-400 mb-3">Platforms</h4>
           <div className="flex flex-wrap gap-2">
@@ -92,10 +104,10 @@ export default function DailyContest() {
               <button
                 key={item}
                 onClick={() => setPlatform(item)}
-                className={`px-4 py-1.5 rounded-full text-sm border transition ${
+                className={`px-4 py-1.5 rounded-full text-sm border ${
                   platform === item
                     ? "bg-[#1d252f] text-white border-[#605e5e]"
-                    : "border-[#30363d] text-gray-400 hover:text-white hover:border-white"
+                    : "border-[#30363d] text-gray-400"
                 }`}
               >
                 {item}
@@ -104,6 +116,7 @@ export default function DailyContest() {
           </div>
         </div>
 
+        {/* STATUS */}
         <div className="mb-6">
           <h4 className="text-sm text-gray-400 mb-3">Status</h4>
           <div className="flex flex-wrap gap-2">
@@ -111,10 +124,10 @@ export default function DailyContest() {
               <button
                 key={item}
                 onClick={() => setStatus(item)}
-                className={`px-4 py-1.5 rounded-full text-sm border transition ${
+                className={`px-4 py-1.5 rounded-full text-sm border ${
                   status === item
                     ? "bg-[#1d252f] text-white border-[#605e5e]"
-                    : "border-[#30363d] text-gray-400 hover:text-white hover:border-white"
+                    : "border-[#30363d] text-gray-400"
                 }`}
               >
                 {item}
@@ -123,10 +136,11 @@ export default function DailyContest() {
           </div>
         </div>
 
+        {/* ACTION */}
         <div className="flex gap-3">
           <button
             onClick={loadContests}
-            className="flex-1 border border-[#464f59] text-white py-2 rounded-lg hover:bg-[#1d252f] hover:text-white transition"
+            className="flex-1 border text-white py-2 rounded-lg"
           >
             Refresh
           </button>
@@ -136,13 +150,14 @@ export default function DailyContest() {
               setPlatform("all");
               setStatus("all");
             }}
-            className="flex-1 border border-[#414952] py-2 rounded-lg hover:border-[#3d454e] hover:text-white transition"
+            className="flex-1 border py-2 rounded-lg"
           >
             Reset
           </button>
         </div>
       </div>
 
+      {/* CONTEST CARDS */}
       <div className="lg:col-span-3 grid md:grid-cols-2 gap-8">
         {loading ? (
           <p className="text-gray-400">Loading contests...</p>
@@ -152,13 +167,13 @@ export default function DailyContest() {
           filtered.map((contest, index) => (
             <div
               key={index}
-              className="bg-[#161b22] border border-[#30363d] rounded-2xl p-6 space-y-5 shadow-md hover:shadow-xl hover:-translate-y-2 transition-all duration-300"
+              className="bg-[#161b22] border border-[#30363d] rounded-2xl p-6 space-y-5"
             >
               <div className="flex gap-3 text-xs">
-                <span className="px-3 py-1 rounded-full bg-[#0d1117] border border-[#30363d] text-gray-300">
+                <span className="px-3 py-1 rounded-full bg-[#0d1117] text-gray-300">
                   {contest.platform}
                 </span>
-                <span className="px-3 py-1 rounded-full bg-[#0d1117] border border-[#30363d] text-gray-400">
+                <span className="px-3 py-1 rounded-full bg-[#0d1117] text-gray-400">
                   {contest.status}
                 </span>
               </div>
@@ -167,26 +182,24 @@ export default function DailyContest() {
                 {contest.title}
               </h3>
 
-              <div className="space-y-2 text-sm text-gray-400">
+              <div className="text-sm text-gray-400">
                 <p>Start: {formatTime(contest.startTime)}</p>
                 <p>Duration: {formatDuration(contest.duration)} mins</p>
               </div>
 
-              <div className="flex gap-4 pt-2">
+              <div className="flex gap-4">
                 <a
                   href={contest.url}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex-1 text-center border border-[#30363d] text-white py-2 rounded-lg hover:bg-[#1d252f] hover:text-white transition"
+                  className="flex-1 text-center border text-white py-2 rounded-lg"
                 >
-                  Join Contest 
-                  
+                  Join Contest
                 </a>
-                
 
                 <button
                   onClick={() => handleAddToCalendar(contest)}
-                  className="flex-1 border border-[#30363d] py-2 rounded-lg hover:border-[#1d252f] hover:text-white transition"
+                  className="flex-1 border py-2 rounded-lg"
                 >
                   Remind Me
                 </button>
