@@ -24,7 +24,7 @@ const PORT = process.env.PORT || 5000;
 // ✅ CORS (Allow frontend access)
 app.use(
   cors({
-    origin: "*", // later you can replace with your Vercel URL
+    origin: "*", // 🔥 change to Vercel URL later
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
@@ -40,6 +40,12 @@ app.use("/api/codeforces", codeforcesRoutes);
 app.use("/api/contests", contestRoutes);
 app.use("/api/visualize", visualizeRoutes);
 app.use("/api/email", emailRoutes);
+
+/* ================= ROOT ROUTE (IMPORTANT) ================= */
+
+app.get("/", (req, res) => {
+  res.send("🚀 Visualize Leetcode Backend is Live!");
+});
 
 /* ================= HEALTH CHECK ================= */
 
