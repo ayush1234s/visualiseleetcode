@@ -54,30 +54,30 @@ exports.sendRevisionEmail = async (req, res) => {
 
     const leetcodeLink = `https://leetcode.com/problems/${slug}/description/`;
 
-    /* ================= DEBUG ENV ================= */
+    /* ================= DEBUG ================= */
 
     console.log("EMAIL USER:", process.env.GMAIL_USER);
     console.log("EMAIL PASS:", process.env.GMAIL_PASS ? "LOADED" : "NOT LOADED");
 
-    /* ================= TRANSPORT (FINAL FIX) ================= */
+    /* ================= TRANSPORT ================= */
 
     const transporter = nodemailer.createTransport({
-      service: "gmail",              // 🔥 important
-      port: 587,                     // 🔥 use 587 (not 465)
-      secure: false,                 // 🔥 false for 587
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: false,
       auth: {
         user: process.env.GMAIL_USER,
         pass: process.env.GMAIL_PASS
       },
+      requireTLS: true,
       tls: {
+        ciphers: "SSLv3",
         rejectUnauthorized: false
-      }
+      },
+      connectionTimeout: 30000,
+      greetingTimeout: 30000,
+      socketTimeout: 30000
     });
-
-    /* ================= VERIFY ================= */
-
-    await transporter.verify();
-    console.log("✅ SMTP CONNECTED");
 
     /* ================= EMAIL TEMPLATE ================= */
 
@@ -128,17 +128,19 @@ exports.sendRevisionEmail = async (req, res) => {
 
     /* ================= SEND EMAIL ================= */
 
-    await transporter.sendMail(mailOptions);
+    try {
+      await transporter.sendMail(mailOptions);
+      console.log("✅ EMAIL SENT SUCCESSFULLY");
+      return res.json({ success: true });
 
-    console.log("✅ EMAIL SENT SUCCESSFULLY");
-
-    res.json({ success: true });
+    } catch (mailErr) {
+      console.log("❌ MAIL ERROR:", mailErr);
+      return res.status(500).json({ success: false });
+    }
 
   } catch (err) {
 
-    console.log("❌ EMAIL ERROR FULL:", err);
-    console.log("❌ MESSAGE:", err.message);
-
+    console.log("❌ MAIN ERROR:", err);
     res.status(500).json({ success: false });
 
   }
