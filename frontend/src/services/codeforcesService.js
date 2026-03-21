@@ -1,12 +1,12 @@
 const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
-export const fetchAllContests = async () => {
+export const fetchCodeforcesData = async (username) => {
   try {
-    const res = await fetch(`${BASE_URL}/api/contests`);
-    if (!res.ok) throw new Error("Contest fetch failed");
+    const res = await fetch(`${BASE_URL}/api/codeforces/${username}`);
+    if (!res.ok) throw new Error("Codeforces fetch failed");
     return await res.json();
   } catch (err) {
-    console.error("Contest Fetch Error:", err);
+    console.error("Codeforces Error:", err);
     return [];
   }
 };
