@@ -10,9 +10,11 @@ exports.sendRevisionEmail = async (req, res) => {
 
     console.log("📩 SENDGRID EMAIL API HIT");
 
-    /* ================= DATE & TIME ================= */
+    /* ================= IST TIME FIX ================= */
 
-    const now = new Date();
+    const now = new Date(
+      new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" })
+    );
 
     const date = now.toLocaleDateString("en-GB", {
       day: "2-digit",
@@ -22,7 +24,8 @@ exports.sendRevisionEmail = async (req, res) => {
 
     const time = now.toLocaleTimeString("en-IN", {
       hour: "2-digit",
-      minute: "2-digit"
+      minute: "2-digit",
+      hour12: true
     });
 
     /* ================= UPCOMING DAY ================= */
@@ -45,15 +48,16 @@ exports.sendRevisionEmail = async (req, res) => {
       }
     });
 
-    /* ================= LEETCODE LINK ================= */
+    /* ================= LEETCODE LINK FIX ================= */
 
     const slug = questionTitle
       .toLowerCase()
+      .replace(/^#\d+\s*-\s*/, "") // remove "#874 -"
       .replace(/[^a-z0-9\s]/g, "")
       .trim()
       .replace(/\s+/g, "-");
 
-    const leetcodeLink = `https://leetcode.com/problems/${slug}/description/`;
+    const leetcodeLink = `https://leetcode.com/problems/${slug}/`;
 
     /* ================= EMAIL ================= */
 
@@ -62,8 +66,8 @@ exports.sendRevisionEmail = async (req, res) => {
       from: process.env.GMAIL_USER,
       subject: "Revision Reminder - Visualize LeetCode",
 
-      // 🔥 Anti-spam plain text
-      text: `Revision Reminder: ${questionNumber} - ${questionTitle}. Check your scheduled revision.`,
+      // ✅ Anti-spam
+      text: `Revision Reminder: ${questionNumber} - ${questionTitle}`,
 
       html: `
       <div style="background:#0d1117;padding:40px;font-family:Arial">
