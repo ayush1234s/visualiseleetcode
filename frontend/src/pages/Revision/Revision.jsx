@@ -322,7 +322,9 @@ export default function Revision() {
           </button>
 
         </div>
-
+<p className="text-sm text-gray-400 mt-3">
+  Note: Please check your Spam folder also for alert message.
+</p>
       </div>
 
       {/* TABLE */}
