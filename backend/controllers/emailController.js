@@ -10,7 +10,7 @@ exports.sendRevisionEmail = async (req, res) => {
 
     console.log("📩 SENDGRID EMAIL API HIT");
 
-    /* ================= IST TIME FIX ================= */
+    /* ================= IST TIME ================= */
 
     const now = new Date(
       new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" })
@@ -48,11 +48,11 @@ exports.sendRevisionEmail = async (req, res) => {
       }
     });
 
-    /* ================= LEETCODE LINK FIX ================= */
+    /* ================= LEETCODE LINK ================= */
 
     const slug = questionTitle
       .toLowerCase()
-      .replace(/^#\d+\s*-\s*/, "") // remove "#874 -"
+      .replace(/^#\d+\s*-\s*/, "")
       .replace(/[^a-z0-9\s]/g, "")
       .trim()
       .replace(/\s+/g, "-");
@@ -64,10 +64,17 @@ exports.sendRevisionEmail = async (req, res) => {
     const msg = {
       to: email,
       from: process.env.GMAIL_USER,
-      subject: "Revision Reminder - Visualize LeetCode",
+      subject: "Your Revision Reminder - Visualize LeetCode",
 
-      // ✅ Anti-spam
-      text: `Revision Reminder: ${questionNumber} - ${questionTitle}`,
+      // ✅ Anti-spam plain text
+      text: `
+Hi,
+
+This is your revision reminder for question ${questionNumber} - ${questionTitle}.
+Please stay consistent with your learning.
+
+- Visualize LeetCode Team
+      `,
 
       html: `
       <div style="background:#0d1117;padding:40px;font-family:Arial">
@@ -170,6 +177,12 @@ exports.sendRevisionEmail = async (req, res) => {
           <p style="font-size:13px;color:#8b949e">
             Best Regards<br/>
             <b>Team Visualize LeetCode</b>
+          </p>
+
+          <!-- FOOTER (ANTI-SPAM) -->
+          <p style="font-size:12px;color:#8b949e;margin-top:20px">
+            You are receiving this email because you scheduled a revision reminder on Visualize LeetCode.
+            If this was not you, please ignore this email.
           </p>
 
         </div>
