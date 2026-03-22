@@ -12,6 +12,16 @@ import {
   updateDoc
 } from "firebase/firestore";
 
+// 🔥 USER ID (ADD ONLY THIS)
+const getUserId = () => {
+  let uid = localStorage.getItem("userId");
+  if (!uid) {
+    uid = "user_" + Math.random().toString(36).substring(2, 12);
+    localStorage.setItem("userId", uid);
+  }
+  return uid;
+};
+
 export default function Revision() {
 
   const [questionNumber,setQuestionNumber]=useState("");
@@ -36,7 +46,9 @@ export default function Revision() {
 
   const loadTasks=async()=>{
 
-    const snapshot=await getDocs(collection(db,"revisionTasks"));
+    const snapshot=await getDocs(
+      collection(db,"users",getUserId(),"revisionTasks")
+    );
 
     const list=snapshot.docs.map(doc=>({
       id:doc.id,
@@ -95,7 +107,7 @@ export default function Revision() {
     const createdAt=new Date();
 
     const docRef=await addDoc(
-      collection(db,"revisionTasks"),
+      collection(db,"users",getUserId(),"revisionTasks"),
       {
         questionNumber,
         questionTitle,
@@ -123,7 +135,7 @@ export default function Revision() {
       if(res.data.success){
 
         await updateDoc(
-          doc(db,"revisionTasks",docRef.id),
+          doc(db,"users",getUserId(),"revisionTasks",docRef.id),
           {emailStatus:"Success"}
         );
 
@@ -132,7 +144,7 @@ export default function Revision() {
     }catch(err){
 
       await updateDoc(
-        doc(db,"revisionTasks",docRef.id),
+        doc(db,"users",getUserId(),"revisionTasks",docRef.id),
         {emailStatus:"Failed"}
       );
 
@@ -170,7 +182,9 @@ export default function Revision() {
 
   const deleteTask=async(id)=>{
 
-    await deleteDoc(doc(db,"revisionTasks",id));
+    await deleteDoc(
+      doc(db,"users",getUserId(),"revisionTasks",id)
+    );
 
     loadTasks();
 
@@ -237,9 +251,7 @@ export default function Revision() {
               onClick={fetchQuestion}
               className="border border-blue-400 text-blue-400 px-4 py-2 rounded-lg"
             >
-
               {fetchLoading ? "Fetching..." : "Fetch"}
-
             </button>
 
           </div>
@@ -249,9 +261,7 @@ export default function Revision() {
         {questionTitle &&(
 
           <div className="bg-[#0d1117] border border-[#30363d] rounded-lg p-4 text-white">
-
             {questionTitle}
-
           </div>
 
         )}
@@ -322,9 +332,11 @@ export default function Revision() {
           </button>
 
         </div>
+
 <p className="text-sm text-gray-400 mt-3">
   Note: Please check your Spam folder also for alert message.
 </p>
+
       </div>
 
       {/* TABLE */}
