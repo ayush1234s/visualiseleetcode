@@ -12,17 +12,36 @@ export default function DailyContest() {
   const loadContests = async () => {
     setLoading(true);
 
-    const data = await fetchAllContests();
+    try {
+      const data = await fetchAllContests();
 
-    // 🔥 FIX: handle different API formats
-    const safeData = Array.isArray(data)
-      ? data
-      : data?.contests || data?.data || [];
+      console.log("FULL API RESPONSE:", data);
 
-    console.log("Contest Data:", safeData);
+      let safeData = [];
 
-    setContests(safeData);
-    setFiltered(safeData);
+      // 🔥 HANDLE ALL API FORMATS
+      if (Array.isArray(data)) {
+        safeData = data;
+      } else if (Array.isArray(data?.result)) {
+        safeData = data.result;
+      } else if (Array.isArray(data?.contests)) {
+        safeData = data.contests;
+      } else if (Array.isArray(data?.data)) {
+        safeData = data.data;
+      } else {
+        safeData = [];
+      }
+
+      console.log("FINAL CONTEST LIST:", safeData);
+
+      setContests(safeData);
+      setFiltered(safeData);
+
+    } catch (err) {
+      console.log("Error fetching contests:", err);
+      setContests([]);
+      setFiltered([]);
+    }
 
     setLoading(false);
   };
@@ -35,8 +54,8 @@ export default function DailyContest() {
     let result = contests;
 
     if (platform !== "all") {
-      result = result.filter(
-        (c) => c.platform?.toLowerCase() === platform
+      result = result.filter((c) =>
+        c.platform?.toLowerCase().includes(platform)
       );
     }
 
@@ -84,7 +103,7 @@ export default function DailyContest() {
       ) +
       "&location=" + encodeURIComponent(contest.url);
 
-    window.open(googleUrl, "_blank");
+    window.open(googleUrl,"_blank");
   };
 
   return (
