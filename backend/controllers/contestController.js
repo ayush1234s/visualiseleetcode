@@ -8,10 +8,11 @@ exports.getAllContests = async (req, res) => {
       getCodeforcesContests(),
     ]);
 
-    const lcArray = Array.isArray(lc) ? lc : [];
-    const cfArray = Array.isArray(cf) ? cf : [];
+    console.log("LC:", lc.length);
+    console.log("CF:", cf.length);
 
-    res.json([...lcArray, ...cfArray]);
+    res.json([...(lc || []), ...(cf || [])]);
+
   } catch (error) {
     console.error("Contest Fetch Error:", error.message);
     res.json([]);
