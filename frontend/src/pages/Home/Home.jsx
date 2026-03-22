@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { db, auth } from "../../firebase"; // 🔥 updated
+import { db } from "../../firebase";
 import { doc, onSnapshot } from "firebase/firestore";
 
 import Heatmap from "../../components/Heatmap/Heatmap";
@@ -13,6 +13,16 @@ import {
 
 import { fetchCodeforcesData } from "../../services/codeforcesService";
 
+// 🔥 USER ID (NO LOGIN)
+const getUserId = () => {
+  let uid = localStorage.getItem("userId");
+  if (!uid) {
+    uid = "user_" + Math.random().toString(36).substring(2, 12);
+    localStorage.setItem("userId", uid);
+  }
+  return uid;
+};
+
 export default function Home() {
   const [leetcodeData, setLeetcodeData] = useState(null);
   const [dailyProblem, setDailyProblem] = useState(null);
@@ -25,16 +35,30 @@ export default function Home() {
   const [progressTab, setProgressTab] = useState("leetcode");
   const [recentTab, setRecentTab] = useState("all");
 
+  const [initialLoading, setInitialLoading] = useState(false);
+
+  // ✅ LOCAL STORAGE LOAD
+  useEffect(() => {
+    const lc = localStorage.getItem("leetcodeUsername");
+    const cf = localStorage.getItem("codeforcesUsername");
+
+    if (lc) setLcUsername(lc);
+    if (cf) setCfUsername(cf);
+  }, []);
+
   useEffect(() => {
 
-    if (!auth.currentUser) return; // 🔥 added safety
-
     const unsubscribe = onSnapshot(
-      doc(db, "users", auth.currentUser.uid), // 🔥 FIX HERE
+      doc(db, "users", getUserId()),
       async (snap) => {
         if (snap.exists()) {
-          const lc = snap.data().leetcodeUsername;
-          const cf = snap.data().codeforcesUsername;
+          const lc =
+            snap.data().leetcodeUsername ||
+            localStorage.getItem("leetcodeUsername");
+
+          const cf =
+            snap.data().codeforcesUsername ||
+            localStorage.getItem("codeforcesUsername");
 
           setLcUsername(lc);
           setCfUsername(cf);
@@ -128,13 +152,13 @@ export default function Home() {
             data={
               cfSubs.length
                 ? cfSubs.reduce((acc, sub) => {
-                  const day = Math.floor(
-                    new Date(sub.creationTimeSeconds * 1000)
-                      .setHours(0, 0, 0, 0) / 1000
-                  );
-                  acc[day] = (acc[day] || 0) + 1;
-                  return acc;
-                }, {})
+                    const day = Math.floor(
+                      new Date(sub.creationTimeSeconds * 1000)
+                        .setHours(0, 0, 0, 0) / 1000
+                    );
+                    acc[day] = (acc[day] || 0) + 1;
+                    return acc;
+                  }, {})
                 : {}
             }
           />
@@ -194,8 +218,8 @@ export default function Home() {
                           level === "easy"
                             ? "bg-green-500"
                             : level === "medium"
-                              ? "bg-yellow-500"
-                              : "bg-red-500"
+                            ? "bg-yellow-500"
+                            : "bg-red-500"
                         }`}
                         style={{
                           width: `${percent(
@@ -254,8 +278,8 @@ export default function Home() {
           ${dailyProblem.difficulty === "Easy"
                       ? "bg-green-900 text-green-400"
                       : dailyProblem.difficulty === "Medium"
-                        ? "bg-yellow-900 text-yellow-400"
-                        : "bg-red-900 text-red-400"
+                      ? "bg-yellow-900 text-yellow-400"
+                      : "bg-red-900 text-red-400"
                     }
         `}>
                     {dailyProblem.difficulty}
@@ -285,7 +309,7 @@ export default function Home() {
                   rel="noreferrer"
                   className="inline-block border border-[#605e5e] text-white 
                    px-6 py-2 rounded-lg transition-all duration-300
-                   hover:bg-[#1d252f] hover:text-white"
+                   hover:bg-[#1d252f]"
                 >
                   Solve Now
                   <ExternalLink className="inline-block ml-2" size={18} />
@@ -295,6 +319,7 @@ export default function Home() {
             ) : (
               <p className="text-gray-400 text-sm">Loading...</p>
             )}
+
           </div>
 
         </div>
@@ -324,7 +349,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="space-y-4 max-h-[460px] overflow-y-auto no-scrollbar">
+          <div className="space-y-4 max-h-[460px] overflow-y-auto">
 
             {(recentTab === "all" || recentTab === "leetcode") &&
               [...leetcodeSubs]
