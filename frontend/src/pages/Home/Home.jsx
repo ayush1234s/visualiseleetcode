@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { db } from "../../firebase";
+import { db, auth } from "../../firebase"; // 🔥 updated
 import { doc, onSnapshot } from "firebase/firestore";
 
 import Heatmap from "../../components/Heatmap/Heatmap";
@@ -26,8 +26,11 @@ export default function Home() {
   const [recentTab, setRecentTab] = useState("all");
 
   useEffect(() => {
+
+    if (!auth.currentUser) return; // 🔥 added safety
+
     const unsubscribe = onSnapshot(
-      doc(db, "users", "config"),
+      doc(db, "users", auth.currentUser.uid), // 🔥 FIX HERE
       async (snap) => {
         if (snap.exists()) {
           const lc = snap.data().leetcodeUsername;
@@ -157,10 +160,11 @@ export default function Home() {
                   <button
                     key={tab}
                     onClick={() => setProgressTab(tab)}
-                    className={`px-4 py-1 text-sm rounded-md border ${progressTab === tab
+                    className={`px-4 py-1 text-sm rounded-md border ${
+                      progressTab === tab
                         ? "bg-[#1d252f] text-white border-[#605e5e]"
                         : "border-[#30363d] text-gray-400 hover:text-white"
-                      }`}
+                    }`}
                   >
                     {tab}
                   </button>
@@ -186,12 +190,13 @@ export default function Home() {
                     </div>
                     <div className="w-full bg-[#0d1117] h-2 rounded-full">
                       <div
-                        className={`h-2 rounded-full ${level === "easy"
+                        className={`h-2 rounded-full ${
+                          level === "easy"
                             ? "bg-green-500"
                             : level === "medium"
                               ? "bg-yellow-500"
                               : "bg-red-500"
-                          }`}
+                        }`}
                         style={{
                           width: `${percent(
                             leetcodeData?.[level],
@@ -234,7 +239,6 @@ export default function Home() {
             ) : dailyProblem ? (
               <div className="space-y-5">
 
-                {/* Problem Header */}
                 <div>
                   <h3 className="text-sm text-gray-400 mb-1">
                     Problem #{dailyProblem.questionId} - Today's LeetCode Challenge
@@ -245,7 +249,6 @@ export default function Home() {
                   </h3>
                 </div>
 
-                {/* Difficulty + Acceptance */}
                 <div className="flex items-center gap-3 text-sm">
                   <span className={`px-2 py-1 rounded-md text-xs font-medium
           ${dailyProblem.difficulty === "Easy"
@@ -263,7 +266,6 @@ export default function Home() {
                   </span>
                 </div>
 
-                {/* Tags */}
                 <div className="flex flex-wrap gap-2">
                   {dailyProblem.tags?.map((tag, i) => (
                     <span
@@ -277,7 +279,6 @@ export default function Home() {
                   ))}
                 </div>
 
-                {/* Button */}
                 <a
                   href={dailyProblem.link}
                   target="_blank"
@@ -311,10 +312,11 @@ export default function Home() {
                 <button
                   key={tab}
                   onClick={() => setRecentTab(tab)}
-                  className={`px-3 py-1 text-sm rounded-md ${recentTab === tab
+                  className={`px-3 py-1 text-sm rounded-md ${
+                    recentTab === tab
                       ? "bg-[#1d252f] text-white"
                       : "text-gray-400 hover:text-white"
-                    }`}
+                  }`}
                 >
                   {tab}
                 </button>
