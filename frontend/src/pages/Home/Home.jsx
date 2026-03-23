@@ -37,7 +37,6 @@ export default function Home() {
 
   const [initialLoading, setInitialLoading] = useState(false);
 
-  // ✅ LOCAL STORAGE LOAD
   useEffect(() => {
     const lc = localStorage.getItem("leetcodeUsername");
     const cf = localStorage.getItem("codeforcesUsername");
@@ -114,77 +113,81 @@ export default function Home() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-14 space-y-12">
+    <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 py-10 sm:py-14 space-y-10">
 
       {/* HEADER */}
       <div className="space-y-2">
-        <h1 className="text-3xl font-semibold text-white">
+        <h1 className="text-2xl sm:text-3xl font-semibold text-white">
           Dashboard
         </h1>
-        <p className="text-gray-400">
+        <p className="text-gray-400 text-sm sm:text-base">
           See Your Coding Activity At A Glance.
         </p>
       </div>
 
-      {/* ================= HEATMAP ================= */}
-      <div className="grid lg:grid-cols-2 gap-8">
+      {/* HEATMAP */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
 
-        <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-6">
+        <div className="w-full bg-[#161b22] border border-[#30363d] rounded-2xl p-4 sm:p-6">
           <h2 className="text-lg font-semibold mb-6 text-white">
             LeetCode Activity
           </h2>
-          <Heatmap
-            platform="leetcode"
-            data={
-              leetcodeData?.calendar
-                ? JSON.parse(leetcodeData.calendar)
-                : {}
-            }
-          />
+          <div className="overflow-x-auto">
+            <Heatmap
+              platform="leetcode"
+              data={
+                leetcodeData?.calendar
+                  ? JSON.parse(leetcodeData.calendar)
+                  : {}
+              }
+            />
+          </div>
         </div>
 
-        <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-6">
+        <div className="w-full bg-[#161b22] border border-[#30363d] rounded-2xl p-4 sm:p-6">
           <h2 className="text-lg font-semibold mb-6 text-white">
             Codeforces Activity
           </h2>
-          <Heatmap
-            platform="codeforces"
-            data={
-              cfSubs.length
-                ? cfSubs.reduce((acc, sub) => {
-                    const day = Math.floor(
-                      new Date(sub.creationTimeSeconds * 1000)
-                        .setHours(0, 0, 0, 0) / 1000
-                    );
-                    acc[day] = (acc[day] || 0) + 1;
-                    return acc;
-                  }, {})
-                : {}
-            }
-          />
+          <div className="overflow-x-auto">
+            <Heatmap
+              platform="codeforces"
+              data={
+                cfSubs.length
+                  ? cfSubs.reduce((acc, sub) => {
+                      const day = Math.floor(
+                        new Date(sub.creationTimeSeconds * 1000)
+                          .setHours(0, 0, 0, 0) / 1000
+                      );
+                      acc[day] = (acc[day] || 0) + 1;
+                      return acc;
+                    }, {})
+                  : {}
+              }
+            />
+          </div>
         </div>
       </div>
 
-      {/* ================= SECOND ROW ================= */}
-      <div className="grid lg:grid-cols-2 gap-8">
+      {/* SECOND ROW */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
 
-        {/* LEFT SIDE */}
-        <div className="space-y-8">
+        {/* LEFT */}
+        <div className="space-y-6">
 
           {/* PROGRESS */}
-          <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-6">
+          <div className="w-full bg-[#161b22] border border-[#30363d] rounded-2xl p-4 sm:p-6">
 
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
               <h2 className="text-lg font-semibold text-white">
                 Progress Overview
               </h2>
 
-              <div className="flex gap-2 bg-[#0d1117] p-1 rounded-lg">
+              <div className="flex flex-wrap gap-2 bg-[#0d1117] p-1 rounded-lg">
                 {["leetcode", "codeforces"].map((tab) => (
                   <button
                     key={tab}
                     onClick={() => setProgressTab(tab)}
-                    className={`px-4 py-1 text-sm rounded-md border ${
+                    className={`px-3 sm:px-4 py-1 text-sm rounded-md border ${
                       progressTab === tab
                         ? "bg-[#1d252f] text-white border-[#605e5e]"
                         : "border-[#30363d] text-gray-400 hover:text-white"
@@ -205,9 +208,7 @@ export default function Home() {
                 ["easy", "medium", "hard"].map((level) => (
                   <div key={level} className="mb-6">
                     <div className="flex justify-between text-sm mb-2">
-                      <span className="capitalize text-white">
-                        {level}
-                      </span>
+                      <span className="capitalize text-white">{level}</span>
                       <span className="text-white">
                         {leetcodeData?.[level] || 0}
                       </span>
@@ -248,9 +249,7 @@ export default function Home() {
           </div>
 
           {/* DAILY PROBLEM */}
-          <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-6 
-                shadow-md hover:shadow-xl hover:-translate-y-1 
-                transition-all duration-300">
+          <div className="w-full bg-[#161b22] border border-[#30363d] rounded-2xl p-4 sm:p-6">
 
             <h2 className="text-lg font-semibold text-white mb-5">
               LeetCode Problem of the Day
@@ -268,20 +267,19 @@ export default function Home() {
                     Problem #{dailyProblem.questionId} - Today's LeetCode Challenge
                   </h3>
 
-                  <h3 className="text-xl font-semibold text-white">
+                  <h3 className="text-lg sm:text-xl font-semibold text-white break-words">
                     {dailyProblem.title}
                   </h3>
                 </div>
 
-                <div className="flex items-center gap-3 text-sm">
-                  <span className={`px-2 py-1 rounded-md text-xs font-medium
-          ${dailyProblem.difficulty === "Easy"
+                <div className="flex flex-wrap items-center gap-3 text-sm">
+                  <span className={`px-2 py-1 rounded-md text-xs font-medium ${
+                    dailyProblem.difficulty === "Easy"
                       ? "bg-green-900 text-green-400"
                       : dailyProblem.difficulty === "Medium"
                       ? "bg-yellow-900 text-yellow-400"
                       : "bg-red-900 text-red-400"
-                    }
-        `}>
+                  }`}>
                     {dailyProblem.difficulty}
                   </span>
 
@@ -294,9 +292,7 @@ export default function Home() {
                   {dailyProblem.tags?.map((tag, i) => (
                     <span
                       key={i}
-                      className="bg-[#0d1117] border border-[#30363d] 
-                       px-3 py-1 text-xs rounded-md text-gray-300
-                       hover:border-white transition"
+                      className="bg-[#0d1117] border border-[#30363d] px-2 sm:px-3 py-1 text-xs rounded-md text-gray-300"
                     >
                       {tag}
                     </span>
@@ -307,9 +303,7 @@ export default function Home() {
                   href={dailyProblem.link}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-block border border-[#605e5e] text-white 
-                   px-6 py-2 rounded-lg transition-all duration-300
-                   hover:bg-[#1d252f]"
+                  className="inline-block border border-[#605e5e] text-white px-4 sm:px-6 py-2 rounded-lg"
                 >
                   Solve Now
                   <ExternalLink className="inline-block ml-2" size={18} />
@@ -324,15 +318,15 @@ export default function Home() {
 
         </div>
 
-        {/* RIGHT SIDE RECENT ACTIVITY */}
-        <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-6">
+        {/* RIGHT */}
+        <div className="w-full bg-[#161b22] border border-[#30363d] rounded-2xl p-4 sm:p-6">
 
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
             <h2 className="text-lg font-semibold text-white">
               Recent Activity
             </h2>
 
-            <div className="flex gap-2 bg-[#0d1117] p-1 rounded-lg">
+            <div className="flex flex-wrap gap-2 bg-[#0d1117] p-1 rounded-lg">
               {["all", "leetcode", "codeforces"].map((tab) => (
                 <button
                   key={tab}
@@ -349,7 +343,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="space-y-4 max-h-[460px] overflow-y-auto">
+          <div className="space-y-4 max-h-[350px] sm:max-h-[460px] overflow-y-auto">
 
             {(recentTab === "all" || recentTab === "leetcode") &&
               [...leetcodeSubs]
@@ -360,7 +354,7 @@ export default function Home() {
                       href={`https://leetcode.com/problems/${s.titleSlug}/`}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-white hover:underline"
+                      className="text-white hover:underline break-words"
                     >
                       #{s.questionId} {s.title}
                     </a>
@@ -380,7 +374,7 @@ export default function Home() {
                       href={`https://codeforces.com/contest/${s.problem?.contestId}/problem/${s.problem?.index}`}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-white hover:underline"
+                      className="text-white hover:underline break-words"
                     >
                       #{s.problem?.contestId}{s.problem?.index} {s.problem?.name}
                     </a>
