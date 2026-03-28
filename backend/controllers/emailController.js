@@ -63,8 +63,21 @@ exports.sendRevisionEmail = async (req, res) => {
 
     const msg = {
       to: email,
-      from: process.env.GMAIL_USER,
+      from: process.env.SENDGRID_FROM_EMAIL || process.env.GMAIL_USER,
+      replyTo: process.env.SENDGRID_REPLY_TO || process.env.SENDGRID_FROM_EMAIL || process.env.GMAIL_USER,
       subject: "Your Revision Reminder - Visualize LeetCode",
+      headers: {
+        "X-Priority": "3",
+        "Precedence": "bulk"
+      },
+      mailSettings: {
+        bypassListManagement: { enable: false },
+        sandboxMode: { enable: false }
+      },
+      trackingSettings: {
+        clickTracking: { enable: false, enableText: false },
+        openTracking: { enable: false }
+      },
 
       // ✅ Anti-spam plain text
       text: `
