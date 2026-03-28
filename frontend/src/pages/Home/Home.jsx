@@ -3,7 +3,7 @@ import { db } from "../../firebase";
 import { doc, onSnapshot } from "firebase/firestore";
 
 import Heatmap from "../../components/Heatmap/Heatmap";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, TrendingUp, Trophy } from "lucide-react";
 
 import {
   fetchLeetCodeData,
@@ -112,6 +112,45 @@ export default function Home() {
     return "Just now";
   };
 
+  const todayIso = new Date().toISOString().split("T")[0];
+  const todayUnix = Math.floor(new Date().setHours(0, 0, 0, 0) / 1000);
+
+  const leetcodeCalendar = leetcodeData?.calendar
+    ? JSON.parse(leetcodeData.calendar)
+    : {};
+
+  const leetcodeCurrentDayCount =
+    leetcodeCalendar[todayIso] ??
+    leetcodeCalendar[todayUnix] ??
+    leetcodeCalendar[todayUnix.toString()] ??
+    0;
+
+  const leetcodeMaxDayCount = Object.values(leetcodeCalendar).reduce(
+    (max, value) => {
+      const count = Number(value) || 0;
+      return count > max ? count : max;
+    },
+    0
+  );
+
+  const codeforcesCalendar = cfSubs.reduce((acc, sub) => {
+    const dayKey = Math.floor(
+      new Date(sub.creationTimeSeconds * 1000)
+        .setHours(0, 0, 0, 0) / 1000
+    );
+    acc[dayKey] = (acc[dayKey] || 0) + 1;
+    return acc;
+  }, {});
+
+  const codeforcesCurrentDayCount = codeforcesCalendar[todayUnix] || 0;
+  const codeforcesMaxDayCount = Object.values(codeforcesCalendar).reduce(
+    (max, value) => {
+      const count = Number(value) || 0;
+      return count > max ? count : max;
+    },
+    0
+  );
+
   return (
     <div className="w-full max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 md:py-8 lg:py-10 space-y-5 sm:space-y-6 md:space-y-8 lg:space-y-10 overflow-x-hidden">
 
@@ -145,6 +184,23 @@ export default function Home() {
               />
             </div>
           </div>
+
+          <div className="mt-3 border-t border-[#30363d] pt-3 grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-gray-300">
+            <div className="flex items-center justify-between">
+              <span className="flex items-center gap-1 text-gray-400">
+                <TrendingUp className="w-4 h-4 text-green-400" />
+                Current:
+              </span>
+              <span className="text-white font-semibold">{leetcodeCurrentDayCount} days</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="flex items-center gap-1 text-gray-400">
+                <Trophy className="w-4 h-4 text-yellow-300" />
+                Max:
+              </span>
+              <span className="text-white font-semibold">{leetcodeMaxDayCount} days</span>
+            </div>
+          </div>
         </div>
 
         <div className="w-full min-w-0 bg-[#161b22] border border-[#30363d] rounded-2xl p-4 sm:p-5 md:p-6 overflow-hidden">
@@ -169,6 +225,23 @@ export default function Home() {
                     : {}
                 }
               />
+            </div>
+          </div>
+
+          <div className="mt-3 border-t border-[#30363d] pt-3 grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-gray-300">
+            <div className="flex items-center justify-between">
+              <span className="flex items-center gap-1 text-gray-400">
+                <TrendingUp className="w-4 h-4 text-red-400" />
+                Current:
+              </span>
+              <span className="text-white font-semibold">{codeforcesCurrentDayCount} days</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="flex items-center gap-1 text-gray-400">
+                <Trophy className="w-4 h-4 text-yellow-300" />
+                Max:
+              </span>
+              <span className="text-white font-semibold">{codeforcesMaxDayCount} days</span>
             </div>
           </div>
         </div>
