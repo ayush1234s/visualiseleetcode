@@ -90,13 +90,13 @@ export default function Visualize() {
     };
 
     return (
-        <div className="max-w-5xl mx-auto px-6 py-14 space-y-10">
+        <div className="max-w-5xl mx-auto px-3 sm:px-4 md:px-6 pt-3 sm:pt-4 md:pt-6 pb-24 sm:pb-12 md:pb-16 space-y-5 sm:space-y-6 md:space-y-8 overflow-x-hidden">
 
             {/* INPUT */}
 
-            <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-8 space-y-6">
+            <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6">
 
-                <h1 className="text-3xl font-bold text-white">
+                <h1 className="text-2xl sm:text-3xl font-bold text-white leading-tight">
                     Visualize LeetCode Problem
                 </h1>
 
@@ -105,17 +105,17 @@ export default function Visualize() {
                     placeholder="Enter Question Number"
                     value={questionNumber}
                     onChange={(e) => setQuestionNumber(e.target.value)}
-                    className="w-full bg-[#0d1117] border border-[#30363d] rounded-lg px-4 py-3 text-white"
+                    className="w-full bg-[#0d1117] border border-[#30363d] rounded-lg px-4 py-3 text-white text-sm sm:text-base"
                 />
 
                 <button
                     onClick={handleVisualize}
-                    className="border border-blue-400 text-blue-400 px-6 py-2 rounded-lg hover:bg-blue-400 hover:text-black transition"
+                    className="w-full sm:w-auto border border-blue-400 text-blue-400 px-6 py-2.5 rounded-lg hover:bg-blue-400 hover:text-black transition"
                 >
                     {loading ? "Loading..." : "Visualize"}
                 </button>
 
-                {error && <p className="text-red-400">{error}</p>}
+                {error && <p className="text-red-400 text-sm sm:text-base">{error}</p>}
 
             </div>
 
@@ -123,52 +123,56 @@ export default function Visualize() {
 
             {visualData && (
 
-                <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-8">
+                <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-4 sm:p-6 md:p-8 overflow-hidden">
 
-                    <h2 className="text-2xl font-bold text-white mb-6">
+                    <h2 className="text-xl sm:text-2xl font-bold text-white mb-5 sm:mb-6 break-words leading-snug">
                         {visualData.question}
                     </h2>
 
-                    <ReactMarkdown
-                        components={{
-                            pre: () => null,
-                            code: () => null,
+                    <div className="prose prose-invert max-w-none break-words overflow-hidden
+                                    prose-headings:break-words prose-p:break-words
+                                    prose-li:break-words prose-strong:text-white
+                                    prose-pre:overflow-x-auto prose-code:break-words
+                                    prose-img:max-w-full">
+                        <ReactMarkdown
+                            components={{
+                                pre: () => null,
+                                code: () => null,
 
-                            h2: ({ node, ...props }) => {
+                                h2: ({ node, ...props }) => {
 
-                                const text = props.children?.toString() || "";
+                                    const text = props.children?.toString() || "";
 
-                                return (
-                                    <>
-                                        <h2 className="text-2xl font-bold mt-10 mb-4 text-purple-400">
-                                            {text}
-                                        </h2>
+                                    return (
+                                        <>
+                                            <h2 className="text-xl sm:text-2xl font-bold mt-8 sm:mt-10 mb-4 text-purple-400 break-words leading-snug">
+                                                {text}
+                                            </h2>
 
-                                        {text.includes("C++ Implementation") && (
-                                            <div className="bg-[#0d1117] border border-yellow-500 text-yellow-400 p-5 rounded-xl mt-4 text-sm">
-                                                ⚠️ <strong>Note:</strong> If you want to see the code for the solution,
+                                            {text.includes("C++ Implementation") && (
+                                                <div className="bg-[#0d1117] border border-yellow-500 text-yellow-400 p-4 sm:p-5 rounded-xl mt-4 text-sm break-words leading-relaxed">
+                                                    ⚠️ <strong>Note:</strong> If you want to see the code for the solution,
+                                                    paste your code in the Debug section below and analyze it.
+                                                    The AI will point out your mistakes and tell you how to fix them, and then also give you the full correct code.
+                                                </div>
+                                            )}
+                                        </>
+                                    );
 
-                                                paste your code in the Debug section below and analyze it.
-
-                                                The AI ​​will point out your mistakes and tell you how to fix them, and then also give you the full correct code.
-                                            </div>
-                                        )}
-                                    </>
-                                );
-
-                            },
-                        }}
-                    >
-                        {visualData.visualization}
-                    </ReactMarkdown>
+                                },
+                            }}
+                        >
+                            {visualData.visualization}
+                        </ReactMarkdown>
+                    </div>
 
                     {/* HINDI BUTTON */}
 
-                    <div className="mt-8">
+                    <div className="mt-6 sm:mt-8">
 
                         <button
                             onClick={handleHindiExplain}
-                            className="border border-yellow-400 text-yellow-400 px-6 py-2 rounded-lg hover:bg-yellow-400 hover:text-black transition"
+                            className="w-full sm:w-auto border border-yellow-400 text-yellow-400 px-6 py-2.5 rounded-lg hover:bg-yellow-400 hover:text-black transition"
                         >
                             {hindiLoading ? "Explaining..." : "Explain in Hindi 🇮🇳"}
                         </button>
@@ -183,25 +187,30 @@ export default function Visualize() {
 
             {hindiExplain && (
 
-                <div className="bg-[#161b22] border border-yellow-500 rounded-2xl p-8">
+                <div className="bg-[#161b22] border border-yellow-500 rounded-2xl p-4 sm:p-6 md:p-8 overflow-hidden">
 
-                    <h2 className="text-2xl font-bold text-yellow-400 mb-6">
+                    <h2 className="text-xl sm:text-2xl font-bold text-yellow-400 mb-5 sm:mb-6 break-words">
                         🇮🇳 Hindi Explanation
                     </h2>
 
-                    <ReactMarkdown
-                        components={{
-                            h2: ({ node, ...props }) => (
-                                <h2 className="text-2xl font-bold text-yellow-400 mt-8 mb-4">
-                                    {props.children}
-                                </h2>
-                            ),
-                        }}
-                    >
-                        {hindiExplain}
-                    </ReactMarkdown>
+                    <div className="prose prose-invert max-w-none break-words overflow-hidden
+                                    prose-headings:break-words prose-p:break-words
+                                    prose-li:break-words prose-pre:overflow-x-auto
+                                    prose-code:break-words">
+                        <ReactMarkdown
+                            components={{
+                                h2: ({ node, ...props }) => (
+                                    <h2 className="text-xl sm:text-2xl font-bold text-yellow-400 mt-6 sm:mt-8 mb-4 break-words leading-snug">
+                                        {props.children}
+                                    </h2>
+                                ),
+                            }}
+                        >
+                            {hindiExplain}
+                        </ReactMarkdown>
+                    </div>
 
-                    <div className="bg-[#0d1117] border border-yellow-500 text-yellow-400 p-5 rounded-xl mt-6 text-sm">
+                    <div className="bg-[#0d1117] border border-yellow-500 text-yellow-400 p-4 sm:p-5 rounded-xl mt-6 text-sm break-words leading-relaxed">
                         ⚠️ <strong>Note:</strong> Agar aap solution ka code dekhna chahte ho,
                         toh neeche Debug section mein apna code paste karo aur Analyze karo.
                         AI aapki galti batayega aur fix kaise krein ye bhi batayega, aur phir aapko full correct code milega.
@@ -215,9 +224,9 @@ export default function Visualize() {
 
             {visualData && (
 
-                <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-8 space-y-6">
+                <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6">
 
-                    <h2 className="text-2xl font-bold text-white">
+                    <h2 className="text-xl sm:text-2xl font-bold text-white break-words">
                         🧪 Debug Your Code
                     </h2>
 
@@ -225,12 +234,12 @@ export default function Visualize() {
                         value={userCode}
                         onChange={(e) => setUserCode(e.target.value)}
                         placeholder="Paste your C++ code here..."
-                        className="w-full h-60 bg-[#0d1117] border border-[#30363d] rounded-lg p-4 text-green-400 font-mono"
+                        className="w-full h-52 sm:h-60 bg-[#0d1117] border border-[#30363d] rounded-lg p-4 text-green-400 font-mono text-sm sm:text-base resize-none"
                     />
 
                     <button
                         onClick={handleAnalyze}
-                        className="border border-red-400 text-red-400 px-6 py-2 rounded-lg hover:bg-red-400 hover:text-black transition"
+                        className="w-full sm:w-auto border border-red-400 text-red-400 px-6 py-2.5 rounded-lg hover:bg-red-400 hover:text-black transition"
                     >
                         Analyze Code
                     </button>
@@ -262,37 +271,43 @@ function AnalysisResult({ analysis }) {
 
     return (
 
-        <div className="mt-6 space-y-6">
+        <div className="mt-6 space-y-5 sm:space-y-6 overflow-hidden">
 
             {isCorrect ? (
 
-                <div className="bg-[#0d1117] p-6 rounded-xl border border-green-500 text-white-400">
-                    <ReactMarkdown>
-                        {beforeCode.replace("STATUS: CORRECT", "")}
-                    </ReactMarkdown>
+                <div className="bg-[#0d1117] p-4 sm:p-6 rounded-xl border border-green-500 text-white-400 break-words overflow-hidden">
+                    <div className="prose prose-invert max-w-none break-words prose-pre:overflow-x-auto prose-code:break-words">
+                        <ReactMarkdown>
+                            {beforeCode.replace("STATUS: CORRECT", "")}
+                        </ReactMarkdown>
+                    </div>
                 </div>
 
             ) : (
 
-                <div className="bg-[#0d1117] p-6 rounded-xl border border-red-500 text-gray-300">
-                    <ReactMarkdown>
-                        {beforeCode.replace("STATUS: WRONG", "")}
-                    </ReactMarkdown>
+                <div className="bg-[#0d1117] p-4 sm:p-6 rounded-xl border border-red-500 text-gray-300 break-words overflow-hidden">
+                    <div className="prose prose-invert max-w-none break-words prose-pre:overflow-x-auto prose-code:break-words">
+                        <ReactMarkdown>
+                            {beforeCode.replace("STATUS: WRONG", "")}
+                        </ReactMarkdown>
+                    </div>
                 </div>
 
             )}
 
             <button
                 onClick={() => setShowCode(!showCode)}
-                className="border border-green-400 text-green-400 px-6 py-2 rounded-lg hover:bg-green-400 hover:text-black transition"
+                className="w-full sm:w-auto border border-green-400 text-green-400 px-6 py-2.5 rounded-lg hover:bg-green-400 hover:text-black transition"
             >
                 {showCode ? "Hide Full Code" : "Show Full Code"}
             </button>
 
             {showCode && (
 
-                <div className="bg-[#0d1117] p-6 rounded-xl border border-[#30363d] text-green-400 overflow-x-auto">
-                    <ReactMarkdown>{codeSection}</ReactMarkdown>
+                <div className="bg-[#0d1117] p-4 sm:p-6 rounded-xl border border-[#30363d] text-green-400 overflow-x-auto text-sm sm:text-base">
+                    <div className="min-w-[280px]">
+                        <ReactMarkdown>{codeSection}</ReactMarkdown>
+                    </div>
                 </div>
 
             )}

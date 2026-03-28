@@ -37,6 +37,7 @@ export default function Home() {
 
   const [initialLoading, setInitialLoading] = useState(false);
 
+  // ✅ LOCAL STORAGE LOAD
   useEffect(() => {
     const lc = localStorage.getItem("leetcodeUsername");
     const cf = localStorage.getItem("codeforcesUsername");
@@ -46,7 +47,6 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-
     const unsubscribe = onSnapshot(
       doc(db, "users", getUserId()),
       async (snap) => {
@@ -113,81 +113,87 @@ export default function Home() {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 py-10 sm:py-14 space-y-10">
+    <div className="w-full max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-6 sm:py-8 md:py-10 lg:py-14 space-y-6 sm:space-y-8 md:space-y-10 lg:space-y-12 overflow-x-hidden">
 
       {/* HEADER */}
-      <div className="space-y-2">
+      <div className="space-y-2 px-1">
         <h1 className="text-2xl sm:text-3xl font-semibold text-white">
           Dashboard
         </h1>
-        <p className="text-gray-400 text-sm sm:text-base">
+        <p className="text-sm sm:text-base text-gray-400">
           See Your Coding Activity At A Glance.
         </p>
       </div>
 
-      {/* HEATMAP */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+      {/* ================= HEATMAP ================= */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
 
-        <div className="w-full bg-[#161b22] border border-[#30363d] rounded-2xl p-4 sm:p-6">
-          <h2 className="text-lg font-semibold mb-6 text-white">
+        <div className="w-full min-w-0 bg-[#161b22] border border-[#30363d] rounded-2xl p-4 sm:p-5 md:p-6 overflow-hidden">
+          <h2 className="text-base sm:text-lg font-semibold mb-4 sm:mb-6 text-white">
             LeetCode Activity
           </h2>
-          <div className="overflow-x-auto">
-            <Heatmap
-              platform="leetcode"
-              data={
-                leetcodeData?.calendar
-                  ? JSON.parse(leetcodeData.calendar)
-                  : {}
-              }
-            />
+
+          <div className="w-full overflow-x-auto">
+            <div className="min-w-[280px]">
+              <Heatmap
+                platform="leetcode"
+                data={
+                  leetcodeData?.calendar
+                    ? JSON.parse(leetcodeData.calendar)
+                    : {}
+                }
+              />
+            </div>
           </div>
         </div>
 
-        <div className="w-full bg-[#161b22] border border-[#30363d] rounded-2xl p-4 sm:p-6">
-          <h2 className="text-lg font-semibold mb-6 text-white">
+        <div className="w-full min-w-0 bg-[#161b22] border border-[#30363d] rounded-2xl p-4 sm:p-5 md:p-6 overflow-hidden">
+          <h2 className="text-base sm:text-lg font-semibold mb-4 sm:mb-6 text-white">
             Codeforces Activity
           </h2>
-          <div className="overflow-x-auto">
-            <Heatmap
-              platform="codeforces"
-              data={
-                cfSubs.length
-                  ? cfSubs.reduce((acc, sub) => {
-                      const day = Math.floor(
-                        new Date(sub.creationTimeSeconds * 1000)
-                          .setHours(0, 0, 0, 0) / 1000
-                      );
-                      acc[day] = (acc[day] || 0) + 1;
-                      return acc;
-                    }, {})
-                  : {}
-              }
-            />
+
+          <div className="w-full overflow-x-auto">
+            <div className="min-w-[280px]">
+              <Heatmap
+                platform="codeforces"
+                data={
+                  cfSubs.length
+                    ? cfSubs.reduce((acc, sub) => {
+                        const day = Math.floor(
+                          new Date(sub.creationTimeSeconds * 1000)
+                            .setHours(0, 0, 0, 0) / 1000
+                        );
+                        acc[day] = (acc[day] || 0) + 1;
+                        return acc;
+                      }, {})
+                    : {}
+                }
+              />
+            </div>
           </div>
         </div>
       </div>
 
-      {/* SECOND ROW */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+      {/* ================= SECOND ROW ================= */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
 
-        {/* LEFT */}
-        <div className="space-y-6">
+        {/* LEFT SIDE */}
+        <div className="space-y-4 sm:space-y-6 lg:space-y-8 min-w-0">
 
           {/* PROGRESS */}
-          <div className="w-full bg-[#161b22] border border-[#30363d] rounded-2xl p-4 sm:p-6">
+          <div className="w-full min-w-0 bg-[#161b22] border border-[#30363d] rounded-2xl p-4 sm:p-5 md:p-6 overflow-hidden">
 
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
-              <h2 className="text-lg font-semibold text-white">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5 sm:mb-6">
+              <h2 className="text-base sm:text-lg font-semibold text-white">
                 Progress Overview
               </h2>
 
-              <div className="flex flex-wrap gap-2 bg-[#0d1117] p-1 rounded-lg">
+              <div className="flex flex-wrap gap-2 bg-[#0d1117] p-1 rounded-lg w-fit">
                 {["leetcode", "codeforces"].map((tab) => (
                   <button
                     key={tab}
                     onClick={() => setProgressTab(tab)}
-                    className={`px-3 sm:px-4 py-1 text-sm rounded-md border ${
+                    className={`px-3 sm:px-4 py-1.5 text-xs sm:text-sm rounded-md border transition-all duration-200 ${
                       progressTab === tab
                         ? "bg-[#1d252f] text-white border-[#605e5e]"
                         : "border-[#30363d] text-gray-400 hover:text-white"
@@ -206,16 +212,18 @@ export default function Home() {
                 </p>
               ) : (
                 ["easy", "medium", "hard"].map((level) => (
-                  <div key={level} className="mb-6">
+                  <div key={level} className="mb-5 sm:mb-6">
                     <div className="flex justify-between text-sm mb-2">
-                      <span className="capitalize text-white">{level}</span>
+                      <span className="capitalize text-white">
+                        {level}
+                      </span>
                       <span className="text-white">
                         {leetcodeData?.[level] || 0}
                       </span>
                     </div>
-                    <div className="w-full bg-[#0d1117] h-2 rounded-full">
+                    <div className="w-full bg-[#0d1117] h-2.5 rounded-full overflow-hidden">
                       <div
-                        className={`h-2 rounded-full ${
+                        className={`h-2.5 rounded-full transition-all duration-300 ${
                           level === "easy"
                             ? "bg-green-500"
                             : level === "medium"
@@ -241,7 +249,7 @@ export default function Home() {
                   Please add your Codeforces username.
                 </p>
               ) : (
-                <p className="text-white">
+                <p className="text-white text-sm sm:text-base">
                   Total Submissions: {cfSubs.length}
                 </p>
               )
@@ -249,9 +257,9 @@ export default function Home() {
           </div>
 
           {/* DAILY PROBLEM */}
-          <div className="w-full bg-[#161b22] border border-[#30363d] rounded-2xl p-4 sm:p-6">
+          <div className="w-full min-w-0 bg-[#161b22] border border-[#30363d] rounded-2xl p-4 sm:p-5 md:p-6 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden">
 
-            <h2 className="text-lg font-semibold text-white mb-5">
+            <h2 className="text-base sm:text-lg font-semibold text-white mb-4 sm:mb-5">
               LeetCode Problem of the Day
             </h2>
 
@@ -260,30 +268,33 @@ export default function Home() {
                 Add your LeetCode username to view.
               </p>
             ) : dailyProblem ? (
-              <div className="space-y-5">
+              <div className="space-y-4 sm:space-y-5">
 
-                <div>
-                  <h3 className="text-sm text-gray-400 mb-1">
+                <div className="min-w-0">
+                  <h3 className="text-xs sm:text-sm text-gray-400 mb-1 break-words">
                     Problem #{dailyProblem.questionId} - Today's LeetCode Challenge
                   </h3>
 
-                  <h3 className="text-lg sm:text-xl font-semibold text-white break-words">
+                  <h3 className="text-lg sm:text-xl font-semibold text-white break-words leading-snug">
                     {dailyProblem.title}
                   </h3>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-3 text-sm">
-                  <span className={`px-2 py-1 rounded-md text-xs font-medium ${
-                    dailyProblem.difficulty === "Easy"
-                      ? "bg-green-900 text-green-400"
-                      : dailyProblem.difficulty === "Medium"
-                      ? "bg-yellow-900 text-yellow-400"
-                      : "bg-red-900 text-red-400"
-                  }`}>
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-sm">
+                  <span
+                    className={`px-2 py-1 rounded-md text-xs font-medium
+                    ${
+                      dailyProblem.difficulty === "Easy"
+                        ? "bg-green-900 text-green-400"
+                        : dailyProblem.difficulty === "Medium"
+                        ? "bg-yellow-900 text-yellow-400"
+                        : "bg-red-900 text-red-400"
+                    }`}
+                  >
                     {dailyProblem.difficulty}
                   </span>
 
-                  <span className="text-gray-400">
+                  <span className="text-gray-400 text-xs sm:text-sm">
                     {dailyProblem.acceptanceRate}%
                   </span>
                 </div>
@@ -292,7 +303,7 @@ export default function Home() {
                   {dailyProblem.tags?.map((tag, i) => (
                     <span
                       key={i}
-                      className="bg-[#0d1117] border border-[#30363d] px-2 sm:px-3 py-1 text-xs rounded-md text-gray-300"
+                      className="bg-[#0d1117] border border-[#30363d] px-2.5 sm:px-3 py-1 text-[11px] sm:text-xs rounded-md text-gray-300 hover:border-white transition break-words"
                     >
                       {tag}
                     </span>
@@ -303,7 +314,7 @@ export default function Home() {
                   href={dailyProblem.link}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-block border border-[#605e5e] text-white px-4 sm:px-6 py-2 rounded-lg"
+                  className="inline-flex items-center justify-center w-full sm:w-auto border border-[#605e5e] text-white px-5 sm:px-6 py-2.5 rounded-lg transition-all duration-300 hover:bg-[#1d252f] text-sm"
                 >
                   Solve Now
                   <ExternalLink className="inline-block ml-2" size={18} />
@@ -318,20 +329,20 @@ export default function Home() {
 
         </div>
 
-        {/* RIGHT */}
-        <div className="w-full bg-[#161b22] border border-[#30363d] rounded-2xl p-4 sm:p-6">
+        {/* RIGHT SIDE RECENT ACTIVITY */}
+        <div className="w-full min-w-0 bg-[#161b22] border border-[#30363d] rounded-2xl p-4 sm:p-5 md:p-6 overflow-hidden">
 
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
-            <h2 className="text-lg font-semibold text-white">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5 sm:mb-6">
+            <h2 className="text-base sm:text-lg font-semibold text-white">
               Recent Activity
             </h2>
 
-            <div className="flex flex-wrap gap-2 bg-[#0d1117] p-1 rounded-lg">
+            <div className="flex flex-wrap gap-2 bg-[#0d1117] p-1 rounded-lg w-fit">
               {["all", "leetcode", "codeforces"].map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setRecentTab(tab)}
-                  className={`px-3 py-1 text-sm rounded-md ${
+                  className={`px-3 py-1.5 text-xs sm:text-sm rounded-md transition-all duration-200 ${
                     recentTab === tab
                       ? "bg-[#1d252f] text-white"
                       : "text-gray-400 hover:text-white"
@@ -343,23 +354,29 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="space-y-4 max-h-[350px] sm:max-h-[460px] overflow-y-auto">
+          <div className="space-y-3 sm:space-y-4 max-h-[460px] overflow-y-auto pr-1">
 
             {(recentTab === "all" || recentTab === "leetcode") &&
               [...leetcodeSubs]
                 .sort((a, b) => b.timestamp - a.timestamp)
                 .map((s, i) => (
-                  <div key={`lc-${i}`} className="bg-[#0d1117] p-4 rounded-xl border border-[#30363d]">
+                  <div
+                    key={`lc-${i}`}
+                    className="w-full min-w-0 bg-[#0d1117] p-3 sm:p-4 rounded-xl border border-[#30363d] overflow-hidden"
+                  >
                     <a
                       href={`https://leetcode.com/problems/${s.titleSlug}/`}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-white hover:underline break-words"
+                      className="inline-flex items-start gap-2 text-white hover:underline break-words leading-snug text-sm sm:text-base"
                     >
-                      #{s.questionId} {s.title}
+                      <span className="break-words">
+                        #{s.questionId} {s.title}
+                      </span>
+                      <ExternalLink className="shrink-0 mt-0.5" size={16} />
                     </a>
-                    <ExternalLink className="inline-block ml-2" size={18} />
-                    <p className="text-xs text-gray-400 mt-2">
+
+                    <p className="text-xs text-gray-400 mt-2 break-words">
                       {s.lang} • {s.statusDisplay} • {timeAgo(s.timestamp)}
                     </p>
                   </div>
@@ -369,17 +386,23 @@ export default function Home() {
               [...cfSubs]
                 .sort((a, b) => b.creationTimeSeconds - a.creationTimeSeconds)
                 .map((s, i) => (
-                  <div key={`cf-${i}`} className="bg-[#0d1117] p-4 rounded-xl border border-[#30363d]">
+                  <div
+                    key={`cf-${i}`}
+                    className="w-full min-w-0 bg-[#0d1117] p-3 sm:p-4 rounded-xl border border-[#30363d] overflow-hidden"
+                  >
                     <a
                       href={`https://codeforces.com/contest/${s.problem?.contestId}/problem/${s.problem?.index}`}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-white hover:underline break-words"
+                      className="inline-flex items-start gap-2 text-white hover:underline break-words leading-snug text-sm sm:text-base"
                     >
-                      #{s.problem?.contestId}{s.problem?.index} {s.problem?.name}
+                      <span className="break-words">
+                        #{s.problem?.contestId}{s.problem?.index} {s.problem?.name}
+                      </span>
+                      <ExternalLink className="shrink-0 mt-0.5" size={16} />
                     </a>
-                    <ExternalLink className="inline-block ml-2" size={18} />
-                    <p className="text-xs text-gray-400 mt-2">
+
+                    <p className="text-xs text-gray-400 mt-2 break-words">
                       {s.programmingLanguage} • {s.verdict} • {timeAgo(s.creationTimeSeconds)}
                     </p>
                   </div>

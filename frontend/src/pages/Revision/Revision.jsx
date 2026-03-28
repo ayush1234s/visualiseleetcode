@@ -42,10 +42,7 @@ export default function Revision() {
     "Thursday","Friday","Saturday","Sunday"
   ];
 
-  /* ================= LOAD TASKS ================= */
-
   const loadTasks=async()=>{
-
     const snapshot=await getDocs(
       collection(db,"users",getUserId(),"revisionTasks")
     );
@@ -56,17 +53,13 @@ export default function Revision() {
     }));
 
     setTasks(list);
-
   };
 
   useEffect(()=>{
     loadTasks();
   },[]);
 
-  /* ================= FETCH QUESTION ================= */
-
   const fetchQuestion=async()=>{
-
     if(!questionNumber) return;
 
     setFetchLoading(true);
@@ -77,26 +70,17 @@ export default function Revision() {
     );
 
     setQuestionTitle(res.data.question);
-
     setFetchLoading(false);
-
   };
 
-  /* ================= SELECT WEEKDAY ================= */
-
   const toggleDay=(day)=>{
-
     if(weekdays.includes(day))
       setWeekdays(weekdays.filter(d=>d!==day))
     else
       setWeekdays([...weekdays,day])
-
   };
 
-  /* ================= ADD TASK ================= */
-
   const addRevisionTask=async()=>{
-
     if(!questionNumber || !email || weekdays.length===0){
       alert("Fill all fields");
       return;
@@ -119,7 +103,6 @@ export default function Revision() {
     );
 
     try{
-
       const res=await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/api/email/send-revision-email`,
         {
@@ -133,33 +116,24 @@ export default function Revision() {
       );
 
       if(res.data.success){
-
         await updateDoc(
           doc(db,"users",getUserId(),"revisionTasks",docRef.id),
           {emailStatus:"Success"}
         );
-
       }
 
     }catch(err){
-
       await updateDoc(
         doc(db,"users",getUserId(),"revisionTasks",docRef.id),
         {emailStatus:"Failed"}
       );
-
     }
 
     loadTasks();
-
     setLoading(false);
-
   };
 
-  /* ================= GOOGLE CALENDAR ================= */
-
   const addToCalendar=()=>{
-
     if(!questionTitle) return;
 
     setCalendarLoading(true);
@@ -172,116 +146,85 @@ export default function Revision() {
 
     window.open(calendarUrl,"_blank");
 
-    setTimeout(()=>{
-      setCalendarLoading(false);
-    },1000);
-
+    setTimeout(()=>setCalendarLoading(false),1000);
   };
 
-  /* ================= DELETE TASK ================= */
-
   const deleteTask=async(id)=>{
-
     await deleteDoc(
       doc(db,"users",getUserId(),"revisionTasks",id)
     );
-
     loadTasks();
-
   };
 
-  /* ================= FORMAT DATE ================= */
-
   const formatDate=(date)=>{
-
     const d=new Date(date.seconds*1000);
-
     return d.toLocaleDateString();
-
   };
 
   const formatTime=(date)=>{
-
     const d=new Date(date.seconds*1000);
-
     return d.toLocaleTimeString();
-
   };
 
   const today = new Date().toLocaleDateString("en-US",{weekday:"long"});
 
   return(
-
-    <div className="max-w-6xl mx-auto px-6 py-14 space-y-10">
+    <div className="max-w-6xl mx-auto px-3 sm:px-4 md:px-6 py-6 sm:py-10 md:py-14 space-y-6 sm:space-y-8 md:space-y-10 overflow-x-hidden">
 
       {/* HEADER */}
-
       <div>
-
-        <h1 className="text-3xl font-bold text-white">
+        <h1 className="text-2xl sm:text-3xl font-bold text-white">
           Revision Planner
         </h1>
 
-        <p className="text-gray-400 mt-2">
+        <p className="text-gray-400 mt-2 text-sm sm:text-base">
           Schedule LeetCode questions for revision, Add it to your calendar and get email reminders on revision days.
         </p>
-
       </div>
 
       {/* FORM */}
-
-      <div className="bg-[#161b22] border border-[#30363d] rounded-xl p-8 space-y-6">
+      <div className="bg-[#161b22] border border-[#30363d] rounded-xl p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6">
 
         <div>
-
           <label className="text-gray-300 text-sm">
             LeetCode Question Number
           </label>
 
-          <div className="flex gap-3 mt-2">
-
+          <div className="flex flex-col sm:flex-row gap-3 mt-2">
             <input
               type="number"
               value={questionNumber}
               onChange={(e)=>setQuestionNumber(e.target.value)}
-              className="flex-1 bg-[#0d1117] border border-[#30363d] rounded-lg px-4 py-2 text-white"
+              className="w-full bg-[#0d1117] border border-[#30363d] rounded-lg px-4 py-2 text-white"
             />
 
             <button
               onClick={fetchQuestion}
-              className="border border-blue-400 text-blue-400 px-4 py-2 rounded-lg"
+              className="border border-blue-400 text-blue-400 px-4 py-2 rounded-lg w-full sm:w-auto"
             >
               {fetchLoading ? "Fetching..." : "Fetch"}
             </button>
-
           </div>
-
         </div>
 
         {questionTitle &&(
-
-          <div className="bg-[#0d1117] border border-[#30363d] rounded-lg p-4 text-white">
+          <div className="bg-[#0d1117] border border-[#30363d] rounded-lg p-4 text-white break-words">
             {questionTitle}
           </div>
-
         )}
 
         {/* WEEKDAYS */}
-
         <div>
-
           <label className="text-gray-300 text-sm">
             Select Weekdays
           </label>
 
-          <div className="grid grid-cols-3 gap-3 mt-3">
-
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3 mt-3">
             {days.map(day=>(
-
               <button
                 key={day}
                 onClick={()=>toggleDay(day)}
-                className={`px-3 py-2 rounded-lg border ${
+                className={`px-3 py-2 text-xs sm:text-sm rounded-lg border ${
                   weekdays.includes(day)
                   ? "bg-green-500 text-black"
                   : "border-[#30363d] text-gray-400"
@@ -289,17 +232,12 @@ export default function Revision() {
               >
                 {day}
               </button>
-
             ))}
-
           </div>
-
         </div>
 
         {/* EMAIL */}
-
         <div>
-
           <label className="text-gray-300 text-sm">
             Email Address
           </label>
@@ -310,209 +248,131 @@ export default function Revision() {
             onChange={(e)=>setEmail(e.target.value)}
             className="w-full bg-[#0d1117] border border-[#30363d] rounded-lg px-4 py-2 text-white mt-2"
           />
-
         </div>
 
         {/* BUTTONS */}
-
-        <div className="flex gap-4">
-
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
           <button
             onClick={addRevisionTask}
-            className="border border-green-400 text-green-400 px-6 py-2 rounded-lg"
+            className="border border-green-400 text-green-400 px-6 py-2 rounded-lg w-full sm:w-auto"
           >
             {loading?"Saving...":"Add Revision Task Email"}
           </button>
 
           <button
             onClick={addToCalendar}
-            className="border border-yellow-400 text-yellow-400 px-6 py-2 rounded-lg"
+            className="border border-yellow-400 text-yellow-400 px-6 py-2 rounded-lg w-full sm:w-auto"
           >
             {calendarLoading?"Opening...":"Add to Google Calendar"}
           </button>
-
         </div>
 
-<p className="text-sm text-gray-400 mt-3">
-  Note: Please check your Spam folder also for alert message.
-</p>
-
+        <p className="text-sm text-gray-400 mt-2">
+          Note: Please check your Spam folder also for alert message.
+        </p>
       </div>
 
       {/* TABLE */}
-
-      <div className="overflow-x-auto">
-
-        <table className="w-full text-sm text-left text-gray-400">
-
+      <div className="overflow-x-auto rounded-xl border border-[#30363d]">
+        <table className="min-w-[700px] w-full text-xs sm:text-sm text-left text-gray-400">
           <thead className="bg-[#161b22]">
-
             <tr>
-
-              <th className="px-6 py-3">Date</th>
-              <th className="px-6 py-3">Time</th>
-              <th className="px-6 py-3">Question</th>
-              <th className="px-6 py-3">Title</th>
-              <th className="px-6 py-3">Weekdays</th>
-              <th className="px-6 py-3">Email</th>
-              <th className="px-6 py-3">Email Alert</th>
-              <th className="px-6 py-3">Action</th>
-
+              <th className="px-4 py-3">Date</th>
+              <th className="px-4 py-3">Time</th>
+              <th className="px-4 py-3">Question</th>
+              <th className="px-4 py-3">Title</th>
+              <th className="px-4 py-3">Weekdays</th>
+              <th className="px-4 py-3">Email</th>
+              <th className="px-4 py-3">Email Alert</th>
+              <th className="px-4 py-3">Action</th>
             </tr>
-
           </thead>
 
           <tbody>
-
             {tasks.map(task=>(
-
-              <tr key={task.id}>
-
-                <td className="px-6 py-4">
-                  {formatDate(task.createdAt)}
-                </td>
-
-                <td className="px-6 py-4">
-                  {formatTime(task.createdAt)}
-                </td>
-
-                <td className="px-6 py-4">
-                  {task.questionNumber}
-                </td>
-
-                <td className="px-6 py-4">
-                  {task.questionTitle}
-                </td>
-
-                <td className="px-6 py-4">
-                  {task.weekdays.join(", ")}
-                </td>
-
-                <td className="px-6 py-4">
-                  {task.email}
-                </td>
-
-                <td className="px-6 py-4">
-                  {task.emailStatus}
-                </td>
-
-                <td className="px-6 py-4">
-
+              <tr key={task.id} className="border-t border-[#30363d]">
+                <td className="px-4 py-3">{formatDate(task.createdAt)}</td>
+                <td className="px-4 py-3">{formatTime(task.createdAt)}</td>
+                <td className="px-4 py-3">{task.questionNumber}</td>
+                <td className="px-4 py-3 break-words max-w-[200px]">{task.questionTitle}</td>
+                <td className="px-4 py-3 break-words">{task.weekdays.join(", ")}</td>
+                <td className="px-4 py-3 break-words">{task.email}</td>
+                <td className="px-4 py-3">{task.emailStatus}</td>
+                <td className="px-4 py-3">
                   <button
                     onClick={()=>deleteTask(task.id)}
                     className="text-red-400"
                   >
                     Delete
                   </button>
-
                 </td>
-
               </tr>
-
             ))}
-
           </tbody>
-
         </table>
-
       </div>
 
       {/* REVISION TRACKER */}
-
-      <div className="space-y-6">
-
-        <h2 className="text-2xl font-semibold text-white">
+      <div className="space-y-5 sm:space-y-6">
+        <h2 className="text-xl sm:text-2xl font-semibold text-white">
           Revision Tracker
         </h2>
 
         {tasks.map(task=>(
-
           <div
             key={task.id}
-            className="bg-[#161b22] border border-[#30363d] rounded-xl p-6 space-y-4"
+            className="bg-[#161b22] border border-[#30363d] rounded-xl p-4 sm:p-6 space-y-4"
           >
-
-            <p className="text-white font-semibold">
+            <p className="text-white font-semibold break-words">
               {task.questionNumber} - {task.questionTitle}
             </p>
 
-            <div className="grid grid-cols-4 gap-3">
-
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3">
               {days.map(day=>{
-
                 const selected=task.weekdays.includes(day);
-
                 const key=`${task.id}-${day}`;
-
                 const status=revisionStatus[key];
 
                 return(
-
                   <div
                     key={day}
-                    className="flex justify-between bg-[#0d1117] border border-[#30363d] rounded-lg px-3 py-2"
+                    className="flex justify-between items-center bg-[#0d1117] border border-[#30363d] rounded-lg px-2 sm:px-3 py-2 text-xs sm:text-sm"
                   >
-
-                    <label className="flex items-center gap-2 text-sm">
-
+                    <label className="flex items-center gap-2">
                       <input
                         type="checkbox"
                         disabled={!selected}
                         checked={status==="Completed"}
                         onChange={()=>{
-
                           setRevisionStatus(prev=>({
                             ...prev,
                             [key]:"Completed"
                           }));
-
                         }}
                       />
-
                       {day}
-
                     </label>
 
-                    <span className="text-xs">
-
+                    <span className="text-[10px] sm:text-xs">
                       {!selected && "N/A"}
-
                       {selected && day===today && !status &&(
-                        <span className="text-yellow-400">
-                          Pending
-                        </span>
+                        <span className="text-yellow-400">Pending</span>
                       )}
-
                       {status==="Completed" &&(
-                        <span className="text-green-400">
-                          Completed
-                        </span>
+                        <span className="text-green-400">Completed</span>
                       )}
-
                       {selected && day!==today && !status &&(
-                        <span className="text-red-400">
-                          Loss Day
-                        </span>
+                        <span className="text-red-400">Loss</span>
                       )}
-
                     </span>
-
                   </div>
-
                 );
-
               })}
-
             </div>
-
           </div>
-
         ))}
-
       </div>
 
     </div>
-
   );
-
 }

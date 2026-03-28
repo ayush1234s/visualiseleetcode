@@ -28,7 +28,6 @@ export default function Settings() {
   const [loading, setLoading] = useState(false);
   const [tableData, setTableData] = useState([]);
 
-  // 🔥 LOAD DATA
   useEffect(() => {
 
     const unsubscribe = onSnapshot(
@@ -51,17 +50,11 @@ export default function Settings() {
           let arr = [];
 
           if (lc) {
-            arr.push({
-              site: "LeetCode",
-              username: lc
-            });
+            arr.push({ site: "LeetCode", username: lc });
           }
 
           if (cf) {
-            arr.push({
-              site: "Codeforces",
-              username: cf
-            });
+            arr.push({ site: "Codeforces", username: cf });
           }
 
           setTableData(arr);
@@ -72,7 +65,6 @@ export default function Settings() {
     return () => unsubscribe();
   }, []);
 
-  // 🔥 SAVE
   const handleSave = async () => {
     setLoading(true);
 
@@ -94,7 +86,6 @@ export default function Settings() {
     setLoading(false);
   };
 
-  // 🔥 DELETE
   const handleDelete = async (site) => {
     const uid = getUserId();
 
@@ -119,7 +110,6 @@ export default function Settings() {
     });
   };
 
-  // 🔥 PROFILE LINK FUNCTION
   const getProfileLink = (site, username) => {
     if (site === "LeetCode") {
       return `https://leetcode.com/${username}/`;
@@ -130,63 +120,63 @@ export default function Settings() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0d1117] text-[#c9d1d9] px-6 py-16">
-      <div className="max-w-6xl mx-auto space-y-12">
+    <div className="min-h-screen bg-[#0d1117] text-[#c9d1d9] px-3 sm:px-4 md:px-6 pt-3 sm:pt-4 md:pt-6 pb-24 sm:pb-12 md:pb-16 overflow-x-hidden">
+
+      <div className="max-w-6xl mx-auto space-y-6 sm:space-y-8 md:space-y-10">
 
         {/* HEADER */}
-        <div className="space-y-2">
-          <h1 className="text-3xl font-semibold text-white">
+        <div className="space-y-1">
+          <h1 className="text-2xl sm:text-3xl font-semibold text-white">
             Account Settings
           </h1>
-          <p className="text-gray-400">
+          <p className="text-gray-400 text-sm sm:text-base">
             Manage your connected coding accounts.
           </p>
         </div>
 
         {/* CARDS */}
-        <div className="grid lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
 
-          {/* LEFT PROFILE CARD */}
+          {/* PROFILE CARD */}
           <div className="bg-[#161b22] border border-[#30363d]
-                          rounded-xl p-6 transition-all duration-300
+                          rounded-xl p-4 sm:p-6 transition-all duration-300
                           hover:shadow-lg hover:-translate-y-1
-                          hover:border-[#58a6ff] cursor-pointer">
+                          hover:border-[#58a6ff]">
 
             <div className="flex items-center gap-4">
-              <div className="bg-[#21262d] p-3 rounded-full">
-                <User size={26} />
+              <div className="bg-[#21262d] p-3 rounded-full shrink-0">
+                <User size={24} />
               </div>
-              <div>
-                <h2 className="text-lg font-semibold text-white">
+              <div className="min-w-0">
+                <h2 className="text-base sm:text-lg font-semibold text-white break-words">
                   Ayush Srivastava
                 </h2>
-                <p className="text-sm text-gray-400">
+                <p className="text-xs sm:text-sm text-gray-400 break-words">
                   Hello! I'm Ayush, the developer of Visualize Leet Code.
                 </p>
               </div>
             </div>
 
-            <div className="flex justify-center">
+            <div className="flex justify-center mt-6 sm:mt-8">
               <a
                 href="https://www.linkedin.com/in/ayushsrivastava06/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-12 w-full max-w-md inline-flex justify-center items-center gap-3 text-lg
-               border border-[#30363d] px-6 py-3 rounded-lg
-               hover:border-[#58a6ff] hover:text-white 
-               transition-all duration-300"
+                className="w-full sm:w-auto inline-flex justify-center items-center gap-3 text-sm sm:text-lg
+                border border-[#30363d] px-4 sm:px-6 py-2 sm:py-3 rounded-lg
+                hover:border-[#58a6ff] hover:text-white transition-all duration-300"
               >
-                <Linkedin size={30} />
+                <Linkedin size={22} />
                 LinkedIn
               </a>
             </div>
           </div>
 
-          {/* RIGHT FORM */}
+          {/* FORM */}
           <div className="bg-[#161b22] border border-[#30363d]
-                          rounded-xl p-6 space-y-5">
+                          rounded-xl p-4 sm:p-6 space-y-4 sm:space-y-5">
 
-            <h2 className="text-lg font-semibold text-white">
+            <h2 className="text-base sm:text-lg font-semibold text-white">
               Connect Profiles
             </h2>
 
@@ -196,7 +186,7 @@ export default function Settings() {
               value={leetcode}
               onChange={(e) => setLeetcode(e.target.value)}
               className="w-full bg-[#0d1117] border border-[#30363d]
-                         rounded-md px-3 py-2"
+                         rounded-md px-3 py-2 text-sm sm:text-base"
             />
 
             <input
@@ -205,94 +195,86 @@ export default function Settings() {
               value={codeforces}
               onChange={(e) => setCodeforces(e.target.value)}
               className="w-full bg-[#0d1117] border border-[#30363d]
-                         rounded-md px-3 py-2"
+                         rounded-md px-3 py-2 text-sm sm:text-base"
             />
 
             <button
               onClick={handleSave}
               disabled={loading}
-              className="bg-[#238636] px-4 py-2 rounded-md text-white"
+              className="bg-[#238636] px-4 py-2 rounded-md text-white w-full sm:w-auto"
             >
               {loading ? "Saving..." : "Save Changes"}
             </button>
           </div>
         </div>
 
-        {/* 🔥 TABLE */}
-        <div className="bg-[#161b22] border border-[#30363d] rounded-xl p-6">
+        {/* TABLE */}
+        <div className="bg-[#161b22] border border-[#30363d] rounded-xl p-4 sm:p-6 overflow-hidden">
 
-          <h2 className="text-lg font-semibold text-white mb-4">
+          <h2 className="text-base sm:text-lg font-semibold text-white mb-4">
             Connected Accounts
           </h2>
 
           {tableData.length === 0 ? (
-            <p className="text-gray-400">No usernames added.</p>
+            <p className="text-gray-400 text-sm">No usernames added.</p>
           ) : (
-            <table className="w-full border border-[#30363d] text-left">
-              <thead>
-                <tr className="bg-[#0d1117]">
-                  <th className="p-3 border border-[#30363d]">S.No.</th>
-                  <th className="p-3 border border-[#30363d]">Site</th>
-                  <th className="p-3 border border-[#30363d]">Username</th>
-                  <th className="p-3 border border-[#30363d]">Action</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {tableData.map((item, index) => (
-                  <tr key={index}>
-                    <td className="p-3 border border-[#30363d]">
-                      {index + 1}
-                    </td>
-
-                    {/* SITE WITH LOGO */}
-                    <td className="p-3 border border-[#30363d]">
-                      <div className="flex items-center gap-2">
-
-                        {item.site === "LeetCode" && (
-                          <SiLeetcode className="text-yellow-400" size={18} />
-                        )}
-
-                        {item.site === "Codeforces" && (
-                          <SiCodeforces className="text-blue-400" size={18} />
-                        )}
-
-                        {item.site}
-                      </div>
-                    </td>
-
-                    {/* USERNAME CLICKABLE + VERIFIED */}
-                    <td className="p-3 border border-[#30363d]">
-                      <a
-                        href={getProfileLink(item.site, item.username)}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-blue-400 hover:underline flex items-center gap-2"
-                      >
-                        {item.username}
-
-                        {/* VERIFIED BADGE */}
-                        <span className="bg-blue-600 text-white text-xs px-2 py-0.5 rounded-full">
-                          ✔ Verified
-                        </span>
-                      </a>
-                    </td>
-
-                    {/* DELETE */}
-                    <td className="p-3 border border-[#30363d]">
-                      <button
-                        onClick={() => handleDelete(item.site)}
-                        className="bg-red-600 px-3 py-1 rounded text-white"
-                      >
-                        Delete
-                      </button>
-                    </td>
-
+            <div className="overflow-x-auto">
+              <table className="min-w-[600px] w-full border border-[#30363d] text-xs sm:text-sm text-left">
+                <thead>
+                  <tr className="bg-[#0d1117]">
+                    <th className="p-3 border border-[#30363d]">S.No.</th>
+                    <th className="p-3 border border-[#30363d]">Site</th>
+                    <th className="p-3 border border-[#30363d]">Username</th>
+                    <th className="p-3 border border-[#30363d]">Action</th>
                   </tr>
-                ))}
-              </tbody>
+                </thead>
 
-            </table>
+                <tbody>
+                  {tableData.map((item, index) => (
+                    <tr key={index} className="border-t border-[#30363d]">
+                      <td className="p-3">{index + 1}</td>
+
+                      <td className="p-3">
+                        <div className="flex items-center gap-2">
+                          {item.site === "LeetCode" && (
+                            <SiLeetcode className="text-yellow-400" size={18} />
+                          )}
+                          {item.site === "Codeforces" && (
+                            <SiCodeforces className="text-blue-400" size={18} />
+                          )}
+                          {item.site}
+                        </div>
+                      </td>
+
+                      <td className="p-3 break-words">
+                        <a
+                          href={getProfileLink(item.site, item.username)}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-blue-400 hover:underline flex flex-wrap items-center gap-2"
+                        >
+                          {item.username}
+                          <span className="bg-blue-600 text-white text-[10px] px-2 py-0.5 rounded-full">
+                            ✔ Verified
+                          </span>
+                        </a>
+                      </td>
+
+                      <td className="p-3">
+                        <button
+                          onClick={() => handleDelete(item.site)}
+                          className="bg-red-600 px-3 py-1 rounded text-white text-xs sm:text-sm"
+                        >
+                          Delete
+                        </button>
+                      </td>
+
+                    </tr>
+                  ))}
+                </tbody>
+
+              </table>
+            </div>
           )}
         </div>
 
