@@ -2,7 +2,7 @@ import { Brain } from "lucide-react";
 
 export default function Footer() {
   return (
-    <footer className="bg-[#0d1117] pt-16 pb-8 px-6">
+    <footer className="bg-[#0d1117] pt-12 pb-8 px-4 sm:px-6 md:px-8 mb-24 md:mb-0">
       <div className="max-w-7xl mx-auto">
 
         {/* Card Container */}

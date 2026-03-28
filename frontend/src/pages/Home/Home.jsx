@@ -113,7 +113,7 @@ export default function Home() {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-6 sm:py-8 md:py-10 lg:py-14 space-y-6 sm:space-y-8 md:space-y-10 lg:space-y-12 overflow-x-hidden">
+    <div className="w-full max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 md:py-8 lg:py-10 space-y-5 sm:space-y-6 md:space-y-8 lg:space-y-10 overflow-x-hidden">
 
       {/* HEADER */}
       <div className="space-y-2 px-1">
@@ -133,8 +133,8 @@ export default function Home() {
             LeetCode Activity
           </h2>
 
-          <div className="w-full overflow-x-auto">
-            <div className="min-w-[280px]">
+          <div className="w-full overflow-x-hidden sm:overflow-x-auto">
+            <div className="min-w-0">
               <Heatmap
                 platform="leetcode"
                 data={
@@ -152,8 +152,8 @@ export default function Home() {
             Codeforces Activity
           </h2>
 
-          <div className="w-full overflow-x-auto">
-            <div className="min-w-[280px]">
+          <div className="w-full overflow-x-hidden sm:overflow-x-auto">
+            <div className="min-w-0">
               <Heatmap
                 platform="codeforces"
                 data={

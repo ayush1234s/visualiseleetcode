@@ -142,8 +142,8 @@ export default function Navbar() {
   return (
     <>
       {/* ================= TOP NAVBAR ================= */}
-      <div className="w-full flex justify-center pt-4 md:pt-6 sticky top-0 z-50 px-3 md:px-0">
-        <nav className="w-full md:w-[95%] max-w-7xl backdrop-blur-2xl bg-[#0d1117]/85 border border-[#30363d] rounded-2xl px-4 md:px-6 py-3 md:py-4 flex justify-between items-center shadow-[0_8px_32px_rgba(0,0,0,0.35)]">
+      <div className="w-full flex justify-center pt-2 sm:pt-3 md:pt-4 sticky top-0 z-50 px-3 md:px-0">
+        <nav className="w-full md:w-[95%] max-w-7xl backdrop-blur-2xl bg-[#0d1117]/85 border border-[#30363d] rounded-2xl px-3 sm:px-4 md:px-6 py-2.5 sm:py-3 md:py-4 flex justify-between items-center shadow-[0_8px_32px_rgba(0,0,0,0.35)]">
           
           {/* LOGO */}
           <div className="flex items-center gap-3 text-white font-semibold text-base md:text-lg">
@@ -253,7 +253,7 @@ export default function Navbar() {
       </div>
 
       {/* ================= MOBILE BOTTOM NAVBAR ================= */}
-      <div className="md:hidden fixed bottom-3 left-1/2 -translate-x-1/2 z-50 w-[94%] max-w-md">
+      <div className="md:hidden fixed bottom-2 left-1/2 -translate-x-1/2 z-50 w-[94%] max-w-md">
         <div className="backdrop-blur-2xl bg-[#0d1117]/90 border border-[#30363d] rounded-3xl px-2 py-2 shadow-[0_10px_40px_rgba(0,0,0,0.45)]">
           <div className="flex items-center justify-between">
             {mobileBottomNavItems.map((item) => {
@@ -294,8 +294,8 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* MOBILE SPACE */}
-      <div className="h-20 md:hidden" />
+      {/* MOBILE SPACE (for bottom nav) */}
+      <div className="h-24 md:hidden" />
     </>
   );
 }
