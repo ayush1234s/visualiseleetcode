@@ -30,6 +30,16 @@ const desktopNavItems = [
   { name: "Help", path: "/help", icon: CircleHelp },
 ];
 
+// 🔥 USER ID (NO LOGIN)
+const getUserId = () => {
+  let uid = localStorage.getItem("userId");
+  if (!uid) {
+    uid = "user_" + Math.random().toString(36).substring(2, 12);
+    localStorage.setItem("userId", uid);
+  }
+  return uid;
+};
+
 const mobileBottomNavItems = [
   { name: "Home", path: "/", icon: Home },
   { name: "Visualize", path: "/visualize", icon: Brain },
@@ -50,8 +60,10 @@ export default function Navbar() {
 
   /* ================= LISTEN REVISION TASKS ================= */
   useEffect(() => {
+    const userId = getUserId();
+
     const q = query(
-      collection(db, "revisionTasks"),
+      collection(db, "users", userId, "revisionTasks"),
       orderBy("createdAt", "desc")
     );
 
