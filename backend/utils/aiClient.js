@@ -6,35 +6,83 @@ const client = new OpenAI({
   baseURL: "https://api.groq.com/openai/v1",
 });
 
+let cachedProblems = null;
+let lastCacheTime = 0;
+const CACHE_DURATION = 60 * 60 * 1000; // 1 hour in ms
+
 /* ================= FETCH REAL LEETCODE QUESTION ================= */
 
 const fetchLeetCodeQuestion = async (questionNumber) => {
+  try {
+    const now = Date.now();
+    if (!cachedProblems || now - lastCacheTime > CACHE_DURATION) {
+      const response = await axios.get(
+        "https://leetcode.com/api/problems/all/",
+        {
+          headers: {
+            "User-Agent":
+              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            Accept: "application/json, text/plain, */*",
+          },
+          timeout: 10000,
+        }
+      );
+      if (response.data && response.data.stat_status_pairs) {
+        cachedProblems = response.data.stat_status_pairs;
+        lastCacheTime = now;
+      }
+    }
 
-  const response = await axios.get(
-    "https://leetcode.com/api/problems/all/"
-  );
-
-  const problems = response.data.stat_status_pairs;
-
-  const problem = problems.find(
-    (p) => p.stat.frontend_question_id == questionNumber
-  );
-
-  if (!problem) {
-    throw new Error("Problem not found");
+    if (cachedProblems) {
+      const problem = cachedProblems.find(
+        (p) => p.stat.frontend_question_id == questionNumber
+      );
+      if (problem && problem.stat) {
+        return {
+          title: problem.stat.question__title,
+          slug: problem.stat.question__title_slug,
+        };
+      }
+    }
+  } catch (err) {
+    console.error("Error fetching LeetCode problem list:", err.message);
   }
 
+  // Fallback if network request fails or question id not matched directly
   return {
-    title: problem.stat.question__title,
-    slug: problem.stat.question__title_slug,
+    title: `LeetCode Problem #${questionNumber}`,
+    slug: "",
   };
 };
 
+/* ================= AI HELPER WITH MODEL FALLBACK ================= */
+
+const getAICompletion = async (prompt, temperature = 0.2) => {
+  const models = ["groq/compound-mini", "groq/compound", "qwen/qwen3.6-27b"];
+  let lastError = null;
+
+  for (const model of models) {
+    try {
+      const completion = await client.chat.completions.create({
+        model,
+        messages: [{ role: "user", content: prompt }],
+        temperature,
+      });
+      if (completion.choices && completion.choices[0]?.message?.content) {
+        return completion.choices[0].message.content;
+      }
+    } catch (err) {
+      console.warn(`Model ${model} failed: ${err.message}. Trying next model...`);
+      lastError = err;
+    }
+  }
+
+  throw lastError || new Error("All AI models failed to respond.");
+};
 
 /* ================= GENERATE ENGLISH EXPLANATION ================= */
 
 const generateVisualization = async (questionNumber) => {
-
   const problem = await fetchLeetCodeQuestion(questionNumber);
 
   const prompt = `
@@ -79,17 +127,11 @@ Use only C++ code.
 Do not use Python.
 `;
 
-  const completion = await client.chat.completions.create({
-    model: "llama-3.1-8b-instant",
-    messages: [
-      { role: "user", content: prompt }
-    ],
-    temperature: 0.2,
-  });
+  const content = await getAICompletion(prompt, 0.2);
 
   return {
     question: `#${questionNumber} - ${problem.title}`,
-    visualization: completion.choices[0].message.content,
+    visualization: content,
   };
 };
 
@@ -97,7 +139,6 @@ Do not use Python.
 /* ================= ANALYZE USER CODE ================= */
 
 const analyzeUserCode = async (questionTitle, userCode) => {
-
   const prompt = `
 You are a strict C++ LeetCode judge.
 
@@ -139,22 +180,14 @@ Explain what changes are required.
 Provide fixed working code.
 `;
 
-  const completion = await client.chat.completions.create({
-    model: "llama-3.1-8b-instant",
-    messages: [
-      { role: "user", content: prompt }
-    ],
-    temperature: 0.1,
-  });
-
-  return completion.choices[0].message.content;
+  const content = await getAICompletion(prompt, 0.1);
+  return content;
 };
 
 
 /* ================= HINDI EXPLANATION ================= */
 
 const generateHindiExplanation = async (questionTitle, explanation) => {
-
   const prompt = `
 You are a friendly DSA teacher.
 
@@ -195,15 +228,8 @@ Explanation:
 ${explanation}
 `;
 
-  const completion = await client.chat.completions.create({
-    model: "llama-3.1-8b-instant",
-    messages: [
-      { role: "user", content: prompt }
-    ],
-    temperature: 0.3,
-  });
-
-  return completion.choices[0].message.content;
+  const content = await getAICompletion(prompt, 0.3);
+  return content;
 };
 
 
@@ -213,4 +239,4 @@ module.exports = {
   generateVisualization,
   analyzeUserCode,
   generateHindiExplanation,
-};
+};

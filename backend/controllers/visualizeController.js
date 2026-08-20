@@ -8,7 +8,6 @@ const {
 
 const handleVisualize = async (req, res) => {
   try {
-
     const { questionNumber } = req.body;
 
     if (!questionNumber)
@@ -21,8 +20,9 @@ const handleVisualize = async (req, res) => {
     res.json(result);
 
   } catch (error) {
+    console.error("handleVisualize Error:", error);
     res.status(500).json({
-      error: "Visualization failed"
+      error: error.message || "Visualization failed"
     });
   }
 };
@@ -31,7 +31,6 @@ const handleVisualize = async (req, res) => {
 
 const handleAnalyze = async (req, res) => {
   try {
-
     const { questionTitle, userCode } = req.body;
 
     if (!userCode)
@@ -49,8 +48,9 @@ const handleAnalyze = async (req, res) => {
     });
 
   } catch (error) {
+    console.error("handleAnalyze Error:", error);
     res.status(500).json({
-      error: "Analysis failed"
+      error: error.message || "Analysis failed"
     });
   }
 };
@@ -59,7 +59,6 @@ const handleAnalyze = async (req, res) => {
 
 const handleHindiExplain = async (req, res) => {
   try {
-
     const { questionTitle, explanation } = req.body;
 
     const hindi = await generateHindiExplanation(
@@ -70,11 +69,10 @@ const handleHindiExplain = async (req, res) => {
     res.json({ hindi });
 
   } catch (error) {
-
+    console.error("handleHindiExplain Error:", error);
     res.status(500).json({
-      error: "Hindi explanation failed"
+      error: error.message || "Hindi explanation failed"
     });
-
   }
 };
 
@@ -82,4 +80,4 @@ module.exports = {
   handleVisualize,
   handleAnalyze,
   handleHindiExplain
-};
+};

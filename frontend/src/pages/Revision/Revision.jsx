@@ -64,13 +64,18 @@ export default function Revision() {
 
     setFetchLoading(true);
 
-    const res=await axios.post(
-      `${import.meta.env.VITE_BACKEND_URL}/api/visualize`,
-      {questionNumber}
-    );
+    try {
+      const res=await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/api/visualize`,
+        {questionNumber}
+      );
 
-    setQuestionTitle(res.data.question);
-    setFetchLoading(false);
+      setQuestionTitle(res.data.question);
+    } catch (err) {
+      alert(err.response?.data?.error || "Failed to fetch question title.");
+    } finally {
+      setFetchLoading(false);
+    }
   };
 
   const toggleDay=(day)=>{

@@ -39,9 +39,9 @@ export default function Visualize() {
 
             setVisualData(res.data);
 
-        } catch {
+        } catch (err) {
 
-            setError("Something went wrong.");
+            setError(err.response?.data?.error || "Something went wrong.");
 
         } finally {
 
