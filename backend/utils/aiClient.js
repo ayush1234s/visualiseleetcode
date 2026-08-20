@@ -187,45 +187,43 @@ Provide fixed working ${langName} code.
 };
 
 
-/* ================= HINDI / HINGLISH EXPLANATION ================= */
+/* ================= HINGLISH EXPLANATION ================= */
 
 const generateHindiExplanation = async (questionTitle, explanation) => {
   const prompt = `
-You are a friendly, energetic DSA teacher.
+You are a friendly DSA teacher explaining a LeetCode problem.
 
-Explain the following LeetCode problem in **casual Hinglish** (Hindi written in Roman / English script, like how people chat on WhatsApp e.g., "Hi, main Ayush hoon, aaj hum is problem ko samjhenge!").
+Explain the following LeetCode problem in **clear, simple Hinglish** (Hindi written in Roman/English script, e.g., "Is problem mein humein ek array diya gaya hai aur ek target sum...").
 
-DO NOT use Devanagari Hindi script (हिंदी). Use ONLY Roman script Hinglish (e.g., "Pehle hum ek array create karenge, phir loop chalayenge...").
+DO NOT use Devanagari Hindi script (हिंदी). Use ONLY Roman script Hinglish.
+DO NOT include meta commentary or intros like "Namaste Dosto" or "Main AI hoon". Explain the problem directly and clearly!
 
-Start like this:
+Structure your response with these sections:
 
-Namaste Dosto 👋
-Main Visualize LeetCode AI hoon. Aaj hum is question ko bohot aasan bhasa mein samjhenge!
-
-Sections required:
+# ${questionTitle}
 
 ## 🧠 Simple Explanation
-Explain the problem in super simple WhatsApp-style Hinglish.
+Explain what the problem is asking in simple, clear Hinglish.
 
 ## 🎯 Pattern Used
-Explain the DSA pattern simply in Hinglish.
+Explain which DSA pattern is used and why in Hinglish.
 
 ## 🪜 Step-by-Step Breakdown
 Use a small example and explain step by step in Hinglish.
 
 ## ⚡ Brute Force Approach
-Explain brute force in Hinglish.
+Explain the brute force approach simply in Hinglish.
 
 ## ⏱ Time Complexity
-Explain complexity simply.
+Explain time complexity in simple Hinglish.
 
 ## 🧠 Space Complexity
-Explain complexity simply.
+Explain space complexity in simple Hinglish.
 
 IMPORTANT RULES:
-1. Write ENTIRE response in Roman Script Hinglish ONLY (no Devanagari letters like 'नमस्ते').
+1. Write ENTIRE response in Roman Script Hinglish ONLY (no Devanagari characters like 'नमस्ते').
 2. Do NOT include any code blocks.
-3. Keep the tone friendly, engaging, and easy to read like a friendly chat message.
+3. Keep the explanation natural, clear, engaging, and easy to understand for beginners.
 
 Question:
 ${questionTitle}

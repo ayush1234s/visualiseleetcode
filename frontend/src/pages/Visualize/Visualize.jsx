@@ -176,7 +176,7 @@ export default function Visualize() {
                             onClick={handleHindiExplain}
                             className="w-full sm:w-auto border border-yellow-400 text-yellow-400 px-6 py-2.5 rounded-lg hover:bg-yellow-400 hover:text-black transition font-medium"
                         >
-                            {hindiLoading ? "Explaining..." : "Explain in Hinglish 🇮🇳 (WhatsApp Style)"}
+                            {hindiLoading ? "Explaining..." : "Explain in Hinglish 🇮🇳"}
                         </button>
 
                     </div>
@@ -192,7 +192,7 @@ export default function Visualize() {
                 <div className="bg-[#161b22] border border-yellow-500 rounded-2xl p-4 sm:p-6 md:p-8 overflow-hidden">
 
                     <h2 className="text-xl sm:text-2xl font-bold text-yellow-400 mb-5 sm:mb-6 break-words">
-                        🇮🇳 Hinglish Explanation (WhatsApp Style)
+                        🇮🇳 Hinglish Explanation
                     </h2>
 
                     <div className="prose prose-invert max-w-none break-words overflow-hidden

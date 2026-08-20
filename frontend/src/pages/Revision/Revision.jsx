@@ -95,20 +95,25 @@ export default function Revision() {
 
     const createdAt=new Date();
 
-    const docRef=await addDoc(
-      collection(db,"users",getUserId(),"revisionTasks"),
-      {
-        questionNumber,
-        questionTitle,
-        weekdays,
-        email,
-        createdAt,
-        emailStatus:"Pending"
-      }
-    );
+    try {
+      const docRef=await addDoc(
+        collection(db,"users",getUserId(),"revisionTasks"),
+        {
+          questionNumber,
+          questionTitle,
+          weekdays,
+          email,
+          createdAt,
+          emailStatus:"Sending..."
+        }
+      );
 
-    try{
-      const res=await axios.post(
+      // Refresh tasks immediately so UI updates in ~200ms
+      loadTasks();
+      setLoading(false);
+
+      // Trigger email sending asynchronously in background
+      axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/api/email/send-revision-email`,
         {
           email,
@@ -118,24 +123,31 @@ export default function Revision() {
           createdAt,
           id:docRef.id
         }
-      );
-
-      if(res.data.success){
+      ).then(async (res) => {
+        if(res.data && res.data.success){
+          await updateDoc(
+            doc(db,"users",getUserId(),"revisionTasks",docRef.id),
+            {emailStatus:"Success"}
+          );
+        } else {
+          await updateDoc(
+            doc(db,"users",getUserId(),"revisionTasks",docRef.id),
+            {emailStatus:"Failed"}
+          );
+        }
+        loadTasks();
+      }).catch(async () => {
         await updateDoc(
           doc(db,"users",getUserId(),"revisionTasks",docRef.id),
-          {emailStatus:"Success"}
+          {emailStatus:"Failed"}
         );
-      }
+        loadTasks();
+      });
 
-    }catch(err){
-      await updateDoc(
-        doc(db,"users",getUserId(),"revisionTasks",docRef.id),
-        {emailStatus:"Failed"}
-      );
+    } catch (err) {
+      alert("Failed to save task: " + (err.message || "Unknown error"));
+      setLoading(false);
     }
-
-    loadTasks();
-    setLoading(false);
   };
 
   const addToCalendar=()=>{

@@ -193,8 +193,26 @@ Please stay consistent with your learning.
 
     let emailSent = false;
 
-    // Try SendGrid first
-    if (process.env.SENDGRID_API_KEY) {
+    // Try Nodemailer (Gmail SMTP) first for fast & reliable delivery
+    if (process.env.GMAIL_USER && process.env.GMAIL_PASS) {
+      try {
+        const mailOptions = {
+          from: `"Visualize LeetCode" <${process.env.GMAIL_USER}>`,
+          to: email,
+          subject: "Your Revision Reminder - Visualize LeetCode",
+          text: textContent,
+          html: htmlContent,
+        };
+        await transporter.sendMail(mailOptions);
+        console.log("✅ EMAIL SENT VIA NODEMAILER (GMAIL SMTP)");
+        emailSent = true;
+      } catch (nmErr) {
+        console.warn("⚠️ Gmail SMTP failed:", nmErr.message);
+      }
+    }
+
+    // Fallback to SendGrid
+    if (!emailSent && process.env.SENDGRID_API_KEY) {
       try {
         const msg = {
           to: email,
@@ -204,14 +222,6 @@ Please stay consistent with your learning.
           headers: {
             "X-Priority": "3",
             "Precedence": "bulk"
-          },
-          mailSettings: {
-            bypassListManagement: { enable: false },
-            sandboxMode: { enable: false }
-          },
-          trackingSettings: {
-            clickTracking: { enable: false, enableText: false },
-            openTracking: { enable: false }
           },
           text: textContent,
           html: htmlContent,
@@ -224,22 +234,11 @@ Please stay consistent with your learning.
       }
     }
 
-    // Fallback to Nodemailer (Gmail SMTP)
-    if (!emailSent) {
-      console.log("🔄 Sending via Nodemailer (Gmail SMTP)...");
-      const mailOptions = {
-        from: `"Visualize LeetCode" <${process.env.GMAIL_USER}>`,
-        to: email,
-        subject: "Your Revision Reminder - Visualize LeetCode",
-        text: textContent,
-        html: htmlContent,
-      };
-      await transporter.sendMail(mailOptions);
-      console.log("✅ EMAIL SENT VIA NODEMAILER (GMAIL SMTP)");
-      emailSent = true;
+    if (emailSent) {
+      res.json({ success: true });
+    } else {
+      res.status(500).json({ success: false, error: "Failed to send email" });
     }
-
-    res.json({ success: true });
 
   } catch (err) {
     console.error("❌ EMAIL CONTROLLER ERROR:", err.message);
