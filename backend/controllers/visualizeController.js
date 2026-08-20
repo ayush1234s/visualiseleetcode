@@ -31,7 +31,7 @@ const handleVisualize = async (req, res) => {
 
 const handleAnalyze = async (req, res) => {
   try {
-    const { questionTitle, userCode } = req.body;
+    const { questionTitle, userCode, language } = req.body;
 
     if (!userCode)
       return res.status(400).json({
@@ -40,7 +40,8 @@ const handleAnalyze = async (req, res) => {
 
     const result = await analyzeUserCode(
       questionTitle,
-      userCode
+      userCode,
+      language
     );
 
     res.json({

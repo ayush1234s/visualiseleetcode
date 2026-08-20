@@ -1,17 +1,27 @@
 const sgMail = require("@sendgrid/mail");
+const nodemailer = require("nodemailer");
 
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+if (process.env.SENDGRID_API_KEY) {
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+}
+
+const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true,
+  auth: {
+    user: process.env.GMAIL_USER,
+    pass: process.env.GMAIL_PASS,
+  },
+});
 
 exports.sendRevisionEmail = async (req, res) => {
-
   const { email, questionNumber, questionTitle, weekdays } = req.body;
 
   try {
-
-    console.log("📩 SENDGRID EMAIL API HIT");
+    console.log("📩 SEND REVISION EMAIL API HIT for:", email);
 
     /* ================= IST TIME ================= */
-
     const now = new Date(
       new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" })
     );
@@ -29,28 +39,27 @@ exports.sendRevisionEmail = async (req, res) => {
     });
 
     /* ================= UPCOMING DAY ================= */
-
     const dayMap = {
       Sunday:0, Monday:1, Tuesday:2, Wednesday:3,
       Thursday:4, Friday:5, Saturday:6
     };
 
     const today = now.getDay();
-
     let upcomingDay = "";
     let daysLeft = 7;
 
-    weekdays.forEach(day=>{
-      const diff = (dayMap[day] - today + 7) % 7 || 7;
-      if(diff < daysLeft){
-        daysLeft = diff;
-        upcomingDay = day;
-      }
-    });
+    if (Array.isArray(weekdays)) {
+      weekdays.forEach(day => {
+        const diff = (dayMap[day] - today + 7) % 7 || 7;
+        if (diff < daysLeft) {
+          daysLeft = diff;
+          upcomingDay = day;
+        }
+      });
+    }
 
     /* ================= LEETCODE LINK ================= */
-
-    const slug = questionTitle
+    const slug = (questionTitle || "")
       .toLowerCase()
       .replace(/^#\d+\s*-\s*/, "")
       .replace(/[^a-z0-9\s]/g, "")
@@ -59,37 +68,16 @@ exports.sendRevisionEmail = async (req, res) => {
 
     const leetcodeLink = `https://leetcode.com/problems/${slug}/`;
 
-    /* ================= EMAIL ================= */
-
-    const msg = {
-      to: email,
-      from: process.env.SENDGRID_FROM_EMAIL || process.env.GMAIL_USER,
-      replyTo: process.env.SENDGRID_REPLY_TO || process.env.SENDGRID_FROM_EMAIL || process.env.GMAIL_USER,
-      subject: "Your Revision Reminder - Visualize LeetCode",
-      headers: {
-        "X-Priority": "3",
-        "Precedence": "bulk"
-      },
-      mailSettings: {
-        bypassListManagement: { enable: false },
-        sandboxMode: { enable: false }
-      },
-      trackingSettings: {
-        clickTracking: { enable: false, enableText: false },
-        openTracking: { enable: false }
-      },
-
-      // ✅ Anti-spam plain text
-      text: `
+    const textContent = `
 Hi,
 
 This is your revision reminder for question ${questionNumber} - ${questionTitle}.
 Please stay consistent with your learning.
 
 - Visualize LeetCode Team
-      `,
+    `;
 
-      html: `
+    const htmlContent = `
       <div style="background:#0d1117;padding:40px;font-family:Arial">
 
         <div style="
@@ -134,7 +122,7 @@ Please stay consistent with your learning.
 
             <p><b>Question Number:</b> ${questionNumber}</p>
             <p><b>Title:</b> ${questionTitle}</p>
-            <p><b>Weekdays:</b> ${weekdays.join(", ")}</p>
+            <p><b>Weekdays:</b> ${Array.isArray(weekdays) ? weekdays.join(", ") : ""}</p>
 
           </div>
 
@@ -201,21 +189,60 @@ Please stay consistent with your learning.
         </div>
 
       </div>
-      `
-    };
+    `;
 
-    await sgMail.send(msg);
+    let emailSent = false;
 
-    console.log("✅ EMAIL SENT SUCCESSFULLY");
+    // Try SendGrid first
+    if (process.env.SENDGRID_API_KEY) {
+      try {
+        const msg = {
+          to: email,
+          from: process.env.SENDGRID_FROM_EMAIL || process.env.GMAIL_USER,
+          replyTo: process.env.SENDGRID_REPLY_TO || process.env.SENDGRID_FROM_EMAIL || process.env.GMAIL_USER,
+          subject: "Your Revision Reminder - Visualize LeetCode",
+          headers: {
+            "X-Priority": "3",
+            "Precedence": "bulk"
+          },
+          mailSettings: {
+            bypassListManagement: { enable: false },
+            sandboxMode: { enable: false }
+          },
+          trackingSettings: {
+            clickTracking: { enable: false, enableText: false },
+            openTracking: { enable: false }
+          },
+          text: textContent,
+          html: htmlContent,
+        };
+        await sgMail.send(msg);
+        console.log("✅ EMAIL SENT VIA SENDGRID");
+        emailSent = true;
+      } catch (sgErr) {
+        console.warn("⚠️ SendGrid failed:", sgErr.response?.body || sgErr.message);
+      }
+    }
+
+    // Fallback to Nodemailer (Gmail SMTP)
+    if (!emailSent) {
+      console.log("🔄 Sending via Nodemailer (Gmail SMTP)...");
+      const mailOptions = {
+        from: `"Visualize LeetCode" <${process.env.GMAIL_USER}>`,
+        to: email,
+        subject: "Your Revision Reminder - Visualize LeetCode",
+        text: textContent,
+        html: htmlContent,
+      };
+      await transporter.sendMail(mailOptions);
+      console.log("✅ EMAIL SENT VIA NODEMAILER (GMAIL SMTP)");
+      emailSent = true;
+    }
 
     res.json({ success: true });
 
   } catch (err) {
-
-    console.log("❌ SENDGRID ERROR:", err.response?.body || err.message);
-
-    res.status(500).json({ success: false });
-
+    console.error("❌ EMAIL CONTROLLER ERROR:", err.message);
+    res.status(500).json({ success: false, error: err.message });
   }
-
-};
+};

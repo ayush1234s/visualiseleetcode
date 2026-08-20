@@ -138,14 +138,16 @@ Do not use Python.
 
 /* ================= ANALYZE USER CODE ================= */
 
-const analyzeUserCode = async (questionTitle, userCode) => {
+const analyzeUserCode = async (questionTitle, userCode, language = "cpp") => {
+  const langName = language && language.toLowerCase() === "java" ? "Java" : "C++";
+
   const prompt = `
-You are a strict C++ LeetCode judge.
+You are a strict ${langName} LeetCode judge.
 
 Question:
 ${questionTitle}
 
-User Code:
+User Code (${langName}):
 ${userCode}
 
 First check if the code is logically correct.
@@ -160,7 +162,7 @@ STATUS: CORRECT
 Explain briefly why the logic works.
 
 ## 💻 Full Correct Code
-Provide a clean optimal C++ solution.
+Provide clean optimal ${langName} code.
 
 -----------------------
 
@@ -176,8 +178,8 @@ Explain mistakes clearly.
 ## 🔧 How To Fix
 Explain what changes are required.
 
-## 💻 Corrected C++ Code
-Provide fixed working code.
+## 💻 Corrected ${langName} Code
+Provide fixed working ${langName} code.
 `;
 
   const content = await getAICompletion(prompt, 0.1);
@@ -185,41 +187,45 @@ Provide fixed working code.
 };
 
 
-/* ================= HINDI EXPLANATION ================= */
+/* ================= HINDI / HINGLISH EXPLANATION ================= */
 
 const generateHindiExplanation = async (questionTitle, explanation) => {
   const prompt = `
-You are a friendly DSA teacher.
+You are a friendly, energetic DSA teacher.
 
-Explain the following LeetCode problem in **very simple Hindi**.
+Explain the following LeetCode problem in **casual Hinglish** (Hindi written in Roman / English script, like how people chat on WhatsApp e.g., "Hi, main Ayush hoon, aaj hum is problem ko samjhenge!").
+
+DO NOT use Devanagari Hindi script (हिंदी). Use ONLY Roman script Hinglish (e.g., "Pehle hum ek array create karenge, phir loop chalayenge...").
 
 Start like this:
 
-Namaste Students 👋
-Main Visualize Leetcode AI hoon.
-
-Then explain the problem.
+Namaste Dosto 👋
+Main Visualize LeetCode AI hoon. Aaj hum is question ko bohot aasan bhasa mein samjhenge!
 
 Sections required:
 
 ## 🧠 Simple Explanation
+Explain the problem in super simple WhatsApp-style Hinglish.
 
 ## 🎯 Pattern Used
+Explain the DSA pattern simply in Hinglish.
 
 ## 🪜 Step-by-Step Breakdown
+Use a small example and explain step by step in Hinglish.
 
 ## ⚡ Brute Force Approach
+Explain brute force in Hinglish.
 
 ## ⏱ Time Complexity
+Explain complexity simply.
 
 ## 🧠 Space Complexity
+Explain complexity simply.
 
 IMPORTANT RULES:
-
-1. Do NOT show any code.
-2. Only explain concept.
-3. Use very easy Hindi.
-4. Use small examples.
+1. Write ENTIRE response in Roman Script Hinglish ONLY (no Devanagari letters like 'नमस्ते').
+2. Do NOT include any code blocks.
+3. Keep the tone friendly, engaging, and easy to read like a friendly chat message.
 
 Question:
 ${questionTitle}
@@ -231,6 +237,7 @@ ${explanation}
   const content = await getAICompletion(prompt, 0.3);
   return content;
 };
+
 
 
 /* ================= EXPORT ================= */

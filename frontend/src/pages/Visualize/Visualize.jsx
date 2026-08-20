@@ -10,6 +10,7 @@ export default function Visualize() {
     const [error, setError] = useState("");
 
     const [userCode, setUserCode] = useState("");
+    const [language, setLanguage] = useState("cpp");
     const [analysis, setAnalysis] = useState(null);
 
     const [hindiExplain, setHindiExplain] = useState("");
@@ -62,6 +63,7 @@ export default function Visualize() {
             {
                 questionTitle: visualData.question,
                 userCode,
+                language,
             }
         );
 
@@ -166,15 +168,15 @@ export default function Visualize() {
                         </ReactMarkdown>
                     </div>
 
-                    {/* HINDI BUTTON */}
+                    {/* HINDI / HINGLISH BUTTON */}
 
                     <div className="mt-6 sm:mt-8">
 
                         <button
                             onClick={handleHindiExplain}
-                            className="w-full sm:w-auto border border-yellow-400 text-yellow-400 px-6 py-2.5 rounded-lg hover:bg-yellow-400 hover:text-black transition"
+                            className="w-full sm:w-auto border border-yellow-400 text-yellow-400 px-6 py-2.5 rounded-lg hover:bg-yellow-400 hover:text-black transition font-medium"
                         >
-                            {hindiLoading ? "Explaining..." : "Explain in Hindi 🇮🇳"}
+                            {hindiLoading ? "Explaining..." : "Explain in Hinglish 🇮🇳 (WhatsApp Style)"}
                         </button>
 
                     </div>
@@ -183,14 +185,14 @@ export default function Visualize() {
 
             )}
 
-            {/* ================= HINDI EXPLANATION ================= */}
+            {/* ================= HINDI / HINGLISH EXPLANATION ================= */}
 
             {hindiExplain && (
 
                 <div className="bg-[#161b22] border border-yellow-500 rounded-2xl p-4 sm:p-6 md:p-8 overflow-hidden">
 
                     <h2 className="text-xl sm:text-2xl font-bold text-yellow-400 mb-5 sm:mb-6 break-words">
-                        🇮🇳 Hindi Explanation
+                        🇮🇳 Hinglish Explanation (WhatsApp Style)
                     </h2>
 
                     <div className="prose prose-invert max-w-none break-words overflow-hidden
@@ -226,22 +228,51 @@ export default function Visualize() {
 
                 <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6">
 
-                    <h2 className="text-xl sm:text-2xl font-bold text-white break-words">
-                        🧪 Debug Your Code
-                    </h2>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <h2 className="text-xl sm:text-2xl font-bold text-white break-words">
+                            🧪 Debug Your Code
+                        </h2>
+
+                        {/* LANGUAGE SELECTOR */}
+                        <div className="flex items-center gap-2">
+                            <span className="text-gray-400 text-xs sm:text-sm font-medium">Select Language:</span>
+                            <button
+                                type="button"
+                                onClick={() => setLanguage("cpp")}
+                                className={`px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition border ${
+                                    language === "cpp"
+                                        ? "bg-blue-600 text-white border-blue-500 shadow-md"
+                                        : "bg-[#0d1117] text-gray-400 border-[#30363d] hover:text-white"
+                                }`}
+                            >
+                                C++
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setLanguage("java")}
+                                className={`px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition border ${
+                                    language === "java"
+                                        ? "bg-orange-600 text-white border-orange-500 shadow-md"
+                                        : "bg-[#0d1117] text-gray-400 border-[#30363d] hover:text-white"
+                                }`}
+                            >
+                                Java
+                            </button>
+                        </div>
+                    </div>
 
                     <textarea
                         value={userCode}
                         onChange={(e) => setUserCode(e.target.value)}
-                        placeholder="Paste your C++ code here..."
+                        placeholder={language === "java" ? "Paste your Java code here..." : "Paste your C++ code here..."}
                         className="w-full h-52 sm:h-60 bg-[#0d1117] border border-[#30363d] rounded-lg p-4 text-green-400 font-mono text-sm sm:text-base resize-none"
                     />
 
                     <button
                         onClick={handleAnalyze}
-                        className="w-full sm:w-auto border border-red-400 text-red-400 px-6 py-2.5 rounded-lg hover:bg-red-400 hover:text-black transition"
+                        className="w-full sm:w-auto border border-red-400 text-red-400 px-6 py-2.5 rounded-lg hover:bg-red-400 hover:text-black transition font-medium"
                     >
-                        Analyze Code
+                        Analyze {language === "java" ? "Java" : "C++"} Code
                     </button>
 
                     {analysis && <AnalysisResult analysis={analysis} />}
