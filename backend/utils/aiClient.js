@@ -63,6 +63,11 @@ const getAICompletion = async (prompt, temperature = 0.2) => {
   // Keep the model configurable, but default to one verified on the Groq API.
   // The previous compound and qwen3.6 model IDs are no longer available.
   const models = [process.env.GROQ_MODEL || "qwen/qwen3.8-27b"];
+  // Groq's on-demand tier allows 1,000 output tokens per minute. Its default
+  // reservation is higher, which can reject a request before it is generated.
+  const maxCompletionTokens = Number(
+    process.env.GROQ_MAX_COMPLETION_TOKENS || 700
+  );
   let lastError = null;
 
   for (const model of models) {
@@ -71,6 +76,7 @@ const getAICompletion = async (prompt, temperature = 0.2) => {
         model,
         messages: [{ role: "user", content: prompt }],
         temperature,
+        max_completion_tokens: maxCompletionTokens,
       });
       if (completion.choices && completion.choices[0]?.message?.content) {
         return completion.choices[0].message.content;
