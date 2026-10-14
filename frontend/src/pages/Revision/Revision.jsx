@@ -55,6 +55,22 @@ export default function Revision() {
     setTasks(list);
   };
 
+  const setEmailStatus=async(taskId,emailStatus)=>{
+    setTasks(prev=>prev.map(task=>
+      task.id===taskId ? {...task,emailStatus} : task
+    ));
+
+    try{
+      await updateDoc(
+        doc(db,"users",getUserId(),"revisionTasks",taskId),
+        {emailStatus}
+      );
+    }catch(err){
+      // An ad/privacy extension can block Firestore. Keep the current UI status accurate.
+      console.warn("Could not save email status to Firestore:",err.message);
+    }
+  };
+
   useEffect(()=>{
     loadTasks();
   },[]);
@@ -125,22 +141,14 @@ export default function Revision() {
         }
       ).then(async (res) => {
         if(res.data && res.data.success){
-          await updateDoc(
-            doc(db,"users",getUserId(),"revisionTasks",docRef.id),
-            {emailStatus:"Success"}
-          );
+          await setEmailStatus(docRef.id,"Success");
         } else {
-          await updateDoc(
-            doc(db,"users",getUserId(),"revisionTasks",docRef.id),
-            {emailStatus:"Failed"}
-          );
+          await setEmailStatus(docRef.id,"Failed");
         }
         loadTasks();
-      }).catch(async () => {
-        await updateDoc(
-          doc(db,"users",getUserId(),"revisionTasks",docRef.id),
-          {emailStatus:"Failed"}
-        );
+      }).catch(async (err) => {
+        await setEmailStatus(docRef.id,"Failed");
+        alert(err.response?.data?.error || "Email could not be sent. Please try again later.");
         loadTasks();
       });
 

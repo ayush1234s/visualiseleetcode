@@ -31,7 +31,8 @@ cron.schedule("0 9 * * *", async () => {
 
   const today = days[new Date().getDay()];
 
-  const snapshot = await db.collection("revisionTasks").get();
+  // Revision tasks are saved under users/{userId}/revisionTasks by the frontend.
+  const snapshot = await db.collectionGroup("revisionTasks").get();
 
   for (const doc of snapshot.docs) {
 

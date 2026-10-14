@@ -21,6 +21,13 @@ exports.sendRevisionEmail = async (req, res) => {
   try {
     console.log("📩 SEND REVISION EMAIL API HIT for:", email);
 
+    if (!email || !questionNumber) {
+      return res.status(400).json({
+        success: false,
+        error: "A recipient email address and question number are required.",
+      });
+    }
+
     /* ================= IST TIME ================= */
     const now = new Date(
       new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" })
@@ -237,11 +244,15 @@ Please stay consistent with your learning.
     if (emailSent) {
       res.json({ success: true });
     } else {
-      res.status(500).json({ success: false, error: "Failed to send email" });
+      res.status(502).json({
+        success: false,
+        error:
+          "Email could not be sent. Configure a verified SENDGRID_FROM_EMAIL and SENDGRID_API_KEY in the deployed backend.",
+      });
     }
 
   } catch (err) {
     console.error("❌ EMAIL CONTROLLER ERROR:", err.message);
     res.status(500).json({ success: false, error: err.message });
   }
-};
+};
