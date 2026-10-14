@@ -10,9 +10,13 @@ const handleVisualize = async (req, res) => {
   try {
     const { questionNumber } = req.body;
 
-    if (!questionNumber)
+    if (
+      !questionNumber ||
+      !Number.isInteger(Number(questionNumber)) ||
+      Number(questionNumber) <= 0
+    )
       return res.status(400).json({
-        error: "Question number required"
+        error: "Please enter a valid positive LeetCode question number."
       });
 
     const result = await generateVisualization(questionNumber);
@@ -81,4 +85,4 @@ module.exports = {
   handleVisualize,
   handleAnalyze,
   handleHindiExplain
-};
+};

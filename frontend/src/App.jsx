@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 
@@ -13,6 +14,8 @@ import Revision from "./pages/Revision/Revision";
 
 
 function App() {
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
   return (
     <div className="min-h-screen bg-[#0d1117] text-white flex flex-col">
       
@@ -29,22 +32,31 @@ function App() {
       />
 
       {/* Navbar */}
-      <Navbar />
+      <Navbar
+        sidebarCollapsed={sidebarCollapsed}
+        onSidebarToggle={() => setSidebarCollapsed((collapsed) => !collapsed)}
+      />
 
-      {/* Main Content */}
-      <main className="flex-1 max-w-7xl mx-auto w-full px-3 sm:px-6 py-6 sm:py-8 md:py-10 pb-24 md:pb-10">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/daily-contest" element={<DailyContest />} />
-          <Route path="/help" element={<Help />} />
-          <Route path="/visualize" element={<Visualize />} />
-          <Route path="/revision" element={<Revision />} />
-           </Routes>
-      </main>
+      <div
+        className={`flex flex-1 flex-col transition-[margin] duration-300 ${
+          sidebarCollapsed ? "md:ml-20" : "md:ml-72"
+        }`}
+      >
+        {/* Main Content */}
+        <main className="flex-1 w-full px-3 sm:px-6 py-6 sm:py-8 md:py-10 pb-24 md:pb-10">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/daily-contest" element={<DailyContest />} />
+            <Route path="/help" element={<Help />} />
+            <Route path="/visualize" element={<Visualize />} />
+            <Route path="/revision" element={<Revision />} />
+          </Routes>
+        </main>
 
-      {/* Footer */}
-      <Footer />
+        {/* Footer */}
+        <Footer />
+      </div>
     </div>
   );
 }

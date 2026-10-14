@@ -25,6 +25,8 @@ const fetchLeetCodeQuestion = async (questionNumber) => {
             Accept: "application/json, text/plain, */*",
           },
           timeout: 10000,
+          // Do not inherit a local development proxy for this public API call.
+          proxy: false,
         }
       );
       if (response.data && response.data.stat_status_pairs) {
@@ -58,7 +60,9 @@ const fetchLeetCodeQuestion = async (questionNumber) => {
 /* ================= AI HELPER WITH MODEL FALLBACK ================= */
 
 const getAICompletion = async (prompt, temperature = 0.2) => {
-  const models = ["groq/compound-mini", "groq/compound", "qwen/qwen3.6-27b"];
+  // Keep the model configurable, but default to one verified on the Groq API.
+  // The previous compound and qwen3.6 model IDs are no longer available.
+  const models = [process.env.GROQ_MODEL || "qwen/qwen3.8-27b"];
   let lastError = null;
 
   for (const model of models) {
@@ -139,7 +143,25 @@ Do not use Python.
 /* ================= ANALYZE USER CODE ================= */
 
 const analyzeUserCode = async (questionTitle, userCode, language = "cpp") => {
-  const langName = language && language.toLowerCase() === "java" ? "Java" : "C++";
+  const normalizedLanguage = language?.toLowerCase();
+  const langName =
+    normalizedLanguage === "java"
+      ? "Java"
+      : normalizedLanguage === "python"
+      ? "Python"
+      : "C++";
+
+  if (
+    normalizedLanguage === "python" &&
+    /\bpublic\s+(?:class|static|void)\b|\bclass\s+\w+\s*\{|\bSystem\.out\b/.test(
+      userCode
+    )
+  ) {
+    return `STATUS: WRONG
+
+## ❌ Language Mismatch
+You Entered Java Code In Python, Please enter the correct code in python.`;
+  }
 
   const prompt = `
 You are a strict ${langName} LeetCode judge.
@@ -244,4 +266,4 @@ module.exports = {
   generateVisualization,
   analyzeUserCode,
   generateHindiExplanation,
-};
+};

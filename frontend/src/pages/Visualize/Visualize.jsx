@@ -104,14 +104,21 @@ export default function Visualize() {
 
                 <input
                     type="number"
+                    min="1"
                     placeholder="Enter Question Number"
                     value={questionNumber}
                     onChange={(e) => setQuestionNumber(e.target.value)}
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter" && !loading) {
+                            handleVisualize();
+                        }
+                    }}
                     className="w-full bg-[#0d1117] border border-[#30363d] rounded-lg px-4 py-3 text-white text-sm sm:text-base"
                 />
 
                 <button
                     onClick={handleVisualize}
+                    disabled={loading}
                     className="w-full sm:w-auto border border-blue-400 text-blue-400 px-6 py-2.5 rounded-lg hover:bg-blue-400 hover:text-black transition"
                 >
                     {loading ? "Loading..." : "Visualize"}
@@ -258,13 +265,30 @@ export default function Visualize() {
                             >
                                 Java
                             </button>
+                            <button
+                                type="button"
+                                onClick={() => setLanguage("python")}
+                                className={`px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition border ${
+                                    language === "python"
+                                        ? "bg-yellow-500 text-black border-yellow-400 shadow-md"
+                                        : "bg-[#0d1117] text-gray-400 border-[#30363d] hover:text-white"
+                                }`}
+                            >
+                                Python
+                            </button>
                         </div>
                     </div>
 
                     <textarea
                         value={userCode}
                         onChange={(e) => setUserCode(e.target.value)}
-                        placeholder={language === "java" ? "Paste your Java code here..." : "Paste your C++ code here..."}
+                        placeholder={
+                            language === "java"
+                                ? "Paste your Java code here..."
+                                : language === "python"
+                                ? "Paste your Python code here..."
+                                : "Paste your C++ code here..."
+                        }
                         className="w-full h-52 sm:h-60 bg-[#0d1117] border border-[#30363d] rounded-lg p-4 text-green-400 font-mono text-sm sm:text-base resize-none"
                     />
 
@@ -272,7 +296,7 @@ export default function Visualize() {
                         onClick={handleAnalyze}
                         className="w-full sm:w-auto border border-red-400 text-red-400 px-6 py-2.5 rounded-lg hover:bg-red-400 hover:text-black transition font-medium"
                     >
-                        Analyze {language === "java" ? "Java" : "C++"} Code
+                        Analyze {language === "java" ? "Java" : language === "python" ? "Python" : "C++"} Code
                     </button>
 
                     {analysis && <AnalysisResult analysis={analysis} />}

@@ -20,12 +20,12 @@ const Heatmap = ({
   }));
 
   return (
-    <div className="w-full min-w-0 overflow-hidden">
+    <div className="min-w-[320px] xl:min-w-[620px]">
       {isLoading ? (
         <div className="w-full h-32 bg-[#0d1117] animate-pulse rounded-lg" />
       ) : (
-        <div className="w-full min-w-0 overflow-hidden">
-          <div className="w-full min-w-0 overflow-hidden [&_.react-calendar-heatmap]:w-full [&_.react-calendar-heatmap]:h-auto [&_.react-calendar-heatmap_svg]:w-full [&_.react-calendar-heatmap_svg]:h-auto [&_.react-calendar-heatmap_svg]:max-w-full [&_.react-calendar-heatmap_rect]:rx-[2px] [&_.react-calendar-heatmap_rect]:ry-[2px] [&_.react-calendar-heatmap_text]:fill-[#8b949e] [&_.react-calendar-heatmap_text]:text-[8px] sm:[&_.react-calendar-heatmap_text]:text-[10px]">
+        <div className="w-full">
+          <div className="min-w-[620px] [&_.react-calendar-heatmap]:w-full [&_.react-calendar-heatmap]:h-auto [&_.react-calendar-heatmap_svg]:w-full [&_.react-calendar-heatmap_svg]:h-auto [&_.react-calendar-heatmap_rect]:rx-[3px] [&_.react-calendar-heatmap_rect]:ry-[3px] [&_.react-calendar-heatmap_text]:fill-[#8b949e] [&_.react-calendar-heatmap_text]:text-[10px] sm:[&_.react-calendar-heatmap_text]:text-[11px]">
             <CalendarHeatmap
               startDate={
                 new Date(

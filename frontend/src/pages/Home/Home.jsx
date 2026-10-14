@@ -165,14 +165,14 @@ export default function Home() {
       </div>
 
       {/* ================= HEATMAP ================= */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
 
         <div className="w-full min-w-0 bg-[#161b22] border border-[#30363d] rounded-2xl p-4 sm:p-5 md:p-6 overflow-hidden">
           <h2 className="text-base sm:text-lg font-semibold mb-4 sm:mb-6 text-white">
             LeetCode Activity
           </h2>
 
-          <div className="w-full overflow-x-hidden sm:overflow-x-auto">
+          <div className="w-full overflow-x-auto">
             <div className="min-w-0">
               <Heatmap
                 platform="leetcode"
@@ -208,7 +208,7 @@ export default function Home() {
             Codeforces Activity
           </h2>
 
-          <div className="w-full overflow-x-hidden sm:overflow-x-auto">
+          <div className="w-full overflow-x-auto">
             <div className="min-w-0">
               <Heatmap
                 platform="codeforces"
