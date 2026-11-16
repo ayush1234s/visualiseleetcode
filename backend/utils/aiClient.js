@@ -1,5 +1,6 @@
 const OpenAI = require("openai");
 const axios = require("axios");
+const { getLeetCodeProblem } = require("./leetcodeDictionary");
 
 const client = new OpenAI({
   apiKey: process.env.GROQ_API_KEY,
@@ -13,6 +14,16 @@ const CACHE_DURATION = 60 * 60 * 1000; // 1 hour in ms
 /* ================= FETCH REAL LEETCODE QUESTION ================= */
 
 const fetchLeetCodeQuestion = async (questionNumber) => {
+  // 1. Instant verified dictionary check
+  const local = getLeetCodeProblem(questionNumber);
+  if (local) {
+    return {
+      title: local.title,
+      slug: local.slug,
+    };
+  }
+
+  // 2. Try online problem catalog if available
   try {
     const now = Date.now();
     if (!cachedProblems || now - lastCacheTime > CACHE_DURATION) {
@@ -24,8 +35,7 @@ const fetchLeetCodeQuestion = async (questionNumber) => {
               "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
             Accept: "application/json, text/plain, */*",
           },
-          timeout: 10000,
-          // Do not inherit a local development proxy for this public API call.
+          timeout: 4000,
           proxy: false,
         }
       );
@@ -47,10 +57,10 @@ const fetchLeetCodeQuestion = async (questionNumber) => {
       }
     }
   } catch (err) {
-    console.error("Error fetching LeetCode problem list:", err.message);
+    // Cloudflare blocks public axios requests without cookies
   }
 
-  // Fallback if network request fails or question id not matched directly
+  // Fallback
   return {
     title: `LeetCode Problem #${questionNumber}`,
     slug: "",
@@ -60,11 +70,7 @@ const fetchLeetCodeQuestion = async (questionNumber) => {
 /* ================= AI HELPER WITH MODEL FALLBACK ================= */
 
 const getAICompletion = async (prompt, temperature = 0.2) => {
-  // Keep the model configurable, but default to one verified on the Groq API.
-  // The previous compound and qwen3.6 model IDs are no longer available.
   const models = [process.env.GROQ_MODEL || "qwen/qwen3.8-27b"];
-  // Groq's on-demand tier allows 1,000 output tokens per minute. Its default
-  // reservation is higher, which can reject a request before it is generated.
   const maxCompletionTokens = Number(
     process.env.GROQ_MAX_COMPLETION_TOKENS || 700
   );
@@ -96,15 +102,14 @@ const generateVisualization = async (questionNumber) => {
   const problem = await fetchLeetCodeQuestion(questionNumber);
 
   const prompt = `
-You are a senior C++ DSA teacher.
+You are a senior C++ DSA teacher and LeetCode expert.
 
 Explain the following LeetCode problem clearly.
-
-Problem Title: ${problem.title}
+Problem #${questionNumber}: ${problem.title}
 
 Structure your response EXACTLY like this:
 
-# ${problem.title}
+# ${problem.title.replace(/^LeetCode Problem #\d+/, "Problem #" + questionNumber)}
 
 ## 🧠 Simple Explanation
 Explain what the question is asking in simple terms.
@@ -139,12 +144,37 @@ Do not use Python.
 
   const content = await getAICompletion(prompt, 0.2);
 
+  // Extract clean title
+  let cleanTitle = problem.title || "";
+  if (!problem.slug || cleanTitle.includes("LeetCode Problem #")) {
+    const titleMatch = content.match(/^#\s*(.+)$/m);
+    if (titleMatch && !titleMatch[1].includes("LeetCode Problem #")) {
+      cleanTitle = titleMatch[1].replace(/^#?\d+\s*[-:]\s*/, "").trim();
+    }
+  }
+
+  // Derive slug for direct official LeetCode link
+  const slug = (problem.slug || cleanTitle)
+    .toLowerCase()
+    .replace(/^#?\d+\s*[-:]\s*/, "")
+    .replace(/[^a-z0-9\s-]/g, "")
+    .trim()
+    .replace(/\s+/g, "-");
+
+  // Official LeetCode URL with /description/
+  const leetcodeUrl = slug
+    ? `https://leetcode.com/problems/${slug}/description/`
+    : `https://leetcode.com/problemset/all/?search=${questionNumber}`;
+
   return {
-    question: `#${questionNumber} - ${problem.title}`,
+    question: `#${questionNumber} - ${cleanTitle || problem.title}`,
+    questionNumber: Number(questionNumber),
+    questionTitle: cleanTitle || problem.title,
+    slug,
+    leetcodeUrl,
     visualization: content,
   };
 };
-
 
 /* ================= ANALYZE USER CODE ================= */
 
@@ -178,97 +208,54 @@ ${questionTitle}
 User Code (${langName}):
 ${userCode}
 
-First check if the code is logically correct.
+IMPORTANT:
+1. First line MUST be:
+   - "STATUS: CORRECT" if user code is correct
+   - "STATUS: WRONG" if user code has bugs / errors
 
-If CORRECT:
+2. If STATUS: WRONG:
+   - Explain the bug clearly
+   - Explain what is wrong in the user's logic
+   - Provide the fix
+   - Then provide full correct ${langName} code under:
+     ## 💻 Full Correct ${langName} Code
 
-Return exactly:
-
-STATUS: CORRECT
-
-## ✅ Your Code is Correct
-Explain briefly why the logic works.
-
-## 💻 Full Correct Code
-Provide clean optimal ${langName} code.
-
------------------------
-
-If WRONG:
-
-Return exactly:
-
-STATUS: WRONG
-
-## ❌ Issues in Your Code
-Explain mistakes clearly.
-
-## 🔧 How To Fix
-Explain what changes are required.
-
-## 💻 Corrected ${langName} Code
-Provide fixed working ${langName} code.
+3. If STATUS: CORRECT:
+   - Provide time & space complexity
+   - Give 1 small optimization tip
 `;
 
-  const content = await getAICompletion(prompt, 0.1);
-  return content;
+  return await getAICompletion(prompt, 0.1);
 };
 
-
-/* ================= HINGLISH EXPLANATION ================= */
+/* ================= HINDI EXPLANATION ================= */
 
 const generateHindiExplanation = async (questionTitle, explanation) => {
   const prompt = `
-You are a friendly DSA teacher explaining a LeetCode problem.
-
-Explain the following LeetCode problem in **clear, simple Hinglish** (Hindi written in Roman/English script, e.g., "Is problem mein humein ek array diya gaya hai aur ek target sum...").
-
-DO NOT use Devanagari Hindi script (हिंदी). Use ONLY Roman script Hinglish.
-DO NOT include meta commentary or intros like "Namaste Dosto" or "Main AI hoon". Explain the problem directly and clearly!
-
-Structure your response with these sections:
-
-# ${questionTitle}
-
-## 🧠 Simple Explanation
-Explain what the problem is asking in simple, clear Hinglish.
-
-## 🎯 Pattern Used
-Explain which DSA pattern is used and why in Hinglish.
-
-## 🪜 Step-by-Step Breakdown
-Use a small example and explain step by step in Hinglish.
-
-## ⚡ Brute Force Approach
-Explain the brute force approach simply in Hinglish.
-
-## ⏱ Time Complexity
-Explain time complexity in simple Hinglish.
-
-## 🧠 Space Complexity
-Explain space complexity in simple Hinglish.
-
-IMPORTANT RULES:
-1. Write ENTIRE response in Roman Script Hinglish ONLY (no Devanagari characters like 'नमस्ते').
-2. Do NOT include any code blocks.
-3. Keep the explanation natural, clear, engaging, and easy to understand for beginners.
+You are an expert DSA teacher who explains concepts in Hinglish (Hindi written in English alphabet) in a very friendly and clear way, like Striver or Love Babbar.
 
 Question:
 ${questionTitle}
 
-Explanation:
+English Explanation:
 ${explanation}
+
+Explain this entire question and solution in Hinglish.
+Use simple, clear Hindi words written in English letters.
+Explain:
+1. Question kya bol raha hai simple words mein.
+2. Konsa pattern use hoga aur kyu.
+3. Example ke sath dry run / step-by-step logic.
+4. Time aur Space Complexity.
+
+Keep the structure clean with markdown headings.
 `;
 
-  const content = await getAICompletion(prompt, 0.3);
-  return content;
+  return await getAICompletion(prompt, 0.3);
 };
 
-
-
-/* ================= EXPORT ================= */
-
 module.exports = {
+  fetchLeetCodeQuestion,
   generateVisualization,
   analyzeUserCode,
   generateHindiExplanation,

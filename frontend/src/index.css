@@ -1,16 +1,185 @@
 @import "tailwindcss";
+
+:root {
+  color-scheme: dark;
+}
+
+html.dark, body.dark {
+  color-scheme: dark;
+}
+
+html.light, body.light {
+  color-scheme: light;
+}
+
 body {
-  background-color: #000000;
-  color: white;
-  background-image: radial-gradient(circle at 20% 20%, rgba(88,166,255,0.1), transparent 40%),
-                    radial-gradient(circle at 80% 0%, rgba(0,255,170,0.05), transparent 40%);
+  background-color: #080b0f;
+  color: #f0f6fc;
+  background-image: radial-gradient(circle at 20% 20%, rgba(88,166,255,0.08), transparent 40%),
+                    radial-gradient(circle at 80% 0%, rgba(0,255,170,0.04), transparent 40%);
   background-attachment: fixed;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+/* ================= COMPLETE LIGHT MODE OVERRIDES ================= */
+html.light,
+html.light body,
+.light body {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+  background-image: radial-gradient(circle at 20% 20%, rgba(59,130,246,0.04), transparent 45%),
+                    radial-gradient(circle at 80% 0%, rgba(16,185,129,0.03), transparent 45%) !important;
+  background-attachment: fixed !important;
+}
+
+/* Base surface overrides in Light Mode */
+html.light .bg-\[\#0d1117\],
+.light .bg-\[\#0d1117\] {
+  background-color: #f1f5f9 !important;
+}
+
+html.light .bg-\[\#161b22\],
+.light .bg-\[\#161b22\] {
+  background-color: #ffffff !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05) !important;
+}
+
+html.light .bg-\[\#21262d\],
+.light .bg-\[\#21262d\] {
+  background-color: #e2e8f0 !important;
+}
+
+html.light .bg-\[\#1d252f\],
+.light .bg-\[\#1d252f\] {
+  background-color: #e2e8f0 !important;
+}
+
+/* Borders in Light Mode */
+html.light .border-\[\#30363d\],
+.light .border-\[\#30363d\] {
+  border-color: #e2e8f0 !important;
+}
+
+html.light .border-\[\#605e5e\],
+.light .border-\[\#605e5e\] {
+  border-color: #cbd5e1 !important;
+}
+
+/* Typography in Light Mode */
+html.light .text-white,
+.light .text-white {
+  color: #0f172a !important;
+}
+
+html.light .text-\[\#c9d1d9\],
+.light .text-\[\#c9d1d9\] {
+  color: #1e293b !important;
+}
+
+html.light .text-gray-300,
+.light .text-gray-300 {
+  color: #334155 !important;
+}
+
+html.light .text-gray-400,
+.light .text-gray-400 {
+  color: #64748b !important;
+}
+
+html.light .text-gray-500,
+.light .text-gray-500 {
+  color: #64748b !important;
+}
+
+/* Inputs, Textareas, Selects in Light Mode */
+html.light input,
+html.light textarea,
+html.light select,
+.light input,
+.light textarea,
+.light select {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+html.light input::placeholder,
+html.light textarea::placeholder,
+.light input::placeholder,
+.light textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Heatmap light mode empty cell fill & border */
+html.light .fill-\[\#161b22\],
+.light .fill-\[\#161b22\] {
+  fill: #ebedf0 !important;
+}
+
+html.light .stroke-\[\#30363d\],
+.light .stroke-\[\#30363d\] {
+  stroke: #d0d7de !important;
+}
+
+html.light .react-calendar-heatmap text,
+.light .react-calendar-heatmap text {
+  fill: #64748b !important;
+}
+
+/* Prose Inversion in Light Mode */
+html.light .prose-invert,
+.light .prose-invert {
+  --tw-prose-body: #1e293b;
+  --tw-prose-headings: #0f172a;
+  --tw-prose-lead: #475569;
+  --tw-prose-links: #2563eb;
+  --tw-prose-bold: #0f172a;
+  --tw-prose-counters: #64748b;
+  --tw-prose-bullets: #cbd5e1;
+  --tw-prose-hr: #e2e8f0;
+  --tw-prose-quotes: #0f172a;
+  --tw-prose-quote-borders: #e2e8f0;
+  --tw-prose-captions: #64748b;
+  --tw-prose-code: #0f172a;
+  --tw-prose-pre-code: #1e293b;
+  --tw-prose-pre-bg: #f1f5f9;
+  --tw-prose-th-borders: #cbd5e1;
+  --tw-prose-td-borders: #e2e8f0;
+}
+
+/* Crazy Verified Badge */
+@keyframes verifiedShimmer {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.crazy-verified-badge {
+  background: linear-gradient(135deg, #0284c7 0%, #2563eb 50%, #38bdf8 100%);
+  background-size: 200% 200%;
+  animation: verifiedShimmer 3s ease infinite;
+  box-shadow: 0 0 12px rgba(37, 99, 235, 0.45);
+}
+
+/* Code Syntax Error Style */
+.syntax-error-wavy {
+  text-decoration-line: underline;
+  text-decoration-style: wavy;
+  text-decoration-color: #ef4444;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
 }
 
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(-8px);
+    transform: translateY(-4px);
   }
   to {
     opacity: 1;
@@ -22,11 +191,23 @@ body {
   animation: fadeIn 0.2s ease-out;
 }
 
-.react-calendar-heatmap text {
-  fill: #8b949e;
-  font-size: 10px;
+/* Scrollbar styles */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
 }
-/* Hide scrollbar but allow scroll */
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #30363d;
+  border-radius: 9999px;
+}
+html.light ::-webkit-scrollbar-thumb,
+.light ::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+}
+
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }

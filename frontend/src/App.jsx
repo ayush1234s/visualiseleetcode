@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 
@@ -12,12 +11,9 @@ import Help from "./pages/Help/help";
 import Visualize from "./pages/Visualize/Visualize";
 import Revision from "./pages/Revision/Revision";
 
-
 function App() {
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-
   return (
-    <div className="min-h-screen bg-[#0d1117] text-white flex flex-col">
+    <div className="min-h-screen bg-[#0d1117] text-white flex flex-col transition-colors duration-300">
       
       {/* Toast Notifications */}
       <Toaster
@@ -31,19 +27,12 @@ function App() {
         }}
       />
 
-      {/* Navbar */}
-      <Navbar
-        sidebarCollapsed={sidebarCollapsed}
-        onSidebarToggle={() => setSidebarCollapsed((collapsed) => !collapsed)}
-      />
+      {/* Sticky Capsule Navbar */}
+      <Navbar />
 
-      <div
-        className={`flex flex-1 flex-col transition-[margin] duration-300 ${
-          sidebarCollapsed ? "md:ml-20" : "md:ml-72"
-        }`}
-      >
+      <div className="flex flex-1 flex-col w-full">
         {/* Main Content */}
-        <main className="flex-1 w-full px-3 sm:px-6 py-6 sm:py-8 md:py-10 pb-24 md:pb-10">
+        <main className="flex-1 w-full px-3 sm:px-6 py-4 sm:py-6 md:py-8 pb-24 md:pb-12">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/settings" element={<Settings />} />

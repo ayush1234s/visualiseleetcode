@@ -16,21 +16,26 @@ const emailRoutes = require("./routes/emailRoutes");
 const app = express();
 
 /* ================= PORT ================= */
-
 const PORT = process.env.PORT || 5000;
 
 /* ================= MIDDLEWARE ================= */
-
-// ✅ CORS (Allow frontend access)
+// ✅ CORS (Allow all Vercel deployments and localhost)
 app.use(
   cors({
-    origin: [
-      "https://visualiseleetcode.vercel.app",
-      "http://localhost:5173",
-      "http://localhost:3000",
-      "http://127.0.0.1:5173",
-    ],
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    origin: (origin, callback) => {
+      // allow requests with no origin (like mobile apps, curl, postman)
+      if (!origin) return callback(null, true);
+      if (
+        origin.endsWith(".vercel.app") ||
+        origin.includes("localhost") ||
+        origin.includes("127.0.0.1") ||
+        origin === "https://visualiseleetcode.vercel.app"
+      ) {
+        return callback(null, true);
+      }
+      return callback(null, true);
+    },
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
   })
 );
@@ -39,27 +44,23 @@ app.use(
 app.use(express.json());
 
 /* ================= ROUTES ================= */
-
 app.use("/api/leetcode", leetcodeRoutes);
 app.use("/api/codeforces", codeforcesRoutes);
 app.use("/api/contests", contestRoutes);
 app.use("/api/visualize", visualizeRoutes);
 app.use("/api/email", emailRoutes);
 
-/* ================= ROOT ROUTE (IMPORTANT) ================= */
-
+/* ================= ROOT ROUTE ================= */
 app.get("/", (req, res) => {
   res.send("🚀 Visualize Leetcode Backend is Live!");
 });
 
 /* ================= HEALTH CHECK ================= */
-
 app.get("/test", (req, res) => {
   res.send("Backend running ✅");
 });
 
 /* ================= SERVER START ================= */
-
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });

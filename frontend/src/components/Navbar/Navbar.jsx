@@ -4,13 +4,14 @@ import {
   Brain,
   BookOpen,
   Calendar,
-  Settings,
+  Settings as SettingsIcon,
   Bell,
   CircleHelp,
-  PanelLeftClose,
   X,
+  Sun,
+  Moon,
+  Laptop,
 } from "lucide-react";
-
 import { useState, useRef, useEffect } from "react";
 
 import { db } from "../../firebase";
@@ -22,14 +23,23 @@ import {
   deleteDoc,
   doc,
 } from "firebase/firestore";
+import { useTheme } from "../../context/ThemeContext";
 
-const desktopNavItems = [
+const navItems = [
   { name: "Home", path: "/", icon: Home },
   { name: "Visualize", path: "/visualize", icon: Brain },
   { name: "Revision", path: "/revision", icon: BookOpen },
   { name: "Daily Contest", path: "/daily-contest", icon: Calendar },
-  { name: "Profile Settings", path: "/settings", icon: Settings },
+  { name: "Profile", path: "/settings", icon: SettingsIcon },
   { name: "Help", path: "/help", icon: CircleHelp },
+];
+
+const mobileBottomNavItems = [
+  { name: "Home", path: "/", icon: Home },
+  { name: "Visualize", path: "/visualize", icon: Brain },
+  { name: "Revision", path: "/revision", icon: BookOpen },
+  { name: "Daily Contest", path: "/daily-contest", icon: Calendar },
+  { name: "Profile", path: "/settings", icon: SettingsIcon },
 ];
 
 // 🔥 USER ID (NO LOGIN)
@@ -42,40 +52,30 @@ const getUserId = () => {
   return uid;
 };
 
-const mobileBottomNavItems = [
-  { name: "Home", path: "/", icon: Home },
-  { name: "Visualize", path: "/visualize", icon: Brain },
-  { name: "Revision", path: "/revision", icon: BookOpen },
-  { name: "Daily Contest", path: "/daily-contest", icon: Calendar },
-  { name: "Profile Settings", path: "/settings", icon: Settings },
-];
-
-export default function Navbar({ sidebarCollapsed, onSidebarToggle }) {
+export default function Navbar() {
   const [bellOpen, setBellOpen] = useState(false);
-
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
 
   const dropdownRef = useRef(null);
-
   const lastSeen = Number(localStorage.getItem("lastSeenNotification") || 0);
+
+  const { theme, setTheme, resolvedTheme } = useTheme();
 
   /* ================= LISTEN REVISION TASKS ================= */
   useEffect(() => {
     const userId = getUserId();
-
     const q = query(
       collection(db, "users", userId, "revisionTasks"),
       orderBy("createdAt", "desc")
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const list = snapshot.docs.map((doc) => ({
-        id: doc.id,
+      const list = snapshot.docs.map((d) => ({
+        id: d.id,
         type: "task",
-        ...doc.data(),
+        ...d.data(),
       }));
-
       setNotifications(list);
     });
 
@@ -84,18 +84,14 @@ export default function Navbar({ sidebarCollapsed, onSidebarToggle }) {
 
   /* ================= LISTEN REMINDERS ================= */
   useEffect(() => {
-    const q = query(
-      collection(db, "reminders"),
-      orderBy("createdAt", "desc")
-    );
+    const q = query(collection(db, "reminders"), orderBy("createdAt", "desc"));
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const list = snapshot.docs.map((doc) => ({
-        id: doc.id,
+      const list = snapshot.docs.map((d) => ({
+        id: d.id,
         type: "reminder",
-        ...doc.data(),
+        ...d.data(),
       }));
-
       setNotifications((prev) => [...list, ...prev]);
     });
 
@@ -107,31 +103,21 @@ export default function Navbar({ sidebarCollapsed, onSidebarToggle }) {
     const unread = notifications.filter(
       (item) => item.createdAt?.toMillis() > lastSeen
     );
-
     setUnreadCount(unread.length);
-  }, [notifications]);
+  }, [notifications, lastSeen]);
 
   /* ================= BELL CLICK ================= */
   const handleBellClick = () => {
     const now = Date.now();
-
     localStorage.setItem("lastSeenNotification", now);
-
     setUnreadCount(0);
-
     setBellOpen(!bellOpen);
-  };
-
-  const handleDesktopBellClick = () => {
-    if (sidebarCollapsed) onSidebarToggle();
-    handleBellClick();
   };
 
   /* ================= REMOVE ALL ================= */
   const removeAllMessages = async () => {
     for (let note of notifications) {
       const col = note.type === "reminder" ? "reminders" : "revisionTasks";
-
       await deleteDoc(doc(db, col, note.id));
     }
   };
@@ -143,146 +129,153 @@ export default function Navbar({ sidebarCollapsed, onSidebarToggle }) {
         setBellOpen(false);
       }
     };
-
     document.addEventListener("mousedown", handler);
-
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
   /* ================= FORMAT TIME ================= */
   const formatTime = (timestamp) => {
     if (!timestamp) return "";
-
     const date = new Date(timestamp.toMillis());
-
     return date.toLocaleString();
+  };
+
+  const cycleTheme = () => {
+    if (theme === "system") setTheme("dark");
+    else if (theme === "dark") setTheme("light");
+    else setTheme("system");
   };
 
   return (
     <>
-      {/* ================= DESKTOP SIDEBAR ================= */}
-      <aside
-        className={`hidden md:flex fixed inset-y-0 left-0 z-50 flex-col border-r border-[#30363d] bg-[#0d1117]/95 backdrop-blur-2xl shadow-[8px_0_32px_rgba(0,0,0,0.2)] transition-[width] duration-300 ${
-          sidebarCollapsed ? "w-20" : "w-72"
-        }`}
-      >
-        <div
-          className={`relative flex h-20 items-center border-b border-[#30363d] ${
-            sidebarCollapsed ? "justify-center px-0" : "px-4"
-          }`}
-        >
-          <div className={`flex min-w-0 items-center gap-3 overflow-hidden text-white ${sidebarCollapsed ? "" : "flex-1"}`}>
-            <button
-              type="button"
-              onClick={sidebarCollapsed ? onSidebarToggle : undefined}
-              title={sidebarCollapsed ? "Expand sidebar" : "Visualise Leetcode"}
-              className={`shrink-0 rounded-xl border border-[#30363d] bg-[#161b22] p-2 shadow-md ${
-                sidebarCollapsed ? "cursor-pointer transition hover:border-[#58a6ff]/50" : "cursor-default"
-              }`}
+      {/* ================= DESKTOP STICKY CAPSULE TOP BAR ================= */}
+      <header className="hidden md:block sticky top-3 lg:top-4 z-50 w-full px-4 sm:px-6 pointer-events-none">
+        <div className="max-w-6xl mx-auto pointer-events-auto">
+          <nav className="relative flex items-center justify-between px-5 lg:px-6 py-2.5 rounded-full bg-[#161b22]/90 backdrop-blur-xl border border-[#30363d]/80 shadow-[0_12px_36px_rgba(0,0,0,0.35)] transition-all duration-300">
+            
+            {/* BRAND LOGO */}
+            <NavLink
+              to="/"
+              className="flex items-center gap-3 group focus:outline-none shrink-0"
             >
-              <Brain className="h-6 w-6 text-[#58a6ff]" />
-            </button>
-            {!sidebarCollapsed && (
-              <span className="truncate text-lg font-semibold tracking-wide">
-                Visualise Leetcode
+              <div className="p-2 rounded-full bg-gradient-to-tr from-blue-600/20 to-cyan-500/20 border border-blue-500/30 group-hover:border-blue-400 transition-all duration-300 shadow-sm">
+                <Brain className="h-5 w-5 text-[#58a6ff] group-hover:scale-110 transition-transform duration-300" />
+              </div>
+              <span className="font-bold text-base lg:text-lg tracking-wide text-white group-hover:text-blue-400 transition-colors">
+                Visualize <span className="text-blue-400">LC</span>
               </span>
-            )}
-          </div>
+            </NavLink>
 
-          {!sidebarCollapsed && (
-            <button
-              type="button"
-              onClick={onSidebarToggle}
-              title="Collapse sidebar"
-              className="ml-2 rounded-lg p-2 text-gray-400 transition hover:bg-[#161b22] hover:text-white"
-            >
-              <PanelLeftClose size={20} />
-            </button>
-          )}
-        </div>
-
-        <nav className="flex flex-1 flex-col gap-2 p-3">
-          {desktopNavItems.map((item) => {
-            const Icon = item.icon;
-
-            return (
-              <NavLink key={item.name} to={item.path} title={sidebarCollapsed ? item.name : undefined}>
-                {({ isActive }) => (
-                  <div
-                    className={`flex items-center rounded-xl px-3 py-3 text-sm transition-all duration-300 border ${
-                      sidebarCollapsed ? "justify-center" : "gap-3"
-                    } ${
-                      isActive
-                        ? "bg-[#161b22] text-white border-[#58a6ff]/30 shadow-[0_0_0_1px_rgba(88,166,255,0.15)]"
-                        : "text-gray-400 border-transparent hover:text-white hover:bg-[#161b22] hover:border-[#30363d]"
-                    }`}
+            {/* NAV LINKS (CENTER PILLS) */}
+            <div className="flex items-center gap-1 lg:gap-1.5 bg-[#0d1117]/60 p-1 rounded-full border border-[#30363d]/50">
+              {navItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <NavLink
+                    key={item.name}
+                    to={item.path}
+                    className={({ isActive }) =>
+                      `flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs lg:text-sm font-medium transition-all duration-200 ${
+                        isActive
+                          ? "bg-[#21262d] text-white border border-[#30363d] shadow-sm"
+                          : "text-gray-400 hover:text-white hover:bg-[#21262d]/50"
+                      }`
+                    }
                   >
-                    <Icon size={20} className="shrink-0" />
-                    {!sidebarCollapsed && <span className="truncate">{item.name}</span>}
+                    <Icon size={16} className="shrink-0" />
+                    <span>{item.name}</span>
+                  </NavLink>
+                );
+              })}
+            </div>
+
+            {/* RIGHT UTILITIES (THEME + NOTIFICATIONS) */}
+            <div className="flex items-center gap-2 lg:gap-3 shrink-0" ref={dropdownRef}>
+              
+              {/* THEME TOGGLE BUTTON */}
+              <button
+                type="button"
+                onClick={cycleTheme}
+                title={`Theme: ${theme} (Click to change)`}
+                className="p-2 rounded-full border border-[#30363d] bg-[#0d1117]/80 hover:bg-[#21262d] text-gray-300 hover:text-white transition-all duration-200 cursor-pointer flex items-center justify-center"
+              >
+                {theme === "light" ? (
+                  <Sun size={17} className="text-yellow-400" />
+                ) : theme === "dark" ? (
+                  <Moon size={17} className="text-blue-400" />
+                ) : (
+                  <Laptop size={17} className="text-cyan-400" />
+                )}
+              </button>
+
+              {/* NOTIFICATION BELL */}
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={handleBellClick}
+                  title="Notifications"
+                  className="relative p-2 rounded-full border border-[#30363d] bg-[#0d1117]/80 hover:bg-[#21262d] text-gray-300 hover:text-white transition-all duration-200 cursor-pointer flex items-center justify-center"
+                >
+                  <Bell size={17} />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center bg-red-500 text-white text-[10px] font-bold px-1 rounded-full border-2 border-[#161b22] shadow-md animate-pulse">
+                      {unreadCount}
+                    </span>
+                  )}
+                </button>
+
+                {/* NOTIFICATIONS DROPDOWN */}
+                {bellOpen && (
+                  <div className="absolute right-0 top-full mt-3 w-80 lg:w-96 z-50 animate-fadeIn">
+                    <NotificationDropdown
+                      notifications={notifications}
+                      lastSeen={lastSeen}
+                      formatTime={formatTime}
+                      removeAllMessages={removeAllMessages}
+                      onClose={() => setBellOpen(false)}
+                      mobile={false}
+                    />
                   </div>
                 )}
-              </NavLink>
-            );
-          })}
-        </nav>
+              </div>
 
-        <div className="relative border-t border-[#30363d] p-3" ref={dropdownRef}>
-          <button
-            type="button"
-            onClick={handleDesktopBellClick}
-            title="Notifications"
-            className={`relative flex w-full items-center rounded-xl border border-[#30363d] bg-[#161b22] p-3 text-gray-300 transition hover:border-[#58a6ff]/30 hover:text-white ${
-              sidebarCollapsed ? "justify-center" : "gap-3"
-            }`}
-          >
-            <Bell className="h-5 w-5 shrink-0" />
-            {!sidebarCollapsed && <span className="text-sm">Notifications</span>}
+            </div>
 
-            {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 min-w-[20px] h-5 flex items-center justify-center bg-red-500 text-white text-[10px] font-semibold px-1.5 rounded-full border border-[#0d1117] shadow-lg">
-                {unreadCount}
-              </span>
-            )}
-          </button>
-
-          {bellOpen && (
-            <NotificationDropdown
-              notifications={notifications}
-              lastSeen={lastSeen}
-              formatTime={formatTime}
-              removeAllMessages={removeAllMessages}
-              onClose={() => setBellOpen(false)}
-              mobile={false}
-            />
-          )}
+          </nav>
         </div>
-      </aside>
+      </header>
 
       {/* ================= MOBILE TOP NAVBAR ================= */}
-      <div className="w-full flex justify-center pt-2 sm:pt-3 md:hidden sticky top-0 z-50 px-3">
-        <nav className="w-full backdrop-blur-2xl bg-[#0d1117]/85 border border-[#30363d] rounded-2xl px-3 sm:px-4 py-2.5 sm:py-3 flex justify-between items-center shadow-[0_8px_32px_rgba(0,0,0,0.35)]">
-          <div className="flex items-center gap-3 text-white font-semibold text-base">
-            <div className="p-2 rounded-xl bg-[#161b22] border border-[#30363d] shadow-md">
-              <Brain className="w-5 h-5 text-[#58a6ff]" />
+      <div className="w-full flex justify-center pt-2 sm:pt-3 md:hidden sticky top-0 z-50 px-3 pointer-events-none">
+        <nav className="w-full pointer-events-auto backdrop-blur-2xl bg-[#0d1117]/85 border border-[#30363d] rounded-2xl px-3.5 py-2.5 flex justify-between items-center shadow-[0_8px_32px_rgba(0,0,0,0.35)]">
+          <NavLink to="/" className="flex items-center gap-2.5 text-white font-semibold text-base">
+            <div className="p-1.5 rounded-xl bg-[#161b22] border border-[#30363d] shadow-sm">
+              <Brain className="w-4 h-4 text-[#58a6ff]" />
             </div>
-            <span className="tracking-wide">Visualize LC</span>
-          </div>
+            <span className="tracking-wide text-sm font-bold">Visualize <span className="text-blue-400">LC</span></span>
+          </NavLink>
 
-          {/* ================= MOBILE RIGHT SIDE ================= */}
+          {/* MOBILE RIGHT SIDE */}
           <div className="flex items-center gap-2 relative">
-            
-            {/* HELP */}
+            <button
+              type="button"
+              onClick={cycleTheme}
+              title={`Theme: ${theme}`}
+              className="p-2 rounded-xl bg-[#161b22] border border-[#30363d] text-gray-300"
+            >
+              {resolvedTheme === "light" ? <Sun size={16} className="text-yellow-400" /> : <Moon size={16} className="text-blue-400" />}
+            </button>
+
             <NavLink to="/help">
               {({ isActive }) => (
                 <div
-                  className={`relative p-2.5 rounded-xl border transition-all duration-300 cursor-pointer
-                  ${
+                  className={`p-2 rounded-xl border transition-all duration-300 cursor-pointer ${
                     isActive
                       ? "bg-[#58a6ff]/15 text-[#58a6ff] border-[#58a6ff]/30"
                       : "bg-[#161b22] text-gray-300 border-[#30363d]"
                   }`}
                 >
-                  <CircleHelp className="w-5 h-5" />
+                  <CircleHelp className="w-4 h-4" />
                 </div>
               )}
             </NavLink>
@@ -291,25 +284,27 @@ export default function Navbar({ sidebarCollapsed, onSidebarToggle }) {
             <div className="relative" ref={dropdownRef}>
               <div
                 onClick={handleBellClick}
-                className="relative p-2.5 rounded-xl bg-[#161b22] border border-[#30363d] cursor-pointer"
+                className="relative p-2 rounded-xl bg-[#161b22] border border-[#30363d] cursor-pointer"
               >
-                <Bell className="w-5 h-5 text-gray-300" />
+                <Bell className="w-4 h-4 text-gray-300" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 min-w-[16px] h-[16px] flex items-center justify-center bg-red-500 text-white text-[9px] font-bold px-1 rounded-full border border-[#0d1117]">
+                    {unreadCount}
+                  </span>
+                )}
               </div>
 
-              {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center bg-red-500 text-white text-[10px] font-semibold px-1 rounded-full border border-[#0d1117]">
-                  {unreadCount}
-                </span>
-              )}
-
               {bellOpen && (
-                <NotificationDropdown
-                  notifications={notifications}
-                  lastSeen={lastSeen}
-                  formatTime={formatTime}
-                  removeAllMessages={removeAllMessages}
-                  mobile={true}
-                />
+                <div className="absolute right-0 top-12 w-[88vw] max-w-sm z-50 animate-fadeIn">
+                  <NotificationDropdown
+                    notifications={notifications}
+                    lastSeen={lastSeen}
+                    formatTime={formatTime}
+                    removeAllMessages={removeAllMessages}
+                    onClose={() => setBellOpen(false)}
+                    mobile={true}
+                  />
+                </div>
               )}
             </div>
           </div>
@@ -318,18 +313,16 @@ export default function Navbar({ sidebarCollapsed, onSidebarToggle }) {
 
       {/* ================= MOBILE BOTTOM NAVBAR ================= */}
       <div className="md:hidden fixed bottom-2 left-1/2 -translate-x-1/2 z-50 w-[94%] max-w-md">
-        <div className="backdrop-blur-2xl bg-[#0d1117]/90 border border-[#30363d] rounded-3xl px-2 py-2 shadow-[0_10px_40px_rgba(0,0,0,0.45)]">
+        <div className="backdrop-blur-2xl bg-[#0d1117]/90 border border-[#30363d] rounded-3xl px-2 py-1.5 shadow-[0_10px_40px_rgba(0,0,0,0.45)]">
           <div className="flex items-center justify-between">
             {mobileBottomNavItems.map((item) => {
               const Icon = item.icon;
-
               return (
                 <NavLink key={item.name} to={item.path}>
                   {({ isActive }) => (
                     <div className="flex flex-col items-center justify-center min-w-[56px] py-1">
                       <div
-                        className={`relative flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-2xl transition-all duration-300
-                        ${
+                        className={`relative flex items-center justify-center w-10 h-10 rounded-2xl transition-all duration-300 ${
                           isActive
                             ? "bg-[#58a6ff]/15 text-[#58a6ff] shadow-[0_0_0_1px_rgba(88,166,255,0.15)]"
                             : "text-gray-400 hover:text-white hover:bg-[#161b22]"
@@ -337,13 +330,12 @@ export default function Navbar({ sidebarCollapsed, onSidebarToggle }) {
                       >
                         <Icon size={19} />
                       </div>
-
                       <span
-                        className={`text-[10px] mt-1 font-medium transition-all duration-300 text-center leading-tight ${
+                        className={`text-[10px] mt-0.5 font-medium transition-all duration-300 text-center leading-tight ${
                           isActive ? "text-white" : "text-gray-500"
                         }`}
                       >
-                        {item.name === "Profile Settings"
+                        {item.name === "Profile"
                           ? "Profile"
                           : item.name === "Daily Contest"
                           ? "Contest"
@@ -357,15 +349,11 @@ export default function Navbar({ sidebarCollapsed, onSidebarToggle }) {
           </div>
         </div>
       </div>
-
-      {/* MOBILE SPACE (for bottom nav) */}
-      <div className="h-24 md:hidden" />
     </>
   );
 }
 
 /* ================= DROPDOWN ================= */
-
 function NotificationDropdown({
   notifications,
   lastSeen,
@@ -375,13 +363,7 @@ function NotificationDropdown({
   mobile,
 }) {
   return (
-    <div
-      className={`absolute ${
-        mobile
-          ? "right-0 top-14 w-[88vw] max-w-sm"
-          : "left-0 right-0 bottom-full mb-3 w-auto"
-      } max-h-96 overflow-y-auto bg-[#161b22]/95 backdrop-blur-2xl border border-[#30363d] rounded-2xl shadow-2xl p-4`}
-    >
+    <div className="w-full max-h-96 overflow-y-auto bg-[#161b22]/95 backdrop-blur-2xl border border-[#30363d] rounded-2xl shadow-2xl p-4">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-white text-sm font-semibold">Notifications</h3>
         <div className="flex items-center gap-3">
@@ -390,16 +372,14 @@ function NotificationDropdown({
               {notifications.length} items
             </span>
           )}
-          {!mobile && (
-            <button
-              type="button"
-              onClick={onClose}
-              aria-label="Close notifications"
-              className="rounded-lg p-1 text-gray-400 transition hover:bg-[#0d1117] hover:text-white"
-            >
-              <X size={16} />
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close notifications"
+            className="rounded-lg p-1 text-gray-400 transition hover:bg-[#0d1117] hover:text-white"
+          >
+            <X size={16} />
+          </button>
         </div>
       </div>
 
@@ -424,17 +404,14 @@ function NotificationDropdown({
                       ? "Reminder Alert"
                       : "Revision Added"}
                   </p>
-
                   <p className="text-xs text-gray-400 mt-1 break-words">
                     {note.questionTitle}
                   </p>
-
                   <p className="text-xs text-gray-500 mt-1 break-words">
                     {note.weekday
                       ? `Today: ${note.weekday}`
                       : `Days: ${note.weekdays?.join(", ")}`}
                   </p>
-
                   <p className="text-[10px] text-gray-500 mt-2">
                     {formatTime(note.createdAt)}
                   </p>
@@ -460,7 +437,7 @@ function NotificationDropdown({
       {notifications.length > 0 && (
         <button
           onClick={removeAllMessages}
-          className="w-full mt-2 bg-red-500 hover:bg-red-600 transition-all duration-300 text-white text-sm py-2.5 rounded-xl font-medium"
+          className="w-full mt-2 bg-red-500 hover:bg-red-600 transition-all duration-300 text-white text-sm py-2 rounded-xl font-medium"
         >
           Remove All Messages
         </button>
