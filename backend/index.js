@@ -12,6 +12,7 @@ const codeforcesRoutes = require("./routes/codeforcesRoutes");
 const contestRoutes = require("./routes/contestRoutes");
 const visualizeRoutes = require("./routes/visualizeRoutes");
 const emailRoutes = require("./routes/emailRoutes");
+const chatRoutes = require("./routes/chatRoutes");
 
 const app = express();
 
@@ -49,6 +50,7 @@ app.use("/api/codeforces", codeforcesRoutes);
 app.use("/api/contests", contestRoutes);
 app.use("/api/visualize", visualizeRoutes);
 app.use("/api/email", emailRoutes);
+app.use("/api/chat", chatRoutes);
 
 /* ================= ROOT ROUTE ================= */
 app.get("/", (req, res) => {

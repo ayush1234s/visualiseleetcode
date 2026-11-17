@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { API_BASE_URL } from "../../config/api";
 import toast from "react-hot-toast";
 
 import { db } from "../../firebase";
@@ -104,7 +105,7 @@ export default function Revision() {
     setFetchLoading(true);
     try {
       const res = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/api/visualize`,
+        `${API_BASE_URL}/api/visualize`,
         { questionNumber }
       );
       setQuestionTitle(res.data.question);
@@ -172,7 +173,7 @@ export default function Revision() {
       // Trigger email sending in background (handles Vercel gracefully)
       axios
         .post(
-          `${import.meta.env.VITE_BACKEND_URL}/api/email/send-revision-email`,
+          `${API_BASE_URL}/api/email/send-revision-email`,
           {
             email,
             questionNumber,

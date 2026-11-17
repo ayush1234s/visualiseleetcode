@@ -254,9 +254,22 @@ Keep the structure clean with markdown headings.
   return await getAICompletion(prompt, 0.3);
 };
 
+/* ================= SHARED AI CHAT ================= */
+const answerChatMessage = async (message, conversation = []) => {
+  const looksLikeCode = /```|\b(?:class\s+\w+|def\s+\w+\s*\(|function\s+\w+|public\s+static\s+void\s+main|#include\s*<|\b(?:for|while)\s*\()/.test(message);
+  const history = conversation
+    .filter((item) => item && ["user", "assistant"].includes(item.role) && typeof item.content === "string")
+    .slice(-8)
+    .map((item) => `${item.role === "user" ? "User" : "Assistant"}: ${item.content.slice(0, 2000)}`)
+    .join("\n");
+  const prompt = looksLikeCode ? `You are Visualize LC AI, a friendly DSA tutor. The user pasted code. Explain only bugs, incorrect logic, edge cases, or likely compile/runtime errors in clear, actionable language. Never write corrected code, a complete solution, or a reference answer. If needed, ask which problem the code is for. End by directing them to the Visualize page to load that problem's reference explanation and answer. If no clear bug is visible, say what additional problem statement/context is needed; do not claim the code is correct without it. Reply in the user's language (Hindi/Hinglish/English).\n\nConversation:\n${history}\nUser message/code:\n${message}` : `You are Visualize LC AI, a helpful DSA assistant inside Visualize LC. Answer questions about algorithms, data structures, LeetCode/competitive programming problems, and using this website. Explain clearly and conversationally, in the user's language (Hindi/Hinglish/English). For a specific problem, cover approach, intuition, examples, and complexity. Do not invent website features or claim to have loaded a problem. For reference answers, point to the Visualize page.\n\nConversation:\n${history}\nUser message:\n${message}`;
+  return getAICompletion(prompt, 0.3);
+};
+
 module.exports = {
   fetchLeetCodeQuestion,
   generateVisualization,
   analyzeUserCode,
   generateHindiExplanation,
+  answerChatMessage,
 };

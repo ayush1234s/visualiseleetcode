@@ -13,6 +13,7 @@ import Help from "./pages/Help/help";
 import Visualize from "./pages/Visualize/Visualize";
 import Revision from "./pages/Revision/Revision";
 import useInternetStatus from "./hooks/useInternetStatus";
+import AIChat from "./components/AIChat/AIChat";
 
 function App() {
   const { online, markOnline } = useInternetStatus();
@@ -83,6 +84,8 @@ function App() {
         {/* Footer */}
         <Footer />
       </div>
+
+      <AIChat />
 
       {!online && <OfflineScreen checking={checkingConnection} hasError={connectionError} onCheck={checkConnection} />}
     </div>

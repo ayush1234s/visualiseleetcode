@@ -158,7 +158,7 @@ export default function Help() {
       <div className="flex justify-start mb-6">
         <label className="inline-flex items-center gap-2.5 rounded-xl border border-[#30363d] bg-[#161b22] px-3 py-2 text-xs font-medium text-gray-300 shadow-sm">
           <span>{language === "hi" ? "भाषा" : "Language"}</span>
-          <select aria-label="Help page language" value={language} onChange={(e) => changeLanguage(e.target.value)} className="border-0 bg-transparent py-0 pl-1 pr-6 text-sm text-white outline-none focus:ring-0">
+          <select aria-label="Help page language" value={language} onChange={(e) => changeLanguage(e.target.value)} className="cursor-pointer appearance-none border-0 bg-transparent py-0 pl-1 pr-6 text-sm font-semibold text-white outline-none focus:ring-0 [color-scheme:dark]">
             <option value="en">English</option><option value="hi">हिन्दी</option>
           </select>
         </label>

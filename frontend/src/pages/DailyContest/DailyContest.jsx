@@ -8,18 +8,17 @@ export default function DailyContest() {
   const [platform, setPlatform] = useState("all");
   const [status, setStatus] = useState("all");
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
 
   const loadContests = async () => {
     setLoading(true);
+    setLoadError("");
 
     try {
       const data = await fetchAllContests();
 
-      console.log("FULL API RESPONSE:", data);
-
       let safeData = [];
 
-      // 🔥 HANDLE ALL API FORMATS
       if (Array.isArray(data)) {
         safeData = data;
       } else if (Array.isArray(data?.result)) {
@@ -32,18 +31,17 @@ export default function DailyContest() {
         safeData = [];
       }
 
-      console.log("FINAL CONTEST LIST:", safeData);
-
       setContests(safeData);
       setFiltered(safeData);
 
     } catch (err) {
-      console.log("Error fetching contests:", err);
+      console.error("Error fetching contests:", err);
+      setLoadError(err.message || "Could not load contests. Please try again.");
       setContests([]);
       setFiltered([]);
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   useEffect(() => {
@@ -180,6 +178,12 @@ export default function DailyContest() {
       <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 min-w-0">
         {loading ? (
           <p className="text-gray-400 text-sm sm:text-base">Loading contests...</p>
+        ) : loadError ? (
+          <div role="alert" className="md:col-span-2 rounded-2xl border border-amber-400/20 bg-amber-400/[0.06] p-5 text-sm text-gray-300">
+            <p className="font-medium text-amber-200">Contests could not be loaded</p>
+            <p className="mt-2 break-words text-gray-400">{loadError}</p>
+            <button type="button" onClick={loadContests} className="mt-4 rounded-lg border border-[#30363d] px-4 py-2 font-medium text-white transition hover:bg-white/5">Try again</button>
+          </div>
         ) : filtered.length === 0 ? (
           <p className="text-gray-400 text-sm sm:text-base">No contests found.</p>
         ) : (

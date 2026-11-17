@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import axios from "axios";
+import { API_BASE_URL } from "../../config/api";
 import ReactMarkdown from "react-markdown";
 import toast from "react-hot-toast";
 import {
@@ -178,7 +179,7 @@ export default function Visualize() {
       setActiveStep(1);
 
       const res = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/api/visualize`,
+        `${API_BASE_URL}/api/visualize`,
         { questionNumber }
       );
 
@@ -306,7 +307,7 @@ export default function Visualize() {
     try {
       setAnalyzing(true);
       const res = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/api/visualize/analyze`,
+        `${API_BASE_URL}/api/visualize/analyze`,
         {
           questionTitle: visualData.question,
           userCode,
@@ -331,7 +332,7 @@ export default function Visualize() {
     try {
       setHindiLoading(true);
       const res = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/api/visualize/hindi`,
+        `${API_BASE_URL}/api/visualize/hindi`,
         {
           questionTitle: visualData.question,
           explanation: visualData.visualization,

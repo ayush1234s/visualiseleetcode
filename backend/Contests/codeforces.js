@@ -3,7 +3,7 @@ const axios = require("axios");
 async function getCodeforcesContests() {
   const API = "https://codeforces.com/api/contest.list";
 
-  const { data } = await axios.get(API);
+  const { data } = await axios.get(API, { timeout: 10000 });
 
   if (!data || data.status !== "OK") return [];
 
