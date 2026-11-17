@@ -124,6 +124,25 @@ export default function Revision() {
     }
   };
 
+  const getDeviceDescription = () => {
+    if (typeof window === "undefined" || !navigator) return "Web Client";
+    const ua = navigator.userAgent;
+    let os = "Desktop";
+    if (/Windows/i.test(ua)) os = "Windows";
+    else if (/Macintosh|Mac OS X/i.test(ua)) os = "macOS";
+    else if (/Linux/i.test(ua)) os = "Linux";
+    else if (/Android/i.test(ua)) os = "Android";
+    else if (/iPhone|iPad/i.test(ua)) os = "iOS";
+
+    let browser = "Browser";
+    if (/Edg/i.test(ua)) browser = "Edge";
+    else if (/Chrome/i.test(ua)) browser = "Chrome";
+    else if (/Safari/i.test(ua)) browser = "Safari";
+    else if (/Firefox/i.test(ua)) browser = "Firefox";
+
+    return `${os} • ${browser}`;
+  };
+
   const addRevisionTask = async () => {
     if (!questionNumber || !email || weekdays.length === 0) {
       toast.error("Please fill in problem number, email, and at least one day.");
@@ -161,6 +180,8 @@ export default function Revision() {
             weekdays,
             createdAt,
             id: docRef.id,
+            userId: getUserId(),
+            deviceInfo: getDeviceDescription(),
           }
         )
         .then(async (res) => {

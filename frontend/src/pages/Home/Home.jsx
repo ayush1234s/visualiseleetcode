@@ -29,22 +29,13 @@ export default function Home() {
   const [leetcodeSubs, setLeetcodeSubs] = useState([]);
   const [cfSubs, setCfSubs] = useState([]);
 
-  const [lcUsername, setLcUsername] = useState(null);
-  const [cfUsername, setCfUsername] = useState(null);
+  const [lcUsername, setLcUsername] = useState(() => localStorage.getItem("leetcodeUsername") || null);
+  const [cfUsername, setCfUsername] = useState(() => localStorage.getItem("codeforcesUsername") || null);
 
   const [progressTab, setProgressTab] = useState("leetcode");
   const [recentTab, setRecentTab] = useState("all");
 
-  const [initialLoading, setInitialLoading] = useState(false);
-
-  // ✅ LOCAL STORAGE LOAD
-  useEffect(() => {
-    const lc = localStorage.getItem("leetcodeUsername");
-    const cf = localStorage.getItem("codeforcesUsername");
-
-    if (lc) setLcUsername(lc);
-    if (cf) setCfUsername(cf);
-  }, []);
+  const nowSeconds = new Date().getTime() / 1000;
 
   useEffect(() => {
     const unsubscribe = onSnapshot(
@@ -99,8 +90,7 @@ export default function Home() {
     total ? ((val / total) * 100).toFixed(1) : 0;
 
   const timeAgo = (timestamp) => {
-    const now = Date.now() / 1000;
-    const diff = now - timestamp;
+    const diff = nowSeconds - timestamp;
 
     const days = Math.floor(diff / 86400);
     const hours = Math.floor(diff / 3600);
@@ -160,14 +150,14 @@ export default function Home() {
           Dashboard
         </h1>
         <p className="text-sm sm:text-base text-gray-400">
-          See Your Coding Activity At A Glance.
+          Your coding activity, progress, and latest practice in one place.
         </p>
       </div>
 
       {/* ================= HEATMAP ================= */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
 
-        <div className="w-full min-w-0 bg-[#161b22] border border-[#30363d] rounded-2xl p-4 sm:p-5 md:p-6 overflow-hidden">
+        <div className="dashboard-panel w-full min-w-0 rounded-xl border p-4 sm:p-5 md:p-6 overflow-hidden">
           <h2 className="text-base sm:text-lg font-semibold mb-4 sm:mb-6 text-white">
             LeetCode Activity
           </h2>
@@ -187,23 +177,23 @@ export default function Home() {
 
           <div className="mt-3 border-t border-[#30363d] pt-3 grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-gray-300">
             <div className="flex items-center justify-between">
-              <span className="flex items-center gap-1 text-gray-400">
+                <span className="flex items-center gap-1 text-gray-400">
                 <TrendingUp className="w-4 h-4 text-green-400" />
-                Current:
+                  Today:
               </span>
-              <span className="text-white font-semibold">{leetcodeCurrentDayCount} days</span>
+              <span className="text-white font-semibold">{leetcodeCurrentDayCount} submissions</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="flex items-center gap-1 text-gray-400">
                 <Trophy className="w-4 h-4 text-yellow-300" />
-                Max:
+                  Most in a day:
               </span>
-              <span className="text-white font-semibold">{leetcodeMaxDayCount} days</span>
+              <span className="text-white font-semibold">{leetcodeMaxDayCount} submissions</span>
             </div>
           </div>
         </div>
 
-        <div className="w-full min-w-0 bg-[#161b22] border border-[#30363d] rounded-2xl p-4 sm:p-5 md:p-6 overflow-hidden">
+        <div className="dashboard-panel w-full min-w-0 rounded-xl border p-4 sm:p-5 md:p-6 overflow-hidden">
           <h2 className="text-base sm:text-lg font-semibold mb-4 sm:mb-6 text-white">
             Codeforces Activity
           </h2>
@@ -232,16 +222,16 @@ export default function Home() {
             <div className="flex items-center justify-between">
               <span className="flex items-center gap-1 text-gray-400">
                 <TrendingUp className="w-4 h-4 text-red-400" />
-                Current:
+                  Today:
               </span>
-              <span className="text-white font-semibold">{codeforcesCurrentDayCount} days</span>
+              <span className="text-white font-semibold">{codeforcesCurrentDayCount} submissions</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="flex items-center gap-1 text-gray-400">
                 <Trophy className="w-4 h-4 text-yellow-300" />
-                Max:
+                  Most in a day:
               </span>
-              <span className="text-white font-semibold">{codeforcesMaxDayCount} days</span>
+              <span className="text-white font-semibold">{codeforcesMaxDayCount} submissions</span>
             </div>
           </div>
         </div>
@@ -254,7 +244,7 @@ export default function Home() {
         <div className="space-y-4 sm:space-y-6 lg:space-y-8 min-w-0">
 
           {/* PROGRESS */}
-          <div className="w-full min-w-0 bg-[#161b22] border border-[#30363d] rounded-2xl p-4 sm:p-5 md:p-6 overflow-hidden">
+          <div className="dashboard-panel w-full min-w-0 rounded-xl border p-4 sm:p-5 md:p-6 overflow-hidden">
 
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5 sm:mb-6">
               <h2 className="text-base sm:text-lg font-semibold text-white">
@@ -330,7 +320,7 @@ export default function Home() {
           </div>
 
           {/* DAILY PROBLEM */}
-          <div className="w-full min-w-0 bg-[#161b22] border border-[#30363d] rounded-2xl p-4 sm:p-5 md:p-6 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden">
+          <div className="dashboard-panel w-full min-w-0 rounded-xl border p-4 sm:p-5 md:p-6 overflow-hidden">
 
             <h2 className="text-base sm:text-lg font-semibold text-white mb-4 sm:mb-5">
               LeetCode Problem of the Day
@@ -403,7 +393,7 @@ export default function Home() {
         </div>
 
         {/* RIGHT SIDE RECENT ACTIVITY */}
-        <div className="w-full min-w-0 bg-[#161b22] border border-[#30363d] rounded-2xl p-4 sm:p-5 md:p-6 overflow-hidden">
+        <div className="dashboard-panel w-full min-w-0 rounded-xl border p-4 sm:p-5 md:p-6 overflow-hidden">
 
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5 sm:mb-6">
             <h2 className="text-base sm:text-lg font-semibold text-white">
@@ -435,7 +425,7 @@ export default function Home() {
                 .map((s, i) => (
                   <div
                     key={`lc-${i}`}
-                    className="w-full min-w-0 bg-[#0d1117] p-3 sm:p-4 rounded-xl border border-[#30363d] overflow-hidden"
+                    className="dashboard-subcard w-full min-w-0 p-3 sm:p-4 rounded-xl border overflow-hidden"
                   >
                     <a
                       href={`https://leetcode.com/problems/${s.titleSlug}/`}
@@ -461,7 +451,7 @@ export default function Home() {
                 .map((s, i) => (
                   <div
                     key={`cf-${i}`}
-                    className="w-full min-w-0 bg-[#0d1117] p-3 sm:p-4 rounded-xl border border-[#30363d] overflow-hidden"
+                    className="dashboard-subcard w-full min-w-0 p-3 sm:p-4 rounded-xl border overflow-hidden"
                   >
                     <a
                       href={`https://codeforces.com/contest/${s.problem?.contestId}/problem/${s.problem?.index}`}
@@ -480,6 +470,15 @@ export default function Home() {
                     </p>
                   </div>
                 ))}
+
+            {((recentTab === "all" && leetcodeSubs.length === 0 && cfSubs.length === 0) ||
+              (recentTab === "leetcode" && leetcodeSubs.length === 0) ||
+              (recentTab === "codeforces" && cfSubs.length === 0)) && (
+              <div className="dashboard-subcard rounded-xl border px-4 py-8 text-center">
+                <p className="text-sm font-medium text-gray-300">No recent submissions to show</p>
+                <p className="mt-1 text-xs text-gray-500">Connect a LeetCode or Codeforces handle in Profile to see your activity here.</p>
+              </div>
+            )}
 
           </div>
         </div>

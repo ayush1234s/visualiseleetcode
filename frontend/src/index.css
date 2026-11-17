@@ -147,24 +147,86 @@ html.light .prose-invert,
   --tw-prose-td-borders: #e2e8f0;
 }
 
-/* Crazy Verified Badge */
-@keyframes verifiedShimmer {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
+/* Verified account badge */
+.verified-badge {
+  color: #047857;
+  background: linear-gradient(135deg, #d1fae5 0%, #ecfdf5 100%);
+  border: 1px solid #a7f3d0;
+  box-shadow: 0 2px 8px rgba(5, 150, 105, 0.12);
 }
 
-.crazy-verified-badge {
-  background: linear-gradient(135deg, #0284c7 0%, #2563eb 50%, #38bdf8 100%);
-  background-size: 200% 200%;
-  animation: verifiedShimmer 3s ease infinite;
-  box-shadow: 0 0 12px rgba(37, 99, 235, 0.45);
+html.dark .verified-badge,
+body.dark .verified-badge {
+  color: #6ee7b7;
+  background: linear-gradient(135deg, rgba(6, 78, 59, 0.52), rgba(6, 95, 70, 0.2));
+  border-color: rgba(52, 211, 153, 0.3);
+  box-shadow: 0 2px 10px rgba(16, 185, 129, 0.1);
+}
+
+@keyframes verifiedCheckPop {
+  0%, 100% { transform: scale(1) rotate(0); }
+  45% { transform: scale(1.14) rotate(-8deg); }
+  65% { transform: scale(1.04) rotate(4deg); }
+}
+
+@keyframes profileSuccessIn {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes profileCheckDraw {
+  to { stroke-dashoffset: 0; }
+}
+
+.profile-save-success {
+  animation: profileSuccessIn 280ms ease-out both;
+}
+
+.profile-save-check {
+  position: relative;
+  display: inline-flex;
+  width: 42px;
+  height: 42px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  color: white;
+  background: linear-gradient(145deg, #34d399, #059669);
+  box-shadow: 0 4px 14px rgba(5, 150, 105, 0.25);
+  animation: verifiedCheckPop 650ms cubic-bezier(.2, .9, .25, 1.2) both;
+}
+
+.profile-save-check::after {
+  position: absolute;
+  inset: -4px;
+  border: 2px solid rgba(16, 185, 129, 0.35);
+  border-radius: inherit;
+  content: "";
+  animation: profileSuccessIn 450ms ease-out both;
+}
+
+.profile-save-check svg path {
+  stroke-dasharray: 24;
+  stroke-dashoffset: 24;
+  animation: profileCheckDraw 380ms 180ms ease-out forwards;
+}
+
+.verified-badge--celebrating {
+  animation: profileSuccessIn 280ms ease-out both;
+}
+
+.verified-badge--celebrating .verified-badge-icon {
+  transform-origin: center;
+  animation: verifiedCheckPop 700ms cubic-bezier(.2, .9, .25, 1.2) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .profile-save-success,
+  .profile-save-check,
+  .profile-save-check::after,
+  .profile-save-check svg path,
+  .verified-badge--celebrating,
+  .verified-badge--celebrating .verified-badge-icon { animation: none; }
 }
 
 /* Code Syntax Error Style */
@@ -174,6 +236,84 @@ html.light .prose-invert,
   text-decoration-color: #ef4444;
   text-decoration-thickness: 2px;
   text-underline-offset: 4px;
+}
+
+/* Quiet, consistent surfaces for the home dashboard. */
+.dashboard-panel {
+  background-color: #161b22;
+  border-color: #30363d;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+}
+
+.dashboard-subcard {
+  background-color: #0d1117;
+  border-color: #30363d;
+}
+
+html.light .dashboard-panel,
+body.light .dashboard-panel {
+  background-color: #ffffff;
+  border-color: #e2e8f0;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+}
+
+html.light .dashboard-subcard,
+body.light .dashboard-subcard {
+  background-color: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+/* Activity matrix */
+.activity-heatmap .react-calendar-heatmap text {
+  fill: #8b949e;
+  font-size: 10px;
+}
+
+.activity-heatmap .react-calendar-heatmap rect {
+  stroke-width: 1px;
+  transition: filter 120ms ease, fill 120ms ease;
+}
+
+.activity-heatmap .react-calendar-heatmap rect:hover {
+  filter: brightness(1.18);
+  stroke: #94a3b8;
+}
+
+.activity-level-0.activity-leetcode { fill: #242a33; stroke: #343b46; }
+.activity-level-1.activity-leetcode { fill: #17432f; stroke: #20553c; }
+.activity-level-2.activity-leetcode { fill: #216b46; stroke: #2b8055; }
+.activity-level-3.activity-leetcode { fill: #2e9a61; stroke: #40ad72; }
+.activity-level-4.activity-leetcode { fill: #58bd83; stroke: #70ca95; }
+.activity-level-0.activity-codeforces { fill: #242a33; stroke: #343b46; }
+.activity-level-1.activity-codeforces { fill: #50272b; stroke: #663238; }
+.activity-level-2.activity-codeforces { fill: #80343b; stroke: #96434a; }
+.activity-level-3.activity-codeforces { fill: #b9474d; stroke: #ce5a60; }
+.activity-level-4.activity-codeforces { fill: #e16b6e; stroke: #ed8284; }
+
+html.light .activity-heatmap .react-calendar-heatmap text {
+  fill: #64748b;
+}
+
+html.light .activity-level-0.activity-leetcode { fill: #edf1f5; stroke: #dce3ea; }
+html.light .activity-level-1.activity-leetcode { fill: #c4e4d0; stroke: #afd7bf; }
+html.light .activity-level-2.activity-leetcode { fill: #8bc9a3; stroke: #76bd91; }
+html.light .activity-level-3.activity-leetcode { fill: #4cab71; stroke: #3f9c64; }
+html.light .activity-level-4.activity-leetcode { fill: #267b4a; stroke: #206d40; }
+html.light .activity-level-0.activity-codeforces { fill: #edf1f5; stroke: #dce3ea; }
+html.light .activity-level-1.activity-codeforces { fill: #f4c7c8; stroke: #e8b4b6; }
+html.light .activity-level-2.activity-codeforces { fill: #e99598; stroke: #db7f83; }
+html.light .activity-level-3.activity-codeforces { fill: #d9686d; stroke: #c9545a; }
+html.light .activity-level-4.activity-codeforces { fill: #b83d44; stroke: #a93239; }
+
+.activity-legend-cell {
+  width: 10px;
+  height: 10px;
+  border: 1px solid currentColor;
+  border-radius: 2px;
+}
+
+@media (max-width: 639px) {
+  .activity-heatmap .react-calendar-heatmap text { font-size: 9px; }
 }
 
 @keyframes fadeIn {

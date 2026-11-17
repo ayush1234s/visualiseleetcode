@@ -1,13 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { db } from "../../firebase";
 import { doc, setDoc, onSnapshot } from "firebase/firestore";
 import toast from "react-hot-toast";
 
 import {
-  User,
   Linkedin,
   Github,
-  CheckCircle2,
+  BadgeCheck,
+  Check,
   ExternalLink,
   Trash2,
   Laptop,
@@ -39,8 +39,12 @@ export default function Settings() {
 
   const [loading, setLoading] = useState(false);
   const [tableData, setTableData] = useState([]);
+  const [connectionSuccess, setConnectionSuccess] = useState([]);
+  const successTimer = useRef(null);
 
-  const { theme, setTheme, resolvedTheme } = useTheme();
+  const { theme, setTheme, resolvedTheme, tokens } = useTheme();
+
+  useEffect(() => () => window.clearTimeout(successTimer.current), []);
 
   useEffect(() => {
     const unsubscribe = onSnapshot(doc(db, "users", getUserId()), (snap) => {
@@ -77,6 +81,15 @@ export default function Settings() {
 
       localStorage.setItem("leetcodeUsername", leetcode.trim());
       localStorage.setItem("codeforcesUsername", codeforces.trim());
+      const connected = [
+        leetcode.trim() && { site: "LeetCode", username: leetcode.trim() },
+        codeforces.trim() && { site: "Codeforces", username: codeforces.trim() },
+      ].filter(Boolean);
+      setConnectionSuccess(connected);
+      window.clearTimeout(successTimer.current);
+      if (connected.length) {
+        successTimer.current = window.setTimeout(() => setConnectionSuccess([]), 4000);
+      }
       toast.success("Profiles saved successfully");
     } catch (err) {
       console.error(err);
@@ -284,51 +297,74 @@ export default function Settings() {
       </div>
 
       {/* ================= CONNECTED HANDLES TABLE ================= */}
-      <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-6 shadow-sm space-y-4">
-        <div className="flex items-center justify-between">
+      <div className={`${tokens.surface} ${tokens.border} border rounded-2xl p-5 sm:p-6 shadow-sm space-y-5 transition-colors`}>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-base font-bold text-white flex items-center gap-2">
-              <ShieldCheck className="text-blue-400" size={18} />
+            <h2 className={`text-base font-bold ${tokens.text} flex items-center gap-2`}>
+              <ShieldCheck className="text-blue-500" size={18} />
               Connected Handles
             </h2>
-            <p className="text-xs text-gray-400 mt-0.5">
-              Verified accounts linked with this browser session.
+            <p className={`text-xs ${tokens.muted} mt-1`}>
+              Your coding profiles connected to this browser.
             </p>
           </div>
+          <span className={`inline-flex w-fit items-center gap-1.5 rounded-full border ${tokens.border} ${tokens.inset} px-3 py-1.5 text-xs font-medium ${tokens.secondary}`}>
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+            {tableData.length} {tableData.length === 1 ? "profile" : "profiles"} connected
+          </span>
         </div>
 
+        {connectionSuccess.length > 0 && (
+          <div className="profile-save-success flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-3.5 sm:p-4 dark:border-emerald-400/20 dark:bg-emerald-500/[0.08]" role="status" aria-live="polite">
+            <span className="profile-save-check shrink-0"><Check size={25} strokeWidth={3} /></span>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold text-emerald-800 dark:text-emerald-300">Handles connected successfully</p>
+              <p className="mt-0.5 truncate text-xs text-emerald-700/80 dark:text-emerald-200/70">
+                {connectionSuccess.map(({ site, username }) => `${site} · ${username}`).join("  /  ")}
+              </p>
+            </div>
+            <BadgeCheck className="hidden shrink-0 text-emerald-500 sm:block" size={22} />
+          </div>
+        )}
+
         {tableData.length === 0 ? (
-          <div className="text-center py-8 bg-[#0d1117] rounded-xl border border-dashed border-[#30363d]">
-            <p className="text-xs sm:text-sm text-gray-400">
+          <div className={`text-center py-9 ${tokens.inset} rounded-xl border border-dashed ${tokens.border}`}>
+            <div className={`mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-xl ${tokens.subtle} ${tokens.muted}`}><Code size={18} /></div>
+            <p className={`text-xs sm:text-sm ${tokens.secondary} font-medium`}>
               No profiles added yet. Connect your LeetCode or Codeforces handle above.
             </p>
+            <p className={`mt-1 text-xs ${tokens.muted}`}>Your linked profiles will appear here.</p>
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-xl border border-[#30363d]">
+          <div className={`overflow-hidden rounded-xl border ${tokens.border}`}>
+            <div className="overflow-x-auto">
             <table className="min-w-[560px] w-full text-left text-xs sm:text-sm">
-              <thead className="bg-[#0d1117] text-gray-400 font-semibold border-b border-[#30363d]">
+              <thead className={`${tokens.inset} ${tokens.muted} font-semibold border-b ${tokens.border}`}>
                 <tr>
-                  <th className="py-3 px-4 w-12">#</th>
-                  <th className="py-3 px-4">Platform</th>
-                  <th className="py-3 px-4">Username</th>
-                  <th className="py-3 px-4">Status</th>
-                  <th className="py-3 px-4 text-right">Action</th>
+                  <th className="py-3.5 px-4 w-12 font-medium">#</th>
+                  <th className="py-3.5 px-4 font-medium">Platform</th>
+                  <th className="py-3.5 px-4 font-medium">Username</th>
+                  <th className="py-3.5 px-4 font-medium">Status</th>
+                  <th className="py-3.5 px-4 text-right font-medium">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#30363d]">
+              <tbody className={`${tokens.divider} divide-y`}>
                 {tableData.map((item, index) => (
-                  <tr key={item.site} className="hover:bg-[#21262d]/40 transition">
-                    <td className="py-3.5 px-4 text-gray-500 font-mono text-xs">
+                  // Freshly saved handles get a one-time confirmation animation.
+                  <tr key={item.site} className={`${tokens.hover} transition-colors`}>
+                    <td className={`py-4 px-4 ${tokens.muted} font-mono text-xs`}>
                       {index + 1}
                     </td>
 
                     <td className="py-3.5 px-4">
-                      <div className="flex items-center gap-2 font-medium text-white">
+                      <div className={`flex items-center gap-2.5 font-medium ${tokens.text}`}>
+                        <span className={`flex h-8 w-8 items-center justify-center rounded-lg border ${tokens.border} ${tokens.inset}`}>
                         {item.site === "LeetCode" ? (
                           <SiLeetcode className="text-[#ffa116]" size={16} />
                         ) : (
                           <SiCodeforces className="text-[#3b82f6]" size={16} />
                         )}
+                        </span>
                         <span>{item.site}</span>
                       </div>
                     </td>
@@ -338,21 +374,21 @@ export default function Settings() {
                         href={getProfileLink(item.site, item.username)}
                         target="_blank"
                         rel="noreferrer"
-                        className="inline-flex items-center gap-1.5 text-blue-400 hover:underline font-mono text-xs sm:text-sm"
+                        className="inline-flex items-center gap-1.5 text-blue-500 hover:text-blue-600 hover:underline font-mono text-xs sm:text-sm"
                       >
                         <span>{item.username}</span>
                         <ExternalLink size={12} className="opacity-60" />
                       </a>
                     </td>
 
-                    {/* CRAZY VERIFIED BADGE */}
+                    {/* VERIFIED BADGE */}
                     <td className="py-3.5 px-4">
-                      <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full crazy-verified-badge text-white font-semibold text-xs tracking-wide shadow-md">
-                        <CheckCircle2 size={13} className="text-white drop-shadow" />
+                      <div className={`verified-badge inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 font-semibold text-xs tracking-wide ${connectionSuccess.some((connected) => connected.site === item.site) ? "verified-badge--celebrating" : ""}`}>
+                        <BadgeCheck size={16} className="verified-badge-icon" aria-hidden="true" />
                         <span className="tracking-wide text-[11px] font-bold">
                           Verified
                         </span>
-                        <span className="text-[10px] bg-white/20 px-1 rounded-full font-mono">
+                        <span className="hidden">
                           ✓
                         </span>
                       </div>
@@ -362,7 +398,7 @@ export default function Settings() {
                       <button
                         type="button"
                         onClick={() => handleDelete(item.site)}
-                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs text-red-400 hover:text-red-300 hover:bg-red-500/10 transition cursor-pointer"
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs text-red-500 hover:text-red-600 hover:bg-red-500/10 transition cursor-pointer"
                       >
                         <Trash2 size={13} />
                         <span>Remove</span>
@@ -372,6 +408,7 @@ export default function Settings() {
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
         )}
       </div>
