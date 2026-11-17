@@ -69,6 +69,9 @@ export default function AIChat() {
   const [profile, setProfile] = useState(null);
   const [profileLoading, setProfileLoading] = useState(false);
   const [profileError, setProfileError] = useState("");
+  const [securityNotice, setSecurityNotice] = useState("");
+  const [chatBlocked, setChatBlocked] = useState(false);
+  const [securityLoading, setSecurityLoading] = useState(true);
   const [name, setName] = useState("");
   const [messages, setMessages] = useState([]);
   const [draft, setDraft] = useState("");
@@ -88,6 +91,16 @@ export default function AIChat() {
     if (!open) return;
     let active = true;
     setProfileLoading(true);
+    setSecurityLoading(true);
+    fetch(`${API_BASE_URL}/api/chat/status?userId=${encodeURIComponent(getUserId())}`)
+      .then((response) => response.ok ? response.json() : Promise.reject(new Error("Could not load chat security status.")))
+      .then((status) => {
+        if (!active) return;
+        setChatBlocked(Boolean(status.blocked));
+        setSecurityNotice(status.notice || "");
+      })
+      .catch((error) => { console.error("Could not load chat security status:", error); })
+      .finally(() => active && setSecurityLoading(false));
     getDoc(doc(db, "users", getUserId()))
       .then((snapshot) => {
         if (!active) return;
@@ -194,6 +207,7 @@ export default function AIChat() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          userId: getUserId(),
           message: messageText,
           conversation: history.slice(-8).map(({ role, content: itemContent }) => ({ role, content: itemContent })),
           attachments: sentAttachments.map(({ name: fileName, type, data, text }) => ({ name: fileName, type, data, text })),
@@ -211,6 +225,24 @@ export default function AIChat() {
         throw new Error(response.status === 404
           ? `AI chat endpoint returned 404. ${hint}`
           : `The AI server returned an unexpected response. ${hint}`);
+      }
+      if (data.action === "personal_info_removed") {
+        chatSessionRef.current += 1;
+        sentAttachments.forEach((file) => file.preview && URL.revokeObjectURL(file.preview));
+        setMessages([]);
+        setSecurityNotice(data.notice);
+        return;
+      }
+      if (data.action === "warning") {
+        setSecurityNotice(data.notice);
+        setMessages((current) => [...current, { role: "assistant", content: data.notice, sentAt: Date.now() }]);
+        return;
+      }
+      if (data.action === "blocked" || data.blocked) {
+        setChatBlocked(true);
+        setSecurityNotice(data.notice);
+        setMessages([]);
+        return;
       }
       if (!response.ok) throw new Error(data.error || "Could not get an AI response.");
       if (typeof data.reply !== "string") throw new Error("The AI server response was incomplete. Please try again.");
@@ -313,7 +345,9 @@ export default function AIChat() {
             </div>
           </header>
 
-          {profileLoading ? (
+          {chatBlocked ? (
+            <div role="alert" className="flex flex-1 flex-col items-center justify-center gap-4 p-6 text-center"><ShieldAlert className="text-rose-300" size={36}/><h3 className="text-lg font-semibold text-rose-200">AI chat blocked</h3><p className="max-w-sm text-sm leading-6 text-gray-300">{securityNotice || "Aapki chat permanently block kar di gayi hai. Aapko aisi activity ke liye karyawahi ya penalty ka saamna karna pad sakta hai."}</p></div>
+          ) : profileLoading || securityLoading ? (
             <div className="flex flex-1 items-center justify-center text-sm text-gray-400"><LoaderCircle className="mr-2 animate-spin" size={17} />Loading your chat…</div>
           ) : !profile ? (
             <div className="flex flex-1 flex-col justify-center overflow-y-auto p-5">
@@ -330,7 +364,7 @@ export default function AIChat() {
           ) : (
             <>
               <div className="border-b border-[#30363d]/70 bg-[#0d1117] px-4 py-3"><p className="text-sm font-semibold text-white">Hey {profile.name}, what are we solving today?</p><p className="mt-1 text-xs text-gray-400">Your DSA and website questions, answered.</p><div className="mt-3 flex gap-2 overflow-x-auto pb-0.5">{[{ icon: <Code2 size={13}/>, label: "Explain DSA" }, { icon: <Clock3 size={13}/>, label: "Current time" }].map(({ icon, label }) => <button key={label} type="button" onClick={() => setDraft(label === "Current time" ? "What time is it right now?" : "Explain DSA with a simple example")} className="flex shrink-0 items-center gap-1.5 rounded-full border border-[#30363d] bg-[#161b22] px-3 py-1.5 text-[11px] font-medium text-gray-300 transition hover:border-blue-400/60 hover:text-blue-300">{icon}{label}</button>)}</div></div>
-              <div className="flex items-start gap-2.5 border-b border-[#30363d]/70 bg-amber-400/[0.035] px-4 py-2.5 text-[10px] leading-[1.45] text-gray-400"><ShieldAlert className="mt-px shrink-0 text-amber-300/80" size={14}/><span>Keep personal details private. Never share your phone, address, or credit/debit card number here.</span></div>
+              <div role={securityNotice ? "alert" : undefined} className={`flex items-start gap-2.5 border-b border-[#30363d]/70 px-4 py-2.5 text-[10px] leading-[1.45] ${securityNotice ? "bg-rose-400/[0.08] text-rose-200" : "bg-amber-400/[0.035] text-gray-400"}`}><ShieldAlert className="mt-px shrink-0 text-amber-300/80" size={14}/><span>{securityNotice || "Keep personal details private. Never share your phone, address, or credit/debit card number here."}</span></div>
               <div className="flex-1 space-y-5 overflow-y-auto px-4 py-5" aria-live="polite">
                 {messages.length === 0 && <div className="flex min-h-full flex-col items-center justify-center pb-4 text-center"><div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-blue-500/20 bg-blue-500/10 text-[#58a6ff]"><Brain size={29}/></div><h3 className="text-base font-semibold text-gray-100">Big idea or tiny bug?</h3><p className="mt-2 max-w-[260px] text-xs leading-5 text-gray-500">Ask about Visualize LC, DSA, or paste your code and we’ll figure it out together.</p><p className="mt-4 text-[10px] text-gray-600">Try a prompt above to get started</p></div>}
                 {messages.map((item, index) => {
